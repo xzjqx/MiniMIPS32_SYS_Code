@@ -794,44 +794,6 @@
 				</spirit:parameters>
 			</spirit:view>
 			<spirit:view>
-				<spirit:name>xilinx_vhdlsynthesis</spirit:name>
-				<spirit:displayName>VHDL Synthesis</spirit:displayName>
-				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis</spirit:envIdentifier>
-				<spirit:language>vhdl</spirit:language>
-				<spirit:fileSetRef>
-					<spirit:localName>xilinx_vhdlsynthesis_view_fileset</spirit:localName>
-				</spirit:fileSetRef>
-				<spirit:parameters>
-					<spirit:parameter>
-						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:14 UTC 2017</spirit:value>
-					</spirit:parameter>
-					<spirit:parameter>
-						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
-					</spirit:parameter>
-				</spirit:parameters>
-			</spirit:view>
-			<spirit:view>
-				<spirit:name>xilinx_vhdlsynthesiswrapper</spirit:name>
-				<spirit:displayName>VHDL Synthesis Wrapper</spirit:displayName>
-				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis.wrapper</spirit:envIdentifier>
-				<spirit:language>vhdl</spirit:language>
-				<spirit:fileSetRef>
-					<spirit:localName>xilinx_vhdlsynthesiswrapper_view_fileset</spirit:localName>
-				</spirit:fileSetRef>
-				<spirit:parameters>
-					<spirit:parameter>
-						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:14 UTC 2017</spirit:value>
-					</spirit:parameter>
-					<spirit:parameter>
-						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
-					</spirit:parameter>
-				</spirit:parameters>
-			</spirit:view>
-			<spirit:view>
 				<spirit:name>xilinx_miscfiles</spirit:name>
 				<spirit:displayName>Miscellaneous</spirit:displayName>
 				<spirit:envIdentifier>:vivado.xilinx.com:misc.files</spirit:envIdentifier>
@@ -868,6 +830,44 @@
 				</spirit:parameters>
 			</spirit:view>
 			<spirit:view>
+				<spirit:name>xilinx_vhdlsynthesis</spirit:name>
+				<spirit:displayName>VHDL Synthesis</spirit:displayName>
+				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis</spirit:envIdentifier>
+				<spirit:language>vhdl</spirit:language>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_vhdlsynthesis_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+				<spirit:parameters>
+					<spirit:parameter>
+						<spirit:name>GENtimestamp</spirit:name>
+						<spirit:value>Mon Jul 03 07:47:49 UTC 2017</spirit:value>
+					</spirit:parameter>
+					<spirit:parameter>
+						<spirit:name>outputProductCRC</spirit:name>
+						<spirit:value>7:27ec0a2e</spirit:value>
+					</spirit:parameter>
+				</spirit:parameters>
+			</spirit:view>
+			<spirit:view>
+				<spirit:name>xilinx_vhdlsynthesiswrapper</spirit:name>
+				<spirit:displayName>VHDL Synthesis Wrapper</spirit:displayName>
+				<spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis.wrapper</spirit:envIdentifier>
+				<spirit:language>vhdl</spirit:language>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_vhdlsynthesiswrapper_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+				<spirit:parameters>
+					<spirit:parameter>
+						<spirit:name>GENtimestamp</spirit:name>
+						<spirit:value>Mon Jul 03 07:47:49 UTC 2017</spirit:value>
+					</spirit:parameter>
+					<spirit:parameter>
+						<spirit:name>outputProductCRC</spirit:name>
+						<spirit:value>7:27ec0a2e</spirit:value>
+					</spirit:parameter>
+				</spirit:parameters>
+			</spirit:view>
+			<spirit:view>
 				<spirit:name>xilinx_anylanguagebehavioralsimulation</spirit:name>
 				<spirit:displayName>Simulation</spirit:displayName>
 				<spirit:envIdentifier>:vivado.xilinx.com:simulation</spirit:envIdentifier>
@@ -878,11 +878,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Mon Jul 03 02:00:11 UTC 2017</spirit:value>
+						<spirit:value>Thu Jul 06 10:31:09 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:ac6903dc</spirit:value>
+						<spirit:value>7:b33f85d5</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -897,11 +897,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Mon Jul 03 02:00:11 UTC 2017</spirit:value>
+						<spirit:value>Thu Jul 06 10:31:09 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:ac6903dc</spirit:value>
+						<spirit:value>7:b33f85d5</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -3156,6 +3156,24 @@
 			</spirit:file>
 		</spirit:fileSet>
 		<spirit:fileSet>
+			<spirit:name>xilinx_miscfiles_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>summary.log</spirit:name>
+				<spirit:userFileType>log</spirit:userFileType>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>misc/blk_mem_gen_v8_3.vhd</spirit:name>
+				<spirit:fileType>vhdlSource</spirit:fileType>
+			</spirit:file>
+		</spirit:fileSet>
+		<spirit:fileSet>
+			<spirit:name>xilinx_versioninformation_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>doc/blk_mem_gen_v8_3_changelog.txt</spirit:name>
+				<spirit:userFileType>text</spirit:userFileType>
+			</spirit:file>
+		</spirit:fileSet>
+		<spirit:fileSet>
 			<spirit:name>xilinx_vhdlsynthesis_view_fileset</spirit:name>
 			<spirit:file>
 				<spirit:name>blk_mem_gen_0_ooc.xdc</spirit:name>
@@ -3180,24 +3198,6 @@
 				<spirit:name>synth/blk_mem_gen_0.vhd</spirit:name>
 				<spirit:fileType>vhdlSource</spirit:fileType>
 				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
-			</spirit:file>
-		</spirit:fileSet>
-		<spirit:fileSet>
-			<spirit:name>xilinx_miscfiles_view_fileset</spirit:name>
-			<spirit:file>
-				<spirit:name>summary.log</spirit:name>
-				<spirit:userFileType>log</spirit:userFileType>
-			</spirit:file>
-			<spirit:file>
-				<spirit:name>misc/blk_mem_gen_v8_3.vhd</spirit:name>
-				<spirit:fileType>vhdlSource</spirit:fileType>
-			</spirit:file>
-		</spirit:fileSet>
-		<spirit:fileSet>
-			<spirit:name>xilinx_versioninformation_view_fileset</spirit:name>
-			<spirit:file>
-				<spirit:name>doc/blk_mem_gen_v8_3_changelog.txt</spirit:name>
-				<spirit:userFileType>text</spirit:userFileType>
 			</spirit:file>
 		</spirit:fileSet>
 		<spirit:fileSet>

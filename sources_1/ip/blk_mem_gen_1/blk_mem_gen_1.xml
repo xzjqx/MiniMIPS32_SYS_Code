@@ -785,11 +785,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:34 UTC 2017</spirit:value>
+						<spirit:value>Mon Jul 03 07:40:30 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
+						<spirit:value>7:ae5fb2ae</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -804,11 +804,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:34 UTC 2017</spirit:value>
+						<spirit:value>Mon Jul 03 07:40:30 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
+						<spirit:value>7:ae5fb2ae</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -823,11 +823,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:34 UTC 2017</spirit:value>
+						<spirit:value>Mon Jul 03 07:40:30 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
+						<spirit:value>7:ae5fb2ae</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -841,11 +841,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:34 UTC 2017</spirit:value>
+						<spirit:value>Mon Jul 03 07:40:30 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
+						<spirit:value>7:ae5fb2ae</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -859,11 +859,29 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Tue Jun 27 07:30:34 UTC 2017</spirit:value>
+						<spirit:value>Mon Jul 03 07:40:30 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:5ac5052e</spirit:value>
+						<spirit:value>7:ae5fb2ae</spirit:value>
+					</spirit:parameter>
+				</spirit:parameters>
+			</spirit:view>
+			<spirit:view>
+				<spirit:name>xilinx_externalfiles</spirit:name>
+				<spirit:displayName>External Files</spirit:displayName>
+				<spirit:envIdentifier>:vivado.xilinx.com:external.files</spirit:envIdentifier>
+				<spirit:fileSetRef>
+					<spirit:localName>xilinx_externalfiles_view_fileset</spirit:localName>
+				</spirit:fileSetRef>
+				<spirit:parameters>
+					<spirit:parameter>
+						<spirit:name>GENtimestamp</spirit:name>
+						<spirit:value>Mon Jul 03 07:42:47 UTC 2017</spirit:value>
+					</spirit:parameter>
+					<spirit:parameter>
+						<spirit:name>outputProductCRC</spirit:name>
+						<spirit:value>7:ae5fb2ae</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -878,11 +896,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Mon Jul 03 02:00:11 UTC 2017</spirit:value>
+						<spirit:value>Thu Jul 06 10:31:08 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:ac6903dc</spirit:value>
+						<spirit:value>7:c22ccff8</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -897,11 +915,11 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>GENtimestamp</spirit:name>
-						<spirit:value>Mon Jul 03 02:00:11 UTC 2017</spirit:value>
+						<spirit:value>Thu Jul 06 10:31:08 UTC 2017</spirit:value>
 					</spirit:parameter>
 					<spirit:parameter>
 						<spirit:name>outputProductCRC</spirit:name>
-						<spirit:value>7:ac6903dc</spirit:value>
+						<spirit:value>7:c22ccff8</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -3201,6 +3219,42 @@
 			</spirit:file>
 		</spirit:fileSet>
 		<spirit:fileSet>
+			<spirit:name>xilinx_externalfiles_view_fileset</spirit:name>
+			<spirit:file>
+				<spirit:name>blk_mem_gen_1.dcp</spirit:name>
+				<spirit:userFileType>dcp</spirit:userFileType>
+				<spirit:userFileType>USED_IN_implementation</spirit:userFileType>
+				<spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
+				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>blk_mem_gen_1_stub.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+				<spirit:userFileType>USED_IN_synth_blackbox_stub</spirit:userFileType>
+				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>blk_mem_gen_1_stub.vhdl</spirit:name>
+				<spirit:fileType>vhdlSource</spirit:fileType>
+				<spirit:userFileType>USED_IN_synth_blackbox_stub</spirit:userFileType>
+				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>blk_mem_gen_1_sim_netlist.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+				<spirit:userFileType>USED_IN_simulation</spirit:userFileType>
+				<spirit:userFileType>USED_IN_single_language</spirit:userFileType>
+				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>blk_mem_gen_1_sim_netlist.vhdl</spirit:name>
+				<spirit:fileType>vhdlSource</spirit:fileType>
+				<spirit:userFileType>USED_IN_simulation</spirit:userFileType>
+				<spirit:userFileType>USED_IN_single_language</spirit:userFileType>
+				<spirit:logicalName>xil_defaultlib</spirit:logicalName>
+			</spirit:file>
+		</spirit:fileSet>
+		<spirit:fileSet>
 			<spirit:name>xilinx_anylanguagebehavioralsimulation_view_fileset</spirit:name>
 			<spirit:file>
 				<spirit:name>blk_mem_gen_1.mif</spirit:name>
@@ -3897,7 +3951,7 @@
 			<spirit:name>Coe_File</spirit:name>
 			<spirit:value spirit:resolve="user"
 					spirit:id="PARAM_VALUE.Coe_File"
-					spirit:order="39">../../../../../Desktop/nscscc/Make/inst_ram.coe</spirit:value>
+					spirit:order="39">../../../../../Desktop/nscscc/inst_ram.coe</spirit:value>
 			<spirit:vendorExtensions>
 				<xilinx:parameterInfo>
 					<xilinx:enablement>

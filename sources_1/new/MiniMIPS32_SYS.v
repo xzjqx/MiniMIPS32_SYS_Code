@@ -102,8 +102,8 @@ module MiniMIPS32_SYS(
 	
 	CPU  cpu0 (.clk_init(clk_init), 
               .rst_init(rst_o), 
-              .clk5mhz(clk5mhz), 
-              .clk20mhz(clk), 
+              .clk5mhz(clk), 
+              .clk20mhz(clk20mhz), 
               .clk100mhz(clk100mhz), 
               .rst(rst),
               .rstn(rstn));
@@ -113,7 +113,8 @@ module MiniMIPS32_SYS(
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk5mhz(clk),
+		.clk(clk),
+		.clk_2(clk20mhz),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
@@ -163,7 +164,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	blk_mem_gen_0 data_ram (
-	  .clka(clk),    // input wire clka
+	  .clka(clk20mhz),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
 	  .addra(data_addr),  // input wire [11 : 0] addra
 	  .dina(data_data_o),    // input wire [31 : 0] dina
@@ -193,7 +194,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	blk_mem_gen_1 inst_ram (
-	  .clka(clk),    // input wire clka
+	  .clka(clk20mhz),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
 	  .addra(inst_addr),  // input wire [11 : 0] addra
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
@@ -201,7 +202,7 @@ module MiniMIPS32_SYS(
 	);
    
 	wb_conmax_top wb_conmax_top0(
-        .clk_i(clk),
+        .clk_i(clk100mhz),
         .rst_i(rstn),
    
    	    // Master 0 Interface

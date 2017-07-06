@@ -49,7 +49,7 @@ module PC(
 	wire[31:0] pc_next;
 	assign pc_next = (branch_flag_i == 1'b1) ? branch_target_address_i : pc + 4'h4;
 
-	always @(posedge clk or negedge rst) begin
+	always @(posedge clk) begin
 		if (ce == `ChipDisable)
 			pc <= 32'hBFC00000;			
 		else if (cp0_branch_flag == `Branch)
