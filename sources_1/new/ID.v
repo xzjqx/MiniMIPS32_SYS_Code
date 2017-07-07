@@ -122,7 +122,7 @@ module ID(
 	wire [31:0] signed_imm;
 	assign signed_imm={ {16{inst_i[15]}}, inst_i[15:0] };
 
-	always @(*)
+	/*always @(*)
 	begin
 		if (rst==`RstEnable)
 				stop<=`NoStop;
@@ -137,7 +137,7 @@ module ID(
 				default: stop <= `NoStop;
 			endcase
 		end
-	end
+	end*/
 
 	task InvalidInstruction; begin
 		alusel_o <= `Shift;

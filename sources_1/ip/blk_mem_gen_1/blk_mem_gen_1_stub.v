@@ -1,7 +1,7 @@
 // Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2017.1 (lin64) Build 1846317 Fri Apr 14 18:54:47 MDT 2017
-// Date        : Mon Jul  3 15:42:47 2017
+// Date        : Fri Jul  7 16:32:33 2017
 // Host        : work running 64-bit Ubuntu 16.04.2 LTS
 // Command     : write_verilog -force -mode synth_stub
 //               /home/xzjqx/MiniMIPS32_SYS/MiniMIPS32_SYS.srcs/sources_1/ip/blk_mem_gen_1/blk_mem_gen_1_stub.v

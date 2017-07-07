@@ -485,7 +485,7 @@ module MiniMIPS32(
 	);*/
 				
 	wishbone_bus_if dwishbone_bus_if(
-    	.clk(clk),
+    	.clk(clk_2),
     	.rst(rst),
     
     	.stall_i(stall),

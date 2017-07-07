@@ -113,7 +113,7 @@ module MEM(
 					exc_code_o <= `EC_None;
 					exc_epc_o <= `ZeroWord;
 					exc_badvaddr_o <= `ZeroWord;
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
@@ -143,7 +143,7 @@ module MEM(
 					exc_code_o <= `EC_None;
 					exc_epc_o <= `ZeroWord;
 					exc_badvaddr_o <= `ZeroWord;
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
@@ -180,7 +180,7 @@ module MEM(
 						exc_epc_o <= `ZeroWord;
 						exc_badvaddr_o <= `ZeroWord;
                     end
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
@@ -209,7 +209,7 @@ module MEM(
 						exc_epc_o <= `ZeroWord;
 						exc_badvaddr_o <= `ZeroWord;
                     end
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
@@ -227,7 +227,7 @@ module MEM(
 					exc_code_o <= `EC_None;
 					exc_epc_o <= `ZeroWord;
 					exc_badvaddr_o <= `ZeroWord;
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteEnable;
                     mem_ce_o <= `ChipEnable;
                     case (mem_addr_i[1:0])
@@ -263,7 +263,7 @@ module MEM(
 						exc_epc_o <= `ZeroWord;
 						exc_badvaddr_o <= `ZeroWord;
                     end
-                    mem_addr_o <= {3'b001,mem_addr_i[28:0]};
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteEnable;
                     mem_data_o <= reg2_i;
                     mem_ce_o <= `ChipEnable;
