@@ -157,3 +157,13 @@
 `define WB_BUSY 2'b01
 `define WB_WAIT_FOR_FLUSHING 2'b10
 `define WB_WAIT_FOR_STALL 2'b11
+
+`define ORDER_REG_ADDR 16'h1160   //32'hbfd0_1160
+`define LED_ADDR       16'hf000   //32'hbfd0_f000 
+`define LED_RG0_ADDR   16'hf004   //32'hbfd0_f004 
+`define LED_RG1_ADDR   16'hf008   //32'hbfd0_f008 
+`define NUM_ADDR       16'hf010   //32'hbfd0_f010 
+`define SWITCH_ADDR    16'hf020   //32'hbfd0_f020 
+`define BTN_KEY_ADDR   16'hf024   //32'hbfd0_f024
+`define BTN_STEP_ADDR  16'hf028   //32'hbfd0_f028
+`define TIMER_ADDR     16'he000   //32'hbfd0_e000 

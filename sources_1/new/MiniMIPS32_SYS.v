@@ -26,8 +26,15 @@ module MiniMIPS32_SYS(
 	input wire clk_init,
 	input wire rst_init,
 	
-	input wire usb_rxd,
-	output wire usb_txd
+	output wire [16:0] led,
+	output wire [1:0] led_rg0,
+	output wire [1:0] led_rg1,
+	output wire [7:0] num_csn,
+	output wire [7:0] num_a_g,
+	input wire [7:0] switch,
+	input wire [3:0] btn_key_col,
+	input wire [3:0] btn_key_row,
+	input wire [1:0] btn_step
     );
     
 	wire[31:0] m0_data_i;
@@ -93,7 +100,7 @@ module MiniMIPS32_SYS(
 	wire clk;
 	wire rst;
 	wire rstn;
-	assign rstn = ~rst;
+	//assign rstn = ~rst;
 	
 	wire clk5mhz;
 	wire clk20mhz;
@@ -140,6 +147,8 @@ module MiniMIPS32_SYS(
 		.int_time_o(int_time)	
 	
 	);
+	
+	assign m0_addr_i = (m0_addr_i[28] == 0) ? m0_addr_i : {4'b0010,m0_addr_i[29:0]};
 	
 	wire data_wea;
 	wire [11:0] data_addr;
@@ -200,6 +209,24 @@ module MiniMIPS32_SYS(
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
 	  .douta(inst_data_i)  // output wire [31 : 0] douta
 	);
+	
+	gpio_top led0(
+    	.wb_clk_i(clk),
+		.wb_rst_i(rst), 
+		.wb_cyc_i(s2_cyc_o),
+		.wb_adr_i(s2_addr_o[7:0]),
+		.wb_dat_i(s2_data_o),
+		.wb_sel_i(s2_sel_o),
+		.wb_we_i(s2_we_o),
+		.wb_stb_i(s2_stb_o),
+	  	.wb_dat_o(s2_data_i),
+		.wb_ack_o(s2_ack_i),
+		.wb_err_o(),
+		.wb_inta_o(led_int),
+		.ext_pad_i(led_i_temp),
+		.ext_pad_o(led_o),
+		.ext_padoe_o()
+  );
    
 	wb_conmax_top wb_conmax_top0(
         .clk_i(clk100mhz),
