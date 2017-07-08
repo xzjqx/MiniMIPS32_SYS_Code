@@ -28,6 +28,7 @@
 `define RstEnable 1'b0
 `define RstDisable 1'b1
 `define ZeroWord 32'h00000000
+`define ZeroHalf 16'h0000
 `define ChipEnable 1'b1
 `define ChipDisable 1'b0
 `define WriteEnable 1'b1
@@ -51,15 +52,6 @@
 `define Move 3'b101
 `define Trap 3'b110
 `define Privilege 3'b111
-//ALUsel_o
-`define ARITH_SEL		3'b000
-`define BRANCH_SEL	3'b001
-`define MEM_SEL		3'b010
-`define LOGIC_SEL 	3'b011
-`define SHIFT_SEL		3'b100
-`define MOVE_SEL		3'b101
-`define TRAP_SEL		3'b110
-`define PRIV_SEL		3'b111 //privilege
 
 //*************aluop*******************//
 `define ADDIU 8'b00000000

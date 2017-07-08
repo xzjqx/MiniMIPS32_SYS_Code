@@ -66,8 +66,8 @@ module BRAM(
     end*/
     
     //assign wb_ack_o = 1'b1;
-    wire wb_ack;
-    assign wb_ack = wb_cyc_i & wb_stb_i;
+    //wire wb_ack;
+    assign wb_ack_o = wb_cyc_i & wb_stb_i;
     //////////delay outputs//////////////
 	/*always @(posedge wb_clk_i or negedge wb_rst_i)
     	if (wb_rst_i == `RstEnable)
@@ -75,6 +75,6 @@ module BRAM(
     	else
     		wb_ack_o <= #1 wb_ack & ~wb_ack_o;*/
     /////////////////////////////////////
-    assign wb_ack_o = wb_ack;
+    //assign wb_ack_o = wb_ack;
 
 endmodule

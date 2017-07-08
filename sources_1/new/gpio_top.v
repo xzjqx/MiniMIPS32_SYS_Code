@@ -108,7 +108,7 @@
 //
 
 // synopsys translate_off
-`include "timescale.v"
+`timescale 1ns / 1ps
 // synopsys translate_on
 `include "gpio_defines.v"
 

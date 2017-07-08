@@ -26,11 +26,11 @@ module MiniMIPS32_SYS(
 	input wire clk_init,
 	input wire rst_init,
 	
-	output wire [16:0] led,
+	output wire [15:0] led,
 	output wire [1:0] led_rg0,
 	output wire [1:0] led_rg1,
 	output wire [7:0] num_csn,
-	output wire [7:0] num_a_g,
+	output wire [6:0] num_a_g,
 	input wire [7:0] switch,
 	input wire [3:0] btn_key_col,
 	input wire [3:0] btn_key_row,
@@ -40,6 +40,7 @@ module MiniMIPS32_SYS(
 	wire[31:0] m0_data_i;
     wire[31:0] m0_data_o;
     wire[31:0] m0_addr_i;
+    wire[31:0] m0_addr_i_temp;
     wire[3:0]  m0_sel_i;
     wire       m0_we_i;
     wire       m0_cyc_i; 
@@ -137,7 +138,7 @@ module MiniMIPS32_SYS(
      
 		.dwishbone_data_i(m0_data_o),
 		.dwishbone_ack_i(m0_ack_o),
-		.dwishbone_addr_o(m0_addr_i),
+		.dwishbone_addr_o(m0_addr_i_temp),
 		.dwishbone_data_o(m0_data_i),
 		.dwishbone_we_o(m0_we_i),
 		.dwishbone_sel_o(m0_sel_i),
@@ -148,7 +149,7 @@ module MiniMIPS32_SYS(
 	
 	);
 	
-	assign m0_addr_i = (m0_addr_i[28] == 0) ? m0_addr_i : {4'b0010,m0_addr_i[29:0]};
+	assign m0_addr_i = (m0_addr_i_temp[28] == 0) ? m0_addr_i_temp : {4'b0010,m0_addr_i_temp[27:0]};
 	
 	wire data_wea;
 	wire [11:0] data_addr;
@@ -210,23 +211,19 @@ module MiniMIPS32_SYS(
 	  .douta(inst_data_i)  // output wire [31 : 0] douta
 	);
 	
-	gpio_top led0(
+	decoder decoder0(
     	.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s2_cyc_o),
-		.wb_adr_i(s2_addr_o[7:0]),
+		.wb_adr_i(s2_addr_o),
 		.wb_dat_i(s2_data_o),
 		.wb_sel_i(s2_sel_o),
 		.wb_we_i(s2_we_o),
 		.wb_stb_i(s2_stb_o),
 	  	.wb_dat_o(s2_data_i),
 		.wb_ack_o(s2_ack_i),
-		.wb_err_o(),
-		.wb_inta_o(led_int),
-		.ext_pad_i(led_i_temp),
-		.ext_pad_o(led_o),
-		.ext_padoe_o()
-  );
+		.led(led)
+  	);
    
 	wb_conmax_top wb_conmax_top0(
         .clk_i(clk100mhz),
