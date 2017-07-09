@@ -36,13 +36,6 @@ module PC(
 	input wire cp0_branch_flag,
 	input wire[31:0] cp0_branch_addr,
 	
-	input wire break_flag,
-	input wire [31:0] break_addr,
-	input wire stop_flag,
-	
-	output reg has_break,
-	output reg stop_o,
-	
 	output reg ce
     );
 
@@ -63,25 +56,6 @@ module PC(
 			ce <= `ChipDisable;
 		end else begin
 			ce <= `ChipEnable;
-		end
-	end
-	
-	always @ (*) begin
-		has_break <= 0;
-		stop_o <= 0;
-		if (break_flag) begin
-			/*if (pc_break_index == 2'b00 && pc[7:0] == pc_break_addr)
-				stop_o <= 1;
-			if (pc_break_index == 2'b01 && pc[15:8] == pc_break_addr)
-				stop_o <= 1;
-			if (pc_break_index == 2'b10 && pc[23:16] == pc_break_addr)
-				stop_o <= 1;
-			if (pc_break_index == 2'b11 && pc[31:24] == pc_break_addr)
-				stop_o <= 1;*/
-		end
-		else if (stop_flag) begin
-			has_break <= 1;
-			stop_o <= 1;
 		end
 	end
 

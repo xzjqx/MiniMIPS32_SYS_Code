@@ -49,17 +49,6 @@ module MiniMIPS32(
 	output wire dwishbone_stb_o,
 	output wire dwishbone_cyc_o,
 	
-	//debug interface signal
-	input wire pc_enable,
-	input wire reg_enable,
-	input wire high,
-	input wire [4:0] debug_addr,
-	output reg [15:0] led,
-	output [7:0] AN,
-    output [7:0] select_seg,
-	input wire break_flag,
-	input wire inst_enable,
-	
 	input wire [5:0] int_i,
 	output wire int_time_o
     );
@@ -68,27 +57,6 @@ module MiniMIPS32(
 	wire rstn;
 	wire clk100mhz;
 	wire rst_o;
-	
-	/*CPU  cpu0 (.clk_init(clk_init), 
-              .rst_init(rst_o), 
-              .clk5mhz(clk5mhz), 
-              .clk20mhz(clk20mhz), 
-              .clk100mhz(clk100mhz), 
-              .rst(rst),
-              .rstn(rstn));
-	RST_SYNC  rst_sync0 (.clk_sys(clk5mhz), 
-						.rst_in(rst_init), 
-						.rst(rst_o));*/
-	
-	reg [31:0] digit_data;
-	
-	/*digit digit0(
-                .wb_clk_i(clk100mhz),
-                .wb_rst_i(rstn),
-                .wb_dat_i(digit_data),
-                .an(AN),
-                .select_seg(select_seg)
-    );*/
 
 	wire [31:0] pc;//(*mark_debug = "true"*)
 	wire [31:0] id_pc_i;
@@ -101,29 +69,6 @@ module MiniMIPS32(
 	
 	wire [31:0] inst_addr;
 	wire [31:0] inst_i;
-	always @(posedge clk) begin
-		if (pc_enable) begin
-			if (high)	
-				led <= pc[31:16];
-			else
-				led <= pc[15:0];
-			digit_data <= pc;
-		end
-		else if (reg_enable) begin
-			if (high)	
-				led <= debug_data[31:16];
-			else
-				led <= debug_data[15:0];
-			digit_data <= debug_data;
-		end
-		else if (inst_enable) begin
-			if (high)	
-				led <= id_inst_i[31:16];
-			else
-				led <= id_inst_i[15:0];
-			digit_data <= id_inst_i;
-		end
-	end
 	
 	wire 		reg1_read;
 	wire [4:0] 	reg1_addr;
@@ -301,11 +246,6 @@ module MiniMIPS32(
 			 .stall(stall),
 			 .cp0_branch_flag(cp0_exc_jump_flag),
 			 .cp0_branch_addr(cp0_exc_jump_addr),
-			 .break_flag(break_flag),
-			 .break_addr(break_addr),
-			 .stop_flag(stop_flag),
-			 .has_break(has_break),
-			 .stop_o(stop_from_pc),
 			 .ce(pc_rom_ce));
 	
 	IF if0 (

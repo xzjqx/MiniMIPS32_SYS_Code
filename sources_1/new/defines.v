@@ -101,6 +101,9 @@
 `define MFC0 8'b00101100
 `define MTC0 8'b00101101
 `define TLBWI 8'b00101110
+//************* Div *******************//
+`define DIV     8'b00011010    //div
+`define DIVU    8'b00011011    //div
 
 //**************31:26 OP********//
 `define SPECIAL_OP 		6'b000000 
@@ -118,6 +121,8 @@
 `define AND_OP2 		6'b100100
 `define ERET_OP2		6'b011000 
 `define TLBWI_OP2	 	6'b000010 
+`define DIV_OP2         6'b011010      //div
+`define DIVU_OP2        6'b011011      //div
 
 //************25:21 op4************//
 `define CP0_OP4		5'b10000

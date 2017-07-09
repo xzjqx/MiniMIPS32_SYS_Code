@@ -26,10 +26,10 @@ module MiniMIPS32_SYS(
 	input wire clk_init,
 	input wire rst_init,
 	
-	output wire [15:0] led
-	/*output wire [1:0] led_rg0,
-	output wire [1:0] led_rg1,
-	output wire [7:0] num_csn,
+	output wire [15:0] led,
+	output wire [1:0] led_rg0,
+	output wire [1:0] led_rg1
+	/*output wire [7:0] num_csn,
 	output wire [6:0] num_a_g,
 	input wire [7:0] switch,
 	input wire [3:0] btn_key_col,
@@ -232,7 +232,9 @@ module MiniMIPS32_SYS(
 		.wb_stb_i(s2_stb_o),
 	  	.wb_dat_o(s2_data_i),
 		.wb_ack_o(s2_ack_i),
-		.led(led)
+		.led(led),
+		.led_rg0(led_rg0),
+		.led_rg1(led_rg1)
   	);
    
 	wb_conmax_top wb_conmax_top0(
