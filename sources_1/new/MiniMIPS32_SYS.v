@@ -26,16 +26,18 @@ module MiniMIPS32_SYS(
 	input wire clk_init,
 	input wire rst_init,
 	
-	output wire [15:0] led,
-	output wire [1:0] led_rg0,
+	output wire [15:0] led
+	/*output wire [1:0] led_rg0,
 	output wire [1:0] led_rg1,
 	output wire [7:0] num_csn,
 	output wire [6:0] num_a_g,
 	input wire [7:0] switch,
 	input wire [3:0] btn_key_col,
 	input wire [3:0] btn_key_row,
-	input wire [1:0] btn_step
+	input wire [1:0] btn_step*/
     );
+    
+    //assign led = rst_init ? 16'h2345 : 16'hf0f0;
     
 	wire[31:0] m0_data_i;
     wire[31:0] m0_data_o;
@@ -104,8 +106,8 @@ module MiniMIPS32_SYS(
 	wire rst_o;
 	
 	wire clk;
-	wire rst = rst_o;
-	wire rstn = ~rst_o;
+	wire rst = rst_init;
+	wire rstn = ~rst_init;
 	
 	clk_wiz_0 clocking
 	 (
@@ -123,9 +125,9 @@ module MiniMIPS32_SYS(
               .clk100mhz(clk100mhz), 
               .rst(rst),
               .rstn(rstn));*/
-	RST_SYNC  rst_sync0 (.clk_sys(clk), 
+	/*RST_SYNC  rst_sync0 (.clk_sys(clk), 
 						.rst_in(rst_init), 
-						.rst(rst_o));
+						.rst(rst_o));*/
     
 	MiniMIPS32 MiniMIPS320(
 		

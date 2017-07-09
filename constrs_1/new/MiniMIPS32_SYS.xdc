@@ -6,6 +6,7 @@ create_clock -period 10.000 -name clk_init -waveform {0.000 5.000} [get_ports cl
 
 #reset
 set_property PACKAGE_PIN Y3 [get_ports rst_init]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets rst_init]
 
 
 #LED

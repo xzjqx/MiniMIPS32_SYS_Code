@@ -48,9 +48,9 @@ module decoder(
     output  [31:0]		wb_dat_o;	// output data bus
     output 				wb_ack_o;	// normal termination
     
-    output 	reg [15:0]	led;
-	output  reg [1:0] 	led_rg0;
-	output  reg [1:0] 	led_rg1;
+    output 	[15:0]		led;
+	output  [1:0] 		led_rg0;
+	output  [1:0] 		led_rg1;
 	output	[7:0]		num_csn;
 	output	[6:0]		num_a_g;
     input   [7:0] 		switch;
@@ -65,18 +65,25 @@ module decoder(
 	wire led_rg0_we = wb_we_i && `AddrIsLedRg0(addr); 
 	wire led_rg1_we = wb_we_i && `AddrIsLedRg1(addr); 
 	
+	reg [31:0] led_data;
+	assign led = led_data[15:0];
+	reg [31:0] led_rg0_data;
+	assign led_rg0 = led_rg0_data[1:0];
+	reg [31:0] led_rg1_data;
+	assign led_rg1 = led_rg1_data[1:0];
+	
 	assign wb_ack_o = wb_cyc_i & wb_stb_i;
-	always @(wb_clk_i) begin
+	always @(posedge wb_clk_i or negedge wb_rst_i) begin
 		if(wb_rst_i == `RstEnable) begin
-			led <= `ZeroHalf;
-			led_rg0 <= 2'b0;
-			led_rg1 <= 2'b0;
+			led_data <= `ZeroWord;
+			led_rg0_data <= `ZeroWord;
+			led_rg1_data <= `ZeroWord;
 		end
 		else begin
 			case({led_we,led_rg0_we,led_rg1_we})
-				3'b100: led <= wb_dat_i[15:0];
-				3'b010: led_rg0 <= wb_dat_i[1:0];
-				3'b001: led_rg1 <= wb_dat_i[1:0];
+				3'b100: led_data <= wb_dat_i;
+				3'b010: led_rg0_data <= wb_dat_i;
+				3'b001: led_rg1_data <= wb_dat_i;
 			endcase
 		end
 	end 
