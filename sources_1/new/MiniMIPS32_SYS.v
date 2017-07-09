@@ -98,23 +98,31 @@ module MiniMIPS32_SYS(
     wire uart_int;
 	assign int = {3'b000, gpio_int, uart_int, int_time};
 	
-	wire clk;
-	wire rst;
-	wire rstn;
-	//assign rstn = ~rst;
-	
 	wire clk5mhz;
 	wire clk20mhz;
 	wire clk100mhz;
 	wire rst_o;
 	
-	CPU  cpu0 (.clk_init(clk_init), 
+	wire clk;
+	wire rst = rst_o;
+	wire rstn = ~rst_o;
+	
+	clk_wiz_0 clocking
+	 (
+	  // Clock out ports
+	  .clk_out1(clk),     // output clk_out1
+	  .clk_out2(clk20mhz),     // output clk_out2
+	  .clk_out3(clk100mhz),     // output clk_out3
+	 // Clock in ports
+	  .clk_in1(clk_init));      // input clk_in1
+	
+	/*CPU  cpu0 (.clk_init(clk_init), 
               .rst_init(rst_o), 
               .clk5mhz(clk), 
               .clk20mhz(clk20mhz), 
               .clk100mhz(clk100mhz), 
               .rst(rst),
-              .rstn(rstn));
+              .rstn(rstn));*/
 	RST_SYNC  rst_sync0 (.clk_sys(clk), 
 						.rst_in(rst_init), 
 						.rst(rst_o));
