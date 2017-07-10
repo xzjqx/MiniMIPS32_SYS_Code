@@ -26,6 +26,7 @@ module EX(
 	input wire 			rst,
 	input wire [2:0] 	alusel_i,
 	input wire [7:0] 	aluop_i,
+	input wire [31:0]   pc_i,
 	input wire [31:0] 	reg1_i,
 	input wire [31:0] 	reg2_i,
 	input wire [4:0] 	wd_i,
@@ -106,9 +107,9 @@ module EX(
 	assign aluop_o = aluop_i;
 	assign reg2_o = reg2_i;
   
-	always @(*)begin
+	/*always @(*)begin
 		if (rst==`RstEnable) begin
-			exc_code_o<=`EC_None;
+			exc_code_o <= 0;
 			exc_epc_o <= 0;
 			exc_badvaddr_o <= 0;
 		end else begin
@@ -116,7 +117,7 @@ module EX(
 			exc_epc_o <= exc_epc_i;
 			exc_badvaddr_o <= exc_badvaddr_i;
 		end
-	end
+	end*/
 
 	always @ (*) begin
 		if (rst == `RstEnable) begin
@@ -266,11 +267,32 @@ module EX(
 	end
 
 	// 8/21 arithmetic instructions===============================================
+	reg [32:0] tmp;
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			arithout <= 64'b0;
+			exc_code_o <= `EC_None;
+			exc_epc_o <= `ZeroWord;
+			exc_badvaddr_o <= `ZeroWord;
 		end else begin
+			exc_code_o <= exc_code_i;
+			exc_epc_o <= exc_epc_i;
+			exc_badvaddr_o <= exc_badvaddr_i;
 			case (aluop_i)
+				`ADD: begin
+					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
+					if(tmp[32] != tmp[31]) begin
+						exc_code_o <= `EC_Ov;
+					end
+					else arithout <= tmp[31:0];
+				end
+				`ADDI: begin
+					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
+					if(tmp[32] != tmp[31]) begin
+						exc_code_o <= `EC_Ov;
+					end
+					else arithout <= tmp[31:0];
+				end
 				`ADDIU: begin              // immdiate should be load to reg2_i
 					arithout <= reg1_i + reg2_i;
 				end

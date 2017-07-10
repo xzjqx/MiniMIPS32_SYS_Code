@@ -43,11 +43,14 @@ module IF(
 		end else begin 
 			addr_o <= addr_i;
 			inst_addr_o <= {3'b0,addr_i[28:0]};
-			if(!wordAlignedFlag)
+			if(!wordAlignedFlag) begin
 				exc_badvaddr_o = addr_i;
-			else
+				exc_code_o = `EC_AdEL;
+			end
+			else begin
 				exc_badvaddr_o = `ZeroWord;
-			exc_code_o <= `EC_None;
+				exc_code_o <= `EC_None;
+			end
 		end
 	end
 	

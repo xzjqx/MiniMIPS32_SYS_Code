@@ -130,9 +130,18 @@
 `define MFC0 8'b00101100
 `define MTC0 8'b00101101
 `define TLBWI 8'b00101110
-//************* Div *******************//
-`define DIV     8'b00101111    //div
-`define DIVU    8'b00110000    //div
+//************* New *******************//
+`define DIV     8'b00101111    	//div
+`define DIVU    8'b00110000    	//div
+`define ADD		8'b00110001		//add
+`define ADDI	8'b00110010		//addi
+`define SUB		8'b00110011		//sub
+`define MULTU	8'b00110100		//multu
+`define BLTZAL	8'b00110101		//bltzal
+`define BGEZAL	8'b00110110		//bgezal
+`define BREAK	8'b00110111		//break
+`define LH		8'b00111000		//lh
+`define SH		8'b00111001		//sh
 
 `define DivFree 2'b00
 `define DivByZero 2'b01
@@ -144,24 +153,35 @@
 `define DivStop 1'b0
 
 //**************31:26 OP********//
-`define SPECIAL_OP 		6'b000000 
+`define SPECIAL_OP 		6'b000000
+`define ADDI_OP			6'b001000 
 `define ADDIU_OP		6'b001001 
 `define SLTI_OP 		6'b001010
 `define SLTIU_OP 		6'b001011
 `define COP0_OP			6'b010000 
+`define LH_OP			6'b100001
+`define LHU_OP			6'b100101
+`define LW_OP			6'b100011
+`define SB_OP			6'b101000
+`define SH_OP			6'b101001
+`define SW_OP			6'b101011
 
 //************5:0 op2*********//
+`define ADD_OP2			6'b100000
 `define ADDU_OP2 		6'b100001
 `define SLT_OP2			6'b101010
 `define SLTU_OP2 		6'b101011
+`define SUB_OP2			6'b100010
 `define SUBU_OP2		6'b100011 
-`define MULT_OP2		6'b011000 
+`define MULT_OP2		6'b011000
+`define MULTU_OP2		6'b011001 
+`define DIV_OP2			6'b011010
+`define DIVU_OP2		6'b011011
 `define AND_OP2 		6'b100100
 `define ERET_OP2		6'b011000 
 `define TLBWI_OP2	 	6'b000010 
-`define DIV_OP2         6'b011010      //div
-`define DIVU_OP2        6'b011011      //div
-
+`define BREAK_OP2		6'b001101
+`define SYSCALL_OP2		6'b001100
 //************25:21 op4************//
 `define CP0_OP4		5'b10000
 `define MFC0_OP4		5'b00000 

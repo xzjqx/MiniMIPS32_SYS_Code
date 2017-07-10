@@ -37,6 +37,7 @@ module ID(
 	input wire in_delay_i,
 	input wire[7:0] ex_aluop,
 	
+	output wire[31:0] pc_o,
 	output reg stop, 
 	output wire[31:0] inst_o,			//current instruction
 	output reg [2:0] alusel_o,		//defined in header.v, 8 types in total
@@ -57,7 +58,7 @@ module ID(
 	
 	input wire [4:0] exc_code_i,
 	input wire [31:0] exc_badvaddr_i,
-	output reg [4:0]exc_code_o,
+	output reg [4:0] exc_code_o,
 	output reg [31:0] exc_epc_o,
 	output reg [31:0] exc_badvaddr_o
 	);
@@ -71,7 +72,8 @@ module ID(
 
 	reg[31:0] imm;
 
-	assign inst_o=inst_i;
+	assign inst_o = inst_i;
+	assign pc_o = pc_i;
 
 	//reg1_o
 	always @(*) begin
@@ -176,7 +178,7 @@ module ID(
 			exc_epc_o <= `ZeroWord;
 			exc_badvaddr_o <= `ZeroWord;
 			imm <= 0;
-		end else if (exc_code_i!=`EC_None) begin
+		end else if (exc_code_i != `EC_None) begin
 			alusel_o <= `Shift;
 			aluop_o <= `SLL; 
 			wd_o <= 0;
@@ -189,12 +191,18 @@ module ID(
 			next_delay <= 1'b0;
 			branch_flag <= 1'b0;
 			branch_addr <= 0;
+			exc_code_o <= exc_code_i;
 			if (in_delay_i)
+				exc_epc_o <= pc_i - 4;
+			else
+				exc_epc_o <= pc_i;	
+			exc_badvaddr_o <= exc_badvaddr_i;
+			/*if (in_delay_i)
 				exc_epc_o <= pc_i - 4;
 			else
 				exc_epc_o <= pc_i;		
 			exc_code_o <= exc_code_i;
-			exc_badvaddr_o <= pc_i;
+			exc_badvaddr_o <= pc_i;*/
 			imm <= 0;
 		end else
 		begin
@@ -219,7 +227,7 @@ module ID(
 			imm <= 0;
 			case(op)
 				//000000
-				6'b000000: begin
+				`SPECIAL_OP: begin
 					case(func)
 						//AND
 						6'b100100:begin
@@ -410,6 +418,20 @@ module ID(
 							aluop_o<=`MTLO;
 						end
 						
+						//ADD
+						6'b100000:begin
+							alusel_o<=`Arithmetic;
+							wreg_o<=1'b1;
+							wd_o<=rd;
+							reg1_read_o<=1'b1;
+							reg1_addr_o<=rs;
+							reg2_read_o<=1'b1;
+							reg2_addr_o<=rt;
+							next_delay<=1'b0;
+							branch_flag<=1'b0;
+							aluop_o<=`ADD;
+						end
+						
 						//ADDU
 						6'b100001:begin
 							alusel_o<=`Arithmetic;
@@ -422,6 +444,20 @@ module ID(
 							next_delay<=1'b0;
 							branch_flag<=1'b0;
 							aluop_o<=`ADDU;
+						end
+
+						//SUB
+						6'b100010:begin
+							alusel_o<=`Arithmetic;
+							wreg_o<=1'b1;
+							wd_o<=rd;
+							reg1_read_o<=1'b1;
+							reg1_addr_o<=rs;
+							reg2_read_o<=1'b1;
+							reg2_addr_o<=rt;
+							next_delay<=1'b0;
+							branch_flag<=1'b0;
+							aluop_o<=`SUB;
 						end
 						
 						//SUBU
@@ -478,6 +514,19 @@ module ID(
 							branch_flag<=1'b0;
 							aluop_o<=`MULT;
 						end
+
+						//MULTU
+						6'b011001:begin
+							alusel_o<=`Arithmetic;
+							wreg_o<=1'b0;
+							reg1_read_o<=1'b1;
+							reg1_addr_o<=rs;
+							reg2_read_o<=1'b1;
+							reg2_addr_o<=rt;
+							next_delay<=1'b0;
+							branch_flag<=1'b0;
+							aluop_o<=`MULTU;
+						end
 						
 						//JR
 						6'b001000:begin
@@ -505,6 +554,25 @@ module ID(
 							branch_flag<=1'b1;
 							branch_addr<=reg1_o;
 							aluop_o<=`JALR;
+						end
+
+						//BREAK
+						6'b001101:begin
+							alusel_o<=`Trap;
+							wreg_o<=1'b0;
+							reg1_read_o<=1'b0;
+							reg2_read_o<=1'b0;
+							next_delay<=1'b0;
+							branch_flag<=1'b0;
+							aluop_o<=`BREAK;
+							
+							exc_code_o <= `EC_Bp;
+										 
+							if (in_delay_i)
+								exc_epc_o <= pc_i - 4; 
+							else
+								exc_epc_o <= pc_i;
+							exc_badvaddr_o <= `ZeroWord;
 						end
 						
 						//SYSCALL
@@ -610,6 +678,20 @@ module ID(
 					branch_flag<=1'b0;
 					next_delay<=1'b0;
 					imm<=zero_imm;
+				end
+
+				//ADDI
+				6'b001000:begin
+					alusel_o<=`Arithmetic;
+					aluop_o<=`ADDI;
+					wreg_o<=1'b1;
+					wd_o<=rt;
+					reg1_read_o<=1'b1;
+					reg1_addr_o<=rs;
+					reg2_read_o<=1'b0;
+					branch_flag<=1'b0;
+					next_delay<=1'b0;
+					imm<=signed_imm;
 				end
 				
 				//ADDIU
@@ -740,11 +822,25 @@ module ID(
 					next_delay<=1'b0;
 					imm<=signed_imm;
 				end
-				
+		
 				//LBU
 				6'b100100:begin
 					alusel_o<=`Mem;
 					aluop_o<=`LBU;
+					wreg_o<=1'b1;
+					wd_o<=rt;
+					reg1_read_o<=1'b1;
+					reg1_addr_o<=rs;
+					reg2_read_o<=1'b0;
+					branch_flag<=1'b0;
+					next_delay<=1'b0;
+					imm<=signed_imm;
+				end
+
+				//LH
+				6'b100001:begin
+					alusel_o<=`Mem;
+					aluop_o<=`LH;
 					wreg_o<=1'b1;
 					wd_o<=rt;
 					reg1_read_o<=1'b1;
@@ -787,6 +883,19 @@ module ID(
 				6'b101000:begin
 					alusel_o<=`Mem;
 					aluop_o<=`SB;
+					wreg_o<=1'b0;
+					reg1_read_o<=1'b1;
+					reg1_addr_o<=rs;
+					reg2_read_o<=1'b1;
+					reg2_addr_o<=rt;
+					branch_flag<=1'b0;
+					next_delay<=1'b0;
+				end
+
+				//SH
+				6'b101001:begin
+					alusel_o<=`Mem;
+					aluop_o<=`SH;
 					wreg_o<=1'b0;
 					reg1_read_o<=1'b1;
 					reg1_addr_o<=rs;

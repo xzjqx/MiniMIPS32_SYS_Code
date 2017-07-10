@@ -37,6 +37,7 @@ module ID_EX(
 	input wire next_inst_in_delayslot_i,
 	
 	input wire [31:0] id_inst,
+	input wire [31:0] id_pc,
 	
 	output reg [2:0] ex_alusel,
 	output reg [7:0] ex_aluop,
@@ -50,6 +51,7 @@ module ID_EX(
 	output reg is_in_delayslot_o,
 	
 	output reg [31:0] ex_inst,
+	output reg [31:0] ex_pc,
 	
 	input wire [5:0] stall,
 	
@@ -75,7 +77,8 @@ module ID_EX(
 			ex_is_in_delayslot <= 1'b0;
 			ex_link_address <= 1'b0;
 			is_in_delayslot_o <= 1'b0;
-			ex_inst <= 32'b0;
+			ex_inst <= `ZeroWord;
+			ex_pc <= `ZeroWord;
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
 			exc_badvaddr_o <= `ZeroWord;
@@ -91,6 +94,7 @@ module ID_EX(
 			ex_link_address <= 1'b0;
 			is_in_delayslot_o <= 1'b0;
 			ex_inst <= 32'b0;
+			ex_pc <= `ZeroWord;
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
 			exc_badvaddr_o <= `ZeroWord;
@@ -106,6 +110,7 @@ module ID_EX(
 			ex_link_address <= id_link_address;
 			is_in_delayslot_o <= id_is_in_delayslot;
 			ex_inst <= id_inst;
+			ex_pc <= id_pc;
 			exc_code_o <= exc_code_i;
 			exc_epc_o <= exc_epc_i;
 			exc_badvaddr_o <= exc_badvaddr_i;

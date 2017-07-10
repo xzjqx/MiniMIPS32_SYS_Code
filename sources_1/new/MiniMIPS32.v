@@ -86,6 +86,7 @@ module MiniMIPS32(
 	wire [31:0] id_link_addr_o;
 	wire 		id_next_inst_in_delayslot_o;
 	wire [31:0] id_inst_o;
+	wire [31:0] id_pc_o;
 	
 	wire [4:0] 	id_exc_code_i;
 	wire [31:0] id_exc_badvaddr_i;
@@ -115,6 +116,7 @@ module MiniMIPS32(
 	wire [31:0] ex_link_address_i;
 	
 	wire [31:0] ex_inst_i;
+	wire [31:0] ex_pc_i;
 	wire [7:0] 	ex_aluop_o;
 	wire [31:0] ex_mem_addr_o;
 	wire [31:0] ex_reg2_o;
@@ -297,7 +299,7 @@ module MiniMIPS32(
 				.exc_badvaddr_i(if_exc_badvaddr_o),
 				.exc_badvaddr_o(id_exc_badvaddr_i));
 
-	ID id0(.rst(rst), .pc_i(id_pc_i), .inst_i(id_inst_i),
+	ID id0(.rst(rst), .pc_i(id_pc_i), .pc_o(id_pc_o), .inst_i(id_inst_i),
 			 .reg1_data_i(reg1_data), .reg2_data_i(reg2_data),
 			 .ex_wreg(ex_wreg_o), .ex_wdata(ex_wdata_o), .ex_wd(ex_wd_o),
 			 .mem_wreg(mem_wreg_o), .mem_wdata(mem_wdata_o), .mem_wd(mem_wd_o),
@@ -325,11 +327,11 @@ module MiniMIPS32(
 	ID_EX id_ex0(.clk(clk), .rst(rst), .id_alusel(id_alusel_o), .id_aluop(id_aluop_o),
 					 .id_reg1(id_reg1_o), .id_reg2(id_reg2_o), .id_wd(id_wd_o), .id_wreg(id_wreg_o),
 					 .id_is_in_delayslot(id_is_in_delayslot_o), .id_link_address(id_link_addr_o), .next_inst_in_delayslot_i(id_next_inst_in_delayslot_o),
-					 .id_inst(id_inst_o),
+					 .id_inst(id_inst_o), .id_pc(id_pc_o),
 					 .ex_alusel(ex_alusel_i), .ex_aluop(ex_aluop_i),
 					 .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i), .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
 					 .is_in_delayslot_o(ex_is_in_delayslot_i), .ex_is_in_delayslot(id_is_in_delayslot_i), .ex_link_address(ex_link_address_i),
-					 .ex_inst(ex_inst_i),
+					 .ex_inst(ex_inst_i), .ex_pc(ex_pc_i),
 					 .stall(stall),
 					 .flush(flush),
 					 .exc_code_i(id_exc_code_o),
@@ -339,7 +341,7 @@ module MiniMIPS32(
 					 .exc_epc_o(ex_exc_epc_i),
 					 .exc_badvaddr_o(ex_exc_badvaddr_i));
 	
-	EX ex0(.rst(rst), .alusel_i(ex_alusel_i), .aluop_i(ex_aluop_i),
+	EX ex0(.rst(rst), .alusel_i(ex_alusel_i), .aluop_i(ex_aluop_i), .pc_i(ex_pc_i),
 			 .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
 			 .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
 			 .hi_i(ex_hi_i), .lo_i(ex_lo_i), 
