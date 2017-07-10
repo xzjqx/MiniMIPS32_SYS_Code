@@ -43,6 +43,35 @@
 `define Branch 1'b1
 `define NoBranch 1'b0
 
+//xu
+`define InstAddrBus 31:0
+`define InstBus 31:0
+`define InstMemNum 131071
+`define InstMemNumLog2 17
+
+
+//xu
+`define RegAddrBus 4:0
+`define RegBus 31:0
+`define RegWidth 32
+`define DoubleRegWidth 64
+`define DoubleRegBus 63:0
+`define RegNum 32
+`define RegNumLog2 5
+`define NOPRegAddr 5'b00000
+`define AluOpBus 7:0        //xu
+`define AluSelBus 2:0       //xu
+`define InstValid 1'b0      //xu
+`define InstInvalid 1'b1    //xu
+
+`define InDelaySlot 1'b1    //xu
+`define NotInDelaySlot 1'b0 //xu
+
+`define InterruptAssert 1'b1//xu
+`define InterruptNotAssert 1'b0//xu
+`define TrapAssert 1'b1     //xu
+`define TrapNotAssert 1'b0  //xu
+
 //**************alusel*******//
 `define Arithmetic 3'b000
 `define BranchJump 3'b001
@@ -102,8 +131,17 @@
 `define MTC0 8'b00101101
 `define TLBWI 8'b00101110
 //************* Div *******************//
-`define DIV     8'b00011010    //div
-`define DIVU    8'b00011011    //div
+`define DIV     8'b00101111    //div
+`define DIVU    8'b00110000    //div
+
+`define DivFree 2'b00
+`define DivByZero 2'b01
+`define DivOn 2'b10
+`define DivEnd 2'b11
+`define DivResultReady 1'b1
+`define DivResultNotReady 1'b0
+`define DivStart 1'b1
+`define DivStop 1'b0
 
 //**************31:26 OP********//
 `define SPECIAL_OP 		6'b000000 

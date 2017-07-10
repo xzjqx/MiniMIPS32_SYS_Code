@@ -52,11 +52,6 @@ module MiniMIPS32(
 	input wire [5:0] int_i,
 	output wire int_time_o
     );
-	
-	//wire rst;
-	wire rstn;
-	wire clk100mhz;
-	wire rst_o;
 
 	wire [31:0] pc;//(*mark_debug = "true"*)
 	wire [31:0] id_pc_i;
@@ -64,8 +59,6 @@ module MiniMIPS32(
 	
 	wire 		pc_branch_flag_i;
 	wire [31:0] pc_branch_target_address_i;
-	
-	wire [31:0] debug_data;
 	
 	wire [31:0] inst_addr;
 	wire [31:0] inst_i;
@@ -238,6 +231,13 @@ module MiniMIPS32(
 
 	wire 		cp0_reg_read_o;
 
+	//div
+	wire[`DoubleRegBus] div_result;
+    wire div_ready;
+    wire[`RegBus] div_opdata1;
+    wire[`RegBus] div_opdata2;
+    wire div_start;
+    wire signed_div;
 
 	wire		pc_rom_ce;	
 	wire		rom_ce;
@@ -320,8 +320,7 @@ module MiniMIPS32(
 	
 	REG reg0(.clk(clk), .rst(rst), .we(wb_wreg_i), .waddr(wb_wd_i), .wdata(wb_wdata_i),
 				.re1(reg1_read), .raddr1(reg1_addr), .rdata1(reg1_data),
-				.re2(reg2_read), .raddr2(reg2_addr), .rdata2(reg2_data),
-				.debug_addr(debug_addr), .debug_data(debug_data));
+				.re2(reg2_read), .raddr2(reg2_addr), .rdata2(reg2_data));
 	
 	ID_EX id_ex0(.clk(clk), .rst(rst), .id_alusel(id_alusel_o), .id_aluop(id_aluop_o),
 					 .id_reg1(id_reg1_o), .id_reg2(id_reg2_o), .id_wd(id_wd_o), .id_wreg(id_wreg_o),
@@ -365,7 +364,15 @@ module MiniMIPS32(
 			 .exc_code_o(ex_exc_code_o),
 			 .exc_epc_o(ex_exc_epc_o),
 			 .exc_badvaddr_o(ex_exc_badvaddr_o),
-			 .cp0_reg_read_o(cp0_reg_read_o));
+			 .cp0_reg_read_o(cp0_reg_read_o),
+			 //div
+			 .div_result_i(div_result),
+             .div_ready_i(div_ready),
+             .div_opdata1_o(div_opdata1),
+             .div_opdata2_o(div_opdata2),
+             .div_start_o(div_start),
+             .signed_div_o(signed_div),    
+			 .stop(stop_from_ex));
 	
 	EX_MEM ex_mem0(.clk(clk), .rst(rst), .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o), .ex_wdata(ex_wdata_o),
 						.ex_whilo(ex_whilo_o), .ex_hi(ex_hi_o), .ex_lo(ex_lo_o),
@@ -497,6 +504,19 @@ module MiniMIPS32(
     .flush_i(ctrl_flush_i), 
     .stall(stall), 
     .flush_o(flush)
+    );
+    
+    DIV div0(
+        .clk(clk),
+        .rst(rst),
+    
+        .signed_div_i(signed_div),
+        .opdata1_i(div_opdata1),
+        .opdata2_i(div_opdata2),
+        .start_i(div_start),
+    
+        .result_o(div_result),
+        .ready_o(div_ready)
     );
 	
 endmodule
