@@ -76,7 +76,17 @@ module EX(
 	output reg [31:0] exc_epc_o,
 	output reg [31:0] exc_badvaddr_o,
 	
-	output reg cp0_reg_read_o
+	output reg cp0_reg_read_o,
+	
+	
+	//           div
+	input wire[`DoubleRegBus]     div_result_i,
+    input wire                    div_ready_i,
+    output reg[`RegBus]           div_opdata1_o,
+    output reg[`RegBus]           div_opdata2_o,
+    output reg                    div_start_o,
+    output reg                    signed_div_o,
+    output stop
     );
 	
 	wire[31:0] signed_low16_inst;
@@ -89,6 +99,9 @@ module EX(
 	reg[31:0] lo_t;
 	reg[63:0] arithout;
 	reg[31:0] cp0out;
+	
+	reg stallreq_for_div;
+	assign stop = stallreq_for_div;
 
 	assign aluop_o = aluop_i;
 	assign reg2_o = reg2_i;
@@ -289,11 +302,68 @@ module EX(
 		end
 	end
 
-	// 10/12 branch jump instructions just do nothing ^_^ Yeah!===================
-
-	// 6/15 load save instructions just do nothing ^_^ Yeah!======================
-
-
+	//div 
+	always @ (*) begin
+        if(rst == `RstEnable) begin
+            stallreq_for_div <= `NoStop;
+        	div_opdata1_o <= `ZeroWord;
+            div_opdata2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;
+        end else begin
+            stallreq_for_div <= `NoStop;
+        	div_opdata1_o <= `ZeroWord;
+            div_opdata2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;    
+            case (aluop_i) 
+                `DIV:        begin
+                    if(div_ready_i == `DivResultNotReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b1;
+                        stallreq_for_div <= `Stop;
+                    end else if(div_ready_i == `DivResultReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b1;
+                        stallreq_for_div <= `NoStop;
+                    end else begin                        
+                        div_opdata1_o <= `ZeroWord;
+                        div_opdata2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end                    
+                end
+                `DIVU:        begin
+                    if(div_ready_i == `DivResultNotReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `Stop;
+                    end else if(div_ready_i == `DivResultReady) begin
+                        div_opdata1_o <= reg1_i;
+                        div_opdata2_o <= reg2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end else begin                        
+                        div_opdata1_o <= `ZeroWord;
+                        div_opdata2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallreq_for_div <= `NoStop;
+                    end                    
+                end
+                default: begin
+                end
+            endcase
+        end
+    end 
 
 	// output general
 	always @ (*) begin
@@ -347,6 +417,16 @@ module EX(
 					lo_o <= reg1_i;
 					whilo_o <= 1'b1;
 				end
+				`DIV: begin
+                    hi_o <= div_result_i[63:32];
+                    lo_o <= div_result_i[31:0];    
+                    whilo_o <= 1'b1;
+                end
+                `DIVU: begin
+                    hi_o <= div_result_i[63:32];
+                    lo_o <= div_result_i[31:0];                      
+                    whilo_o <= 1'b1;
+                end
 				default: begin
 					lo_o <= `ZeroWord;
 					hi_o <= `ZeroWord;

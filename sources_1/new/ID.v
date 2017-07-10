@@ -526,6 +526,32 @@ module ID(
 							exc_badvaddr_o <= `ZeroWord;
 						end
 						
+						//DIV
+						6'b011010: begin         
+                            alusel_o<=`Arithmetic;
+                            wreg_o<=1'b0;
+                            reg1_read_o<=1'b1;
+                            reg1_addr_o<=rs;
+                            reg2_read_o<=1'b1;
+                            reg2_addr_o<=rt;
+                            next_delay<=1'b0;
+                            branch_flag<=1'b0;
+                            aluop_o<=`DIV; 
+                        end
+                        
+                        //DIVU
+                        6'b011011: begin
+                            alusel_o<=`Arithmetic;
+                            wreg_o<=1'b0;
+                            reg1_read_o<=1'b1;
+                            reg1_addr_o<=rs;
+                            reg2_read_o<=1'b1;
+                            reg2_addr_o<=rt;
+                            next_delay<=1'b0;
+                            branch_flag<=1'b0;
+                            aluop_o<=`DIVU; 
+                        end   
+						
 						default:
 							InvalidInstruction();
 					endcase
