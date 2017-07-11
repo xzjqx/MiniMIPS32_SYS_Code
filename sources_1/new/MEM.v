@@ -65,8 +65,14 @@ module MEM(
 	
 	output reg [`EXC_CODE_WIDTH-1:0] exc_code_o,
 	output reg [31:0] exc_epc_o,
-	output reg [31:0] exc_badvaddr_o
+	output reg [31:0] exc_badvaddr_o,
+	
+	input in_delay_i,
+	output in_delay_o,
+	input wire [31:0] pc_i
     );
+    
+    assign in_delay_o = in_delay_i;
     
     wire [31:0] mem_unaligned_addr = mem_addr_i;
     wire [31:0] mem_vrt_addr = {mem_unaligned_addr[31:2], 2'b00};
@@ -108,11 +114,11 @@ module MEM(
 			cp0_reg_we_o = cp0_reg_we_i;
 			cp0_reg_write_addr_o = cp0_reg_write_addr_i;
 			cp0_reg_data_o = cp0_reg_data_i;
+			exc_code_o <= exc_code_i;
+			exc_epc_o <= exc_epc_i;
+			exc_badvaddr_o <= exc_badvaddr_i;
 			case(aluop_i)
 				`LB: begin
-					exc_code_o <= `EC_None;
-					exc_epc_o <= `ZeroWord;
-					exc_badvaddr_o <= `ZeroWord;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
@@ -140,9 +146,6 @@ module MEM(
                     endcase
                 end
                 `LBU: begin
-					exc_code_o <= `EC_None;
-					exc_epc_o <= `ZeroWord;
-					exc_badvaddr_o <= `ZeroWord;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
@@ -169,16 +172,37 @@ module MEM(
                         end
                     endcase
                 end
+                `LH: begin
+                	if(!halfAlignedFlag) begin 
+                		exc_code_o <= `EC_AdEL;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
+						exc_badvaddr_o <= mem_addr_i;
+                    end
+                    mem_addr_o <= {3'b0,mem_addr_i[28:0]};
+                    mem_we_o <= `WriteDisable;
+                    mem_ce_o <= `ChipEnable;
+                    case (mem_addr_i[1:0])
+                        2'b00: begin
+                            wdata_o <= {{16{mem_data_i[15]}}, mem_data_i[15:0]};
+                            mem_sel_o <= 4'b0011;
+                        end
+                        2'b10: begin
+                            wdata_o <= {{16{mem_data_i[31]}}, mem_data_i[31:16]};
+                            mem_sel_o <= 4'b1100;
+                        end
+                        default: begin
+                            wdata_o <= `ZeroWord;
+                            mem_sel_o <= 4'b0000;
+                        end
+                    endcase
+                end
                 `LHU: begin
                 	if(!halfAlignedFlag) begin 
                 		exc_code_o <= `EC_AdEL;
-						exc_epc_o <= exc_epc_i;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
 						exc_badvaddr_o <= mem_addr_i;
-                    end
-                    else begin
-                		exc_code_o <= `EC_None;
-						exc_epc_o <= `ZeroWord;
-						exc_badvaddr_o <= `ZeroWord;
                     end
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
@@ -201,13 +225,9 @@ module MEM(
                 `LW: begin
                 	if(!wordAlignedFlag) begin 
                 		exc_code_o <= `EC_AdEL;
-						exc_epc_o <= exc_epc_i;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
 						exc_badvaddr_o <= mem_addr_i;
-                    end
-                    else begin
-                		exc_code_o <= `EC_None;
-						exc_epc_o <= `ZeroWord;
-						exc_badvaddr_o <= `ZeroWord;
                     end
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
@@ -224,9 +244,6 @@ module MEM(
                     endcase
                 end
                 `SB: begin
-					exc_code_o <= `EC_None;
-					exc_epc_o <= `ZeroWord;
-					exc_badvaddr_o <= `ZeroWord;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteEnable;
                     mem_ce_o <= `ChipEnable;
@@ -252,16 +269,36 @@ module MEM(
                         end
                     endcase
                 end
+                `SH: begin
+                	if(!halfAlignedFlag) begin 
+                	exc_code_o <= `EC_AdEL;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
+						exc_badvaddr_o <= mem_addr_i;
+                    end
+                	mem_addr_o <= {3'b0,mem_addr_i[28:0]};
+					mem_we_o <= `WriteEnable;
+					mem_ce_o <= `ChipEnable;
+                    case (mem_addr_i[1:0])
+					    2'b00: begin
+					        mem_sel_o <= 4'b0011;
+					        mem_data_o <= {mem_data_i[31:16], reg2_i[15:0]};
+					    end
+					    2'b10: begin
+					        mem_sel_o <= 4'b1100;
+					        mem_data_o <= {reg2_i[15:0], mem_data_i[15:0]};
+					    end
+					    default: begin
+					        mem_sel_o <= 4'b0000;
+					    end
+					endcase
+                end
                 `SW: begin
                 	if(!wordAlignedFlag) begin 
                 		exc_code_o <= `EC_AdES;
-						exc_epc_o <= exc_epc_i;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
 						exc_badvaddr_o <= mem_addr_i;
-                    end
-                    else begin
-                		exc_code_o <= `EC_None;
-						exc_epc_o <= `ZeroWord;
-						exc_badvaddr_o <= `ZeroWord;
                     end
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteEnable;
@@ -277,9 +314,6 @@ module MEM(
                     endcase
                 end
 				default: begin
-					exc_code_o <= `EC_None;
-					exc_epc_o <= `ZeroWord;
-					exc_badvaddr_o <= `ZeroWord;
 					mem_addr_o <= `ZeroWord;
 					mem_we_o <= `WriteDisable;
 					mem_data_o <= `ZeroWord;

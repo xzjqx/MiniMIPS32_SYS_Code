@@ -81,10 +81,10 @@ module MiniMIPS32(
 	wire 		id_wreg_o;
 	wire [4:0] 	id_wd_o;
 	
-	wire 		id_is_in_delayslot_i;
-	wire 		id_is_in_delayslot_o;
+	wire 		id_in_delay_i;
+	wire 		id_in_delay_o;
 	wire [31:0] id_link_addr_o;
-	wire 		id_next_inst_in_delayslot_o;
+	wire 		id_next_delay;
 	wire [31:0] id_inst_o;
 	wire [31:0] id_pc_o;
 	
@@ -113,10 +113,12 @@ module MiniMIPS32(
 	wire [31:0] ex_lo_o;
 	
 	wire 		ex_is_in_delayslot_i;
+	wire		ex_in_delay_o;
 	wire [31:0] ex_link_address_i;
 	
 	wire [31:0] ex_inst_i;
 	wire [31:0] ex_pc_i;
+	wire [31:0] ex_pc_o;
 	wire [7:0] 	ex_aluop_o;
 	wire [31:0] ex_mem_addr_o;
 	wire [31:0] ex_reg2_o;
@@ -173,8 +175,10 @@ module MiniMIPS32(
 	wire [4:0] 	mem_exc_code_o;
 	wire [31:0] mem_exc_epc_o;
 	wire [31:0] mem_exc_badvaddr_o;
-
 	
+	wire mem_in_delay_i;
+	wire [31:0] mem_pc_i;
+
 	wire 		wb_whilo_i;
 	wire [31:0] wb_hi_i;
 	wire [31:0] wb_lo_i;
@@ -192,6 +196,7 @@ module MiniMIPS32(
 	wire 		cp0_exc_jump_flag;
 	wire [31:0] cp0_exc_jump_addr;
 	wire [31:0] cp0_data_o;
+	wire		cp0_in_delay_i;
 	wire [31:0] badvaddr_o;
 	wire [31:0] count_o;
 	wire [31:0] compare_o;
@@ -303,13 +308,13 @@ module MiniMIPS32(
 			 .reg1_data_i(reg1_data), .reg2_data_i(reg2_data),
 			 .ex_wreg(ex_wreg_o), .ex_wdata(ex_wdata_o), .ex_wd(ex_wd_o),
 			 .mem_wreg(mem_wreg_o), .mem_wdata(mem_wdata_o), .mem_wd(mem_wd_o),
-			 .in_delay_i(id_is_in_delayslot_i),
+			 .in_delay_i(id_in_delay_i),
 			 .reg1_read_o(reg1_read), .reg2_read_o(reg2_read), 	  
 			 .reg1_addr_o(reg1_addr), .reg2_addr_o(reg2_addr), 
 			 .aluop_o(id_aluop_o), .alusel_o(id_alusel_o),
 			 .reg1_o(id_reg1_o), .reg2_o(id_reg2_o),
 			 .wd_o(id_wd_o), .wreg_o(id_wreg_o),
-			 .in_delay_o(id_is_in_delayslot_o), .link_addr_o(id_link_addr_o), .next_delay(id_next_inst_in_delayslot_o),
+			 .in_delay_o(id_in_delay_o), .link_addr_o(id_link_addr_o), .next_delay(id_next_delay),
 			 .branch_addr(pc_branch_target_address_i), .branch_flag(pc_branch_flag_i),
 			 .inst_o(id_inst_o),
 			 .ex_aluop(ex_aluop_o),
@@ -326,11 +331,11 @@ module MiniMIPS32(
 	
 	ID_EX id_ex0(.clk(clk), .rst(rst), .id_alusel(id_alusel_o), .id_aluop(id_aluop_o),
 					 .id_reg1(id_reg1_o), .id_reg2(id_reg2_o), .id_wd(id_wd_o), .id_wreg(id_wreg_o),
-					 .id_is_in_delayslot(id_is_in_delayslot_o), .id_link_address(id_link_addr_o), .next_inst_in_delayslot_i(id_next_inst_in_delayslot_o),
+					 .id_is_in_delayslot(id_in_delay_o), .id_link_address(id_link_addr_o), .next_inst_in_delayslot_i(id_next_delay),
 					 .id_inst(id_inst_o), .id_pc(id_pc_o),
 					 .ex_alusel(ex_alusel_i), .ex_aluop(ex_aluop_i),
 					 .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i), .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
-					 .is_in_delayslot_o(ex_is_in_delayslot_i), .ex_is_in_delayslot(id_is_in_delayslot_i), .ex_link_address(ex_link_address_i),
+					 .is_in_delayslot_o(ex_is_in_delayslot_i), .ex_is_in_delayslot(id_in_delay_i), .ex_link_address(ex_link_address_i),
 					 .ex_inst(ex_inst_i), .ex_pc(ex_pc_i),
 					 .stall(stall),
 					 .flush(flush),
@@ -341,14 +346,14 @@ module MiniMIPS32(
 					 .exc_epc_o(ex_exc_epc_i),
 					 .exc_badvaddr_o(ex_exc_badvaddr_i));
 	
-	EX ex0(.rst(rst), .alusel_i(ex_alusel_i), .aluop_i(ex_aluop_i), .pc_i(ex_pc_i),
+	EX ex0(.rst(rst), .alusel_i(ex_alusel_i), .aluop_i(ex_aluop_i), .pc_i(ex_pc_i), .pc_o(ex_pc_o),
 			 .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
 			 .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
 			 .hi_i(ex_hi_i), .lo_i(ex_lo_i), 
 			 .mem_whilo_i(mem_whilo_o), .mem_hi_i(mem_hi_o), .mem_lo_i(mem_lo_o),
 			 .wb_whilo_i(wb_whilo_i), .wb_hi_i(wb_hi_i), .wb_lo_i(wb_lo_i),
-			 .in_delay_i(ex_is_in_delayslot_i), .link_addr_i(ex_link_address_i),
-			 .inst_i(ex_inst_i),
+			 .in_delay_i(ex_is_in_delayslot_i), .in_delay_o(ex_in_delay_o), 
+			 .link_addr_i(ex_link_address_i), .inst_i(ex_inst_i),
 			 .wd_o(ex_wd_o), .wreg_o(ex_wreg_o), .wdata_o(ex_wdata_o),
 			 .whilo_o(ex_whilo_o), .hi_o(ex_hi_o), .lo_o(ex_lo_o),
 			 .aluop_o(ex_aluop_o), .mem_addr_o(ex_mem_addr_o), .reg2_o(ex_reg2_o),
@@ -395,9 +400,11 @@ module MiniMIPS32(
 					   .exc_badvaddr_i(ex_exc_badvaddr_o),
 					   .exc_code_o(mem_exc_code_i),
 					   .exc_epc_o(mem_exc_epc_i),
-					   .exc_badvaddr_o(mem_exc_badvaddr_i));
+					   .exc_badvaddr_o(mem_exc_badvaddr_i), 
+					   .ex_in_delay(ex_in_delay_o), .mem_in_delay(mem_in_delay_i), 
+					   .ex_pc(ex_pc_o), .mem_pc(mem_pc_i));
 	
-	MEM mem0(.rst(rst), .wd_i(mem_wd_i), .wreg_i(mem_wreg_i), .wdata_i(mem_wdata_i), 
+	MEM mem0(.rst(rst), .wd_i(mem_wd_i), .wreg_i(mem_wreg_i), .wdata_i(mem_wdata_i), .in_delay_i(mem_in_delay_i), .pc_i(mem_pc_i),
 				.whilo_i(mem_whilo_i), .hi_i(mem_hi_i), .lo_i(mem_lo_i),
 				.aluop_i(mem_aluop_i), .mem_addr_i(mem_addr_i), .reg2_i(mem_reg2_i), .mem_data_i(mem_data_i),
 				.wd_o(mem_wd_o), .wreg_o(mem_wreg_o), .wdata_o(mem_wdata_o),
@@ -415,7 +422,8 @@ module MiniMIPS32(
 				.exc_badvaddr_i(mem_exc_badvaddr_i),
 				.exc_code_o(cp0_exc_code_i),
 				.exc_epc_o(cp0_exc_epc_i),
-				.exc_badvaddr_o(cp0_exc_badvaddr_i));
+				.exc_badvaddr_o(cp0_exc_badvaddr_i), 
+				.in_delay_o(cp0_in_delay_i));
 				
 	/*DEV_MEM dev_mem0(
     .clk(clk), 
@@ -492,7 +500,8 @@ module MiniMIPS32(
 		.cause_o(cause_o), 
 		.epc_o(epc_o), 
 		.int_time_o(int_time_o),
-		.re(cp0_reg_read_o)
+		.re(cp0_reg_read_o),
+		.in_delay_i(cp0_in_delay_i)
 	);
 	
 	CTRL ctrl0 (

@@ -49,7 +49,9 @@ module CP0(
 	output reg[31:0] cause_o,
 	output reg[31:0] epc_o,
 	
-	output reg int_time_o
+	output reg int_time_o,
+	
+	input wire in_delay_i
     );
 	 
 	/*reg[31:0] regs[0:31];
@@ -80,17 +82,16 @@ module CP0(
 	 
 	task doit_exec; begin
 		exc_jump_flag <= 1;
+		exc_jump_addr <= 32'hBFC00380;
 		
-		if (status_o[1]) begin
-			exc_jump_addr <= 32'hBFC00380;
-			cause_o[6:2] <= exc_code_i;
-		end
-		else begin
-			status_o[1] <= 1;
+		if (status_o[1] == 0) begin
 			epc_o <= exc_epc_i;
 			badvaddr_o <= exc_badvaddr_i;
-			cause_o[6:2] <= exc_code_i;
+			if(in_delay_i) cause_o[31] <= 1;
+			else cause_o[31] <= 0;
 		end
+		status_o[1] = 1'b1;
+		cause_o[6:2] <= exc_code_i;
 	end
 	endtask
 
@@ -101,7 +102,6 @@ module CP0(
 	end
 	endtask
 
-	//for int_time_o, flush_req, exc_jump_flag, exc_jump_addr
    always @ (posedge clk  or negedge rst) begin
 		if(rst == `RstEnable) begin
 			
@@ -154,8 +154,6 @@ module CP0(
 		
 	end
 
-
-	// for rdata
    always @ (*) begin
     	if(rst == `RstEnable) begin
     		data_o <= `ZeroWord;
@@ -167,7 +165,7 @@ module CP0(
 				`Cp0_Compare: data_o <= compare_o;
 				`Cp0_Status: data_o <= status_o;
 				`Cp0_Cause: data_o <= {16'b0, int_i, cause_o[9:0]};
-				`Cp0_EPC: data_o <= epc_o <= wdata_i;
+				`Cp0_EPC: data_o <= epc_o;
 			endcase
       end 
 		else begin

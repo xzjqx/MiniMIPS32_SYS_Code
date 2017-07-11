@@ -155,7 +155,7 @@ module ID(
 			exc_epc_o <= pc_i - 4;
 		else
 			exc_epc_o <= pc_i;
-		exc_badvaddr_o <= inst_i;
+		exc_badvaddr_o <= exc_badvaddr_i;
 	end 
 	endtask
 
@@ -197,12 +197,7 @@ module ID(
 			else
 				exc_epc_o <= pc_i;	
 			exc_badvaddr_o <= exc_badvaddr_i;
-			/*if (in_delay_i)
-				exc_epc_o <= pc_i - 4;
-			else
-				exc_epc_o <= pc_i;		
-			exc_code_o <= exc_code_i;
-			exc_badvaddr_o <= pc_i;*/
+			//exc_badvaddr_o <= pc_i;
 			imm <= 0;
 		end else
 		begin
@@ -1042,7 +1037,7 @@ module ID(
 						end
 						
 						//BGEZ
-						5'b00001:begin
+						5'b00001: begin
 							alusel_o<=`BranchJump;
 							aluop_o<=`BGEZ;
 							wreg_o<=1'b0;
@@ -1056,6 +1051,46 @@ module ID(
 							end else
 							begin
 								branch_flag<=1'b0;
+							end
+						end
+						
+						//BGEZAL
+						5'b10001: begin
+							alusel_o <= `BranchJump;
+							aluop_o <= `BGEZAL;
+							wreg_o <= 1'b1;
+							wd_o <= 5'b11111;
+							link_addr_o <= pc_8;
+							reg1_read_o <= 1'b1;
+							reg1_addr_o <= rs;
+							reg2_read_o <= 1'b0;
+							next_delay <= 1'b1;
+							if (reg1_o[31] == 1'b0) begin
+								branch_flag <= 1'b1;
+								branch_addr <= jump_addr_16;
+							end else
+							begin
+								branch_flag <= 1'b0;
+							end
+						end
+						
+						//BLTZAL
+						5'b10000:begin
+							alusel_o <= `BranchJump;
+							aluop_o <= `BLTZAL;
+							wreg_o <= 1'b1;
+							wd_o <= 5'b11111;
+							link_addr_o <= pc_8;
+							reg1_read_o <= 1'b1;
+							reg1_addr_o <= rs;
+							reg2_read_o <= 1'b0;
+							next_delay <= 1'b1;
+							if (reg1_o[31] == 1'b1) begin
+								branch_flag <= 1'b1;
+								branch_addr <= jump_addr_16;
+							end else
+							begin
+								branch_flag <= 1'b0;
 							end
 						end
 			

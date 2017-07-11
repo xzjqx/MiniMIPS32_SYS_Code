@@ -67,7 +67,12 @@ module EX_MEM(
 	
 	output reg [`EXC_CODE_WIDTH-1:0] exc_code_o,
 	output reg [31:0] exc_epc_o,
-	output reg [31:0] exc_badvaddr_o
+	output reg [31:0] exc_badvaddr_o,
+	
+	input wire ex_in_delay,
+	output reg mem_in_delay,
+	input wire [31:0] ex_pc,
+	output reg [31:0] mem_pc
     );
 
 	always @(posedge clk or negedge rst) begin
@@ -84,6 +89,8 @@ module EX_MEM(
 			mem_cp0_reg_we <= 1'b0;
 			mem_cp0_reg_write_addr <= 5'b0;
 			mem_cp0_reg_data <= 32'b0;
+			mem_in_delay <= 1'b0;
+			mem_pc <= `ZeroWord;
 			
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
@@ -102,6 +109,8 @@ module EX_MEM(
 			mem_cp0_reg_we <= 1'b0;
 			mem_cp0_reg_write_addr <= 5'b0;
 			mem_cp0_reg_data <= 32'b0;
+			mem_in_delay <= 1'b0;
+			mem_pc <= `ZeroWord;
 			
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
@@ -120,6 +129,8 @@ module EX_MEM(
 			mem_cp0_reg_we <= ex_cp0_reg_we;
 			mem_cp0_reg_write_addr <= ex_cp0_reg_write_addr;
 			mem_cp0_reg_data <= ex_cp0_reg_data;
+			mem_in_delay <= ex_in_delay;
+			mem_pc <= ex_pc;
 			
 			exc_code_o <= exc_code_i;
 			exc_epc_o <= exc_epc_i;

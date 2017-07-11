@@ -27,6 +27,7 @@ module EX(
 	input wire [2:0] 	alusel_i,
 	input wire [7:0] 	aluop_i,
 	input wire [31:0]   pc_i,
+	output wire [31:0]  pc_o,
 	input wire [31:0] 	reg1_i,
 	input wire [31:0] 	reg2_i,
 	input wire [4:0] 	wd_i,
@@ -42,6 +43,7 @@ module EX(
 	input wire [31:0] 	wb_lo_i,
 	
 	input wire 			in_delay_i,
+	output wire			in_delay_o,
 	input wire [31:0] 	link_addr_i,
 	
 	input wire [31:0] 	inst_i,
@@ -89,6 +91,9 @@ module EX(
     output reg                    signed_div_o,
     output stop
     );
+    
+    assign in_delay_o = in_delay_i;
+    assign pc_o = pc_i;
 	
 	wire[31:0] signed_low16_inst;
 	assign signed_low16_inst = { {16{inst_i[15]}}, inst_i[15:0] };
@@ -107,17 +112,17 @@ module EX(
 	assign aluop_o = aluop_i;
 	assign reg2_o = reg2_i;
   
-	/*always @(*)begin
+	always @(*)begin
 		if (rst==`RstEnable) begin
-			exc_code_o <= 0;
-			exc_epc_o <= 0;
+			//exc_code_o <= 0;
+			//exc_epc_o <= 0;
 			exc_badvaddr_o <= 0;
 		end else begin
-			exc_code_o <= exc_code_i;
-			exc_epc_o <= exc_epc_i;
+			//exc_code_o <= exc_code_i;
+			//exc_epc_o <= exc_epc_i;
 			exc_badvaddr_o <= exc_badvaddr_i;
 		end
-	end*/
+	end
 
 	always @ (*) begin
 		if (rst == `RstEnable) begin
@@ -273,16 +278,18 @@ module EX(
 			arithout <= 64'b0;
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
-			exc_badvaddr_o <= `ZeroWord;
+			//exc_badvaddr_o <= `ZeroWord;
 		end else begin
 			exc_code_o <= exc_code_i;
 			exc_epc_o <= exc_epc_i;
-			exc_badvaddr_o <= exc_badvaddr_i;
+			//exc_badvaddr_o <= exc_badvaddr_i;
 			case (aluop_i)
 				`ADD: begin
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
 						exc_code_o <= `EC_Ov;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+						else exc_epc_o <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -290,6 +297,8 @@ module EX(
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
 						exc_code_o <= `EC_Ov;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -311,11 +320,23 @@ module EX(
 				`SLTIU: begin              // immdiate should be load to reg2_i
 					arithout <= (reg1_i < reg2_i) ? 64'b1 : 64'b0;
 				end
+				`SUB: begin
+					tmp <= {reg1_i[31],reg1_i} - {reg2_i[31],reg2_i};
+					if(tmp[32] != tmp[31]) begin
+						exc_code_o <= `EC_Ov;
+						if(in_delay_i) exc_epc_o <= pc_i -4;
+					    else exc_epc_o <= pc_i;
+					end
+					else arithout <= tmp[31:0];
+				end
 				`SUBU: begin
 					arithout <= reg1_i - reg2_i;
 				end
 				`MULT: begin
 					arithout <= $signed(reg1_i) * $signed(reg2_i);
+				end
+				`MULTU: begin
+					arithout <= {1'b0,reg1_i} * {1'b0,reg2_i};
 				end
 				default: begin
 					arithout <= 64'b0;
