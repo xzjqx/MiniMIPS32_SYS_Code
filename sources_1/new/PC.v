@@ -40,15 +40,21 @@ module PC(
     );
 
 	wire[31:0] pc_next;
-	assign pc_next = (branch_flag_i == 1'b1) ? branch_target_address_i : pc + 4'h4;
+	//assign pc_next = (branch_flag_i == 1'b1) ? branch_target_address_i : pc + 4'h4;
+	//wire [31:0] pc_tmp = pc;
 
 	always @(posedge clk) begin
 		if (ce == `ChipDisable)
-			pc <= 32'hBFC00000;			
-		else if (cp0_branch_flag == `Branch)
-			pc <= cp0_branch_addr;
-		else if (stall[0] == `NoStop)
-			pc <= pc_next;
+			pc <= 32'hBFC00000;	
+		else begin
+			if (cp0_branch_flag == `Branch)
+				pc <= cp0_branch_addr;
+			else if (branch_flag_i == `Branch)
+				pc <= branch_target_address_i;
+			else if (stall[0] == `NoStop) begin
+				pc <= pc + 4'h4;
+			end		
+		end
 	end
 	
 	always @(posedge clk) begin

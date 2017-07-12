@@ -133,7 +133,7 @@ module MiniMIPS32_SYS(
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk(clk),
+		.clk(clk100mhz),
 		.clk_2(clk100mhz),
 		.rst(rst),
 	
@@ -168,7 +168,7 @@ module MiniMIPS32_SYS(
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
     BRAM bram0(
-		.wb_clk_i(clk),
+		.wb_clk_i(clk100mhz),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s0_cyc_o), 
 		.wb_adr_i(s0_addr_o), 
@@ -186,7 +186,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	blk_mem_gen_0 data_ram (
-	  .clka(clk20mhz),    // input wire clka
+	  .clka(clk100mhz),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
 	  .addra(data_addr),  // input wire [11 : 0] addra
 	  .dina(data_data_o),    // input wire [31 : 0] dina
@@ -216,7 +216,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	blk_mem_gen_1 inst_ram (
-	  .clka(clk20mhz),    // input wire clka
+	  .clka(clk100mhz),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
 	  .addra(inst_addr),  // input wire [11 : 0] addra
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
