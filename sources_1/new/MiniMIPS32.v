@@ -26,6 +26,7 @@ module MiniMIPS32(
 	input wire clk,
 	input wire rst,
 	input wire clk_2,
+	input wire clk_pc,
 	//output wire clk,
 	//output wire rst_1,
 

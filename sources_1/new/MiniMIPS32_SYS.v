@@ -133,8 +133,9 @@ module MiniMIPS32_SYS(
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk(clk100mhz),
+		.clk(clk),
 		.clk_2(clk100mhz),
+		.clk_pc(clk),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
@@ -168,7 +169,7 @@ module MiniMIPS32_SYS(
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
     BRAM bram0(
-		.wb_clk_i(clk100mhz),
+		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s0_cyc_o), 
 		.wb_adr_i(s0_addr_o), 
@@ -198,7 +199,7 @@ module MiniMIPS32_SYS(
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
     BRAM bram1(
-		.wb_clk_i(clk100mhz),
+		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s1_cyc_o), 
 		.wb_adr_i(s1_addr_o), 

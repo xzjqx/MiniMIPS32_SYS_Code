@@ -84,7 +84,7 @@ module decoder(
 	
 	always @(posedge wb_clk_i or negedge wb_rst_i) begin
 		if(wb_rst_i == `RstEnable) begin
-			led_data <= `ZeroWord;
+			led_data <= 32'hffffffff;
 			led_rg0_data <= `ZeroWord;
 			led_rg1_data <= `ZeroWord;
 			num_data <= `ZeroWord;
