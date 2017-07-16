@@ -26,6 +26,7 @@ module MiniMIPS32(
 	input wire clk,
 	input wire rst,
 	input wire clk_2,
+	input wire clk_3,
 	input wire clk_pc,
 	//output wire clk,
 	//output wire rst_1,
@@ -267,7 +268,7 @@ module MiniMIPS32(
 		.ce_o(rom_ce)
     );
 	
-	wishbone_bus_if iwishbone_bus_if(
+	iwishbone_bus_if iwishbone_bus_if(
     	.clk(clk_2),
     	.rst(rst),
     
@@ -425,9 +426,14 @@ module MiniMIPS32(
 				.exc_epc_o(cp0_exc_epc_i),
 				.exc_badvaddr_o(cp0_exc_badvaddr_i), 
 				.in_delay_o(cp0_in_delay_i));
-				
-	/*DEV_MEM dev_mem0(
-    .clk(clk), 
+	
+	/*wire [31:0] dev_mem_addr;
+	wire [31:0] dev_mem_data_in;
+	wire [31:0] dev_mem_data_out;
+	wire dev_mem_is_write;
+		
+	DEV_MEM dev_mem0(
+    .clk(clk_2), 
 	.rst(rst), 
 	.ce(mem_ce_o), 
 	.we_i(mem_we_o), 
@@ -440,9 +446,35 @@ module MiniMIPS32(
 	.dev_mem_data_out(dev_mem_data_out), 
 	.dev_mem_is_write(dev_mem_is_write), 
 	.stop_from_mem(stop_from_mem)
-	);*/
-				
+	);
+			
 	wishbone_bus_if dwishbone_bus_if(
+    	.clk(clk_3),
+    	.rst(rst),
+    
+    	.stall_i(stall),
+    	.flush_i(flush),
+						
+    	.cpu_ce_i(mem_ce_o),
+    	.cpu_data_i(dev_mem_data_out),
+    	.cpu_addr_i(dev_mem_addr),
+    	.cpu_we_i(dev_mem_is_write),
+    	.cpu_sel_i(mem_sel_o),
+    	.cpu_data_o(dev_mem_data_in),
+						
+    	.wishbone_data_i(dwishbone_data_i),
+    	.wishbone_ack_i(dwishbone_ack_i),
+    	.wishbone_addr_o(dwishbone_addr_o),
+    	.wishbone_data_o(dwishbone_data_o),
+    	.wishbone_we_o(dwishbone_we_o),
+    	.wishbone_sel_o(dwishbone_sel_o),
+    	.wishbone_stb_o(dwishbone_stb_o),
+    	.wishbone_cyc_o(dwishbone_cyc_o),
+						
+    	.stallreq(stop_from_mem)       
+	);*/
+	
+	dwishbone_bus_if dwishbone_bus_if(
     	.clk(clk_2),
     	.rst(rst),
     
