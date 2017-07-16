@@ -273,32 +273,34 @@ module EX(
 
 	// 8/21 arithmetic instructions===============================================
 	reg [32:0] tmp;
+	reg [5:0] exc_code_tmp;
+	reg [31:0] exc_epc_tmp;
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			arithout <= 64'b0;
-			exc_code_o <= `EC_None;
-			exc_epc_o <= `ZeroWord;
+			exc_code_tmp <= `EC_None;
+			exc_epc_tmp <= `ZeroWord;
 			//exc_badvaddr_o <= `ZeroWord;
 		end else begin
-			exc_code_o <= exc_code_i;
-			exc_epc_o <= exc_epc_i;
+			exc_code_tmp <= exc_code_i;
+			exc_epc_tmp <= exc_epc_i;
 			//exc_badvaddr_o <= exc_badvaddr_i;
 			case (aluop_i)
 				`ADD: begin
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_o <= `EC_Ov;
-						if(in_delay_i) exc_epc_o <= pc_i -4;
-						else exc_epc_o <= pc_i;
+						exc_code_tmp <= `EC_Ov;
+						if(in_delay_i) exc_epc_tmp <= pc_i -4;
+						else exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
 				`ADDI: begin
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_o <= `EC_Ov;
-						if(in_delay_i) exc_epc_o <= pc_i -4;
-					    else exc_epc_o <= pc_i;
+						exc_code_tmp <= `EC_Ov;
+						if(in_delay_i) exc_epc_tmp <= pc_i -4;
+					    else exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -323,9 +325,9 @@ module EX(
 				`SUB: begin
 					tmp <= {reg1_i[31],reg1_i} - {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_o <= `EC_Ov;
-						if(in_delay_i) exc_epc_o <= pc_i -4;
-					    else exc_epc_o <= pc_i;
+						exc_code_tmp <= `EC_Ov;
+						if(in_delay_i) exc_epc_tmp <= pc_i -4;
+					    else exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -410,31 +412,49 @@ module EX(
 
 	// output general
 	always @ (*) begin
-		wd_o <= wd_i;
-		wreg_o <= wreg_i;
-		case (alusel_i)
-			`Logic: begin
-				wdata_o <= logicout;
-			end
-			`Shift: begin
-				wdata_o <= shiftout;
-			end
-			`Move: begin
-				wdata_o <= moveout;
-			end
-			`Arithmetic: begin
-				wdata_o <= arithout[31:0];
-			end
-			`BranchJump: begin
-				wdata_o <= link_addr_i;
-			end
-			`Privilege: begin
-				wdata_o <= cp0out;
-			end
-			default: begin
-				wdata_o <= `ZeroWord;
-			end
-		endcase
+		if (rst == `RstEnable) begin
+			wd_o <= 5'b0;
+			wreg_o <= 1'b0;
+			wdata_o <= `ZeroWord;
+			exc_code_o <= `EC_None;
+			exc_epc_o <= `ZeroWord;		
+		end
+		else if (exc_code_i != `EC_None) begin
+			wd_o <= 5'b0;
+			wreg_o <= 1'b0;
+			wdata_o <= `ZeroWord;
+			exc_code_o <= exc_code_i;
+			exc_epc_o <= exc_epc_i;
+		end
+		else begin
+			wd_o <= wd_i;
+			wreg_o <= wreg_i;
+			exc_code_o <= exc_code_tmp;
+			exc_epc_o <= exc_epc_tmp;
+			case (alusel_i)
+				`Logic: begin
+					wdata_o <= logicout;
+				end
+				`Shift: begin
+					wdata_o <= shiftout;
+				end
+				`Move: begin
+					wdata_o <= moveout;
+				end
+				`Arithmetic: begin
+					wdata_o <= arithout[31:0];
+				end
+				`BranchJump: begin
+					wdata_o <= link_addr_i;
+				end
+				`Privilege: begin
+					wdata_o <= cp0out;
+				end
+				default: begin
+					wdata_o <= `ZeroWord;
+				end
+			endcase
+		end
 	end
 
 

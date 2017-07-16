@@ -69,7 +69,8 @@ module MEM(
 	
 	input in_delay_i,
 	output in_delay_o,
-	input wire [31:0] pc_i
+	input wire [31:0] pc_i,
+	output reg stop
     );
     
     assign in_delay_o = in_delay_i;
@@ -98,6 +99,27 @@ module MEM(
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;
 			exc_badvaddr_o <= `ZeroWord;
+			stop <= `NoStop;
+		end
+		else if (exc_code_i != `EC_None) begin
+			wd_o = 5'b0;
+			wreg_o = 1'b0;
+			wdata_o = 32'b0;
+			whilo_o = 1'b0;
+			hi_o = 32'b0;
+			lo_o = 32'b0;
+			mem_data_o = 32'b0;
+			mem_ce_o = 1'b0;
+			mem_sel_o = 4'b0;
+			mem_addr_o = 32'b0;
+			mem_we_o = 1'b0;
+			cp0_reg_we_o <= 1'b0;
+			cp0_reg_write_addr_o <= 5'b00000;
+			cp0_reg_data_o <= 32'b0;
+			exc_code_o <= exc_code_i;
+			exc_epc_o <= exc_epc_i;
+			exc_badvaddr_o <= exc_badvaddr_i;
+			stop <= `NoStop;
 		end
 		else begin
 			wd_o = wd_i;
@@ -117,8 +139,10 @@ module MEM(
 			exc_code_o <= exc_code_i;
 			exc_epc_o <= exc_epc_i;
 			exc_badvaddr_o <= exc_badvaddr_i;
+			stop <= `NoStop;
 			case(aluop_i)
 				`LB: begin
+					//stop <= `Stop;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
@@ -146,6 +170,7 @@ module MEM(
                     endcase
                 end
                 `LBU: begin
+                	stop <= `Stop;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteDisable;
                     mem_ce_o <= `ChipEnable;
@@ -173,6 +198,7 @@ module MEM(
                     endcase
                 end
                 `LH: begin
+                	stop <= `Stop;
                 	if(!halfAlignedFlag) begin 
                 		exc_code_o <= `EC_AdEL;
 						if(in_delay_i) exc_epc_o <= pc_i -4;
@@ -198,6 +224,7 @@ module MEM(
                     endcase
                 end
                 `LHU: begin
+                	stop <= `Stop;
                 	if(!halfAlignedFlag) begin 
                 		exc_code_o <= `EC_AdEL;
 						if(in_delay_i) exc_epc_o <= pc_i -4;
@@ -244,6 +271,7 @@ module MEM(
                     endcase
                 end
                 `SB: begin
+                	stop <= `Stop;
                     mem_addr_o <= {3'b0,mem_addr_i[28:0]};
                     mem_we_o <= `WriteEnable;
                     mem_ce_o <= `ChipEnable;
@@ -270,6 +298,7 @@ module MEM(
                     endcase
                 end
                 `SH: begin
+                	stop <= `Stop;
                 	if(!halfAlignedFlag) begin 
                 	exc_code_o <= `EC_AdEL;
 						if(in_delay_i) exc_epc_o <= pc_i -4;
@@ -294,6 +323,7 @@ module MEM(
 					endcase
                 end
                 `SW: begin
+                	stop <= `Stop;
                 	if(!wordAlignedFlag) begin 
                 		exc_code_o <= `EC_AdES;
 						if(in_delay_i) exc_epc_o <= pc_i -4;
@@ -314,6 +344,7 @@ module MEM(
                     endcase
                 end
 				default: begin
+					stop <= `NoStop;
 					mem_addr_o <= `ZeroWord;
 					mem_we_o <= `WriteDisable;
 					mem_data_o <= `ZeroWord;
