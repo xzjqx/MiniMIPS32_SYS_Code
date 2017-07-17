@@ -43,7 +43,7 @@ module BRAM(
     output  [31:0]		wb_dat_o;	// output data bus
     output 				wb_ack_o;	// normal termination
     
-    output 				wea;
+    output 	[3:0]		wea;
 	output  [11:0] 		ram_addr;
     input   [31:0] 		ram_data_i;
     output  [31:0] 		ram_data_o;
@@ -53,7 +53,7 @@ module BRAM(
 	wire [31:0] data_in = wb_dat_i;
 	
 	////////////////////////////
-    assign  wea = wb_we_i;
+    assign  wea = wb_we_i ? wb_sel_i : 4'b0;
     assign	ram_data_o = wb_dat_i;
     assign  ram_addr = wb_adr_i[13:2];
     assign  wb_dat_o = ram_data_i;
