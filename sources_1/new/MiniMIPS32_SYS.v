@@ -101,7 +101,7 @@ module MiniMIPS32_SYS(
 	assign int = {3'b000, gpio_int, uart_int, int_time};
 	
 	wire clk5mhz;
-	wire clk20mhz;
+	wire clk50mhz;
 	wire clk100mhz;
 	wire clk200mhz;
 	wire rst_o;
@@ -114,7 +114,7 @@ module MiniMIPS32_SYS(
 	 (
 	  // Clock out ports
 	  .clk_out1(clk),     // output clk_out1
-	  .clk_out2(clk20mhz),     // output clk_out2
+	  .clk_out2(clk50mhz),     // output clk_out2
 	  .clk_out3(clk100mhz),     // output clk_out3
 	  .clk_out4(clk200mhz),     // output clk_out3
 	 // Clock in ports
@@ -166,11 +166,12 @@ module MiniMIPS32_SYS(
 	assign m0_addr_i = (m0_addr_i_temp[28] == 0) ? m0_addr_i_temp : {4'b0010,m0_addr_i_temp[27:0]};
 	
 	wire [3:0] data_wea;
-	wire [11:0] data_addr;
+	wire [17:0] data_addr_tmp;
+	wire [15:0] data_addr;
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
     BRAM bram0(
-		.wb_clk_i(clk),
+		.wb_clk_i(clk100mhz),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s0_cyc_o), 
 		.wb_adr_i(s0_addr_o), 
@@ -182,7 +183,7 @@ module MiniMIPS32_SYS(
 		.wb_ack_o(s0_ack_i),
 		
 		.wea(data_wea), 
-		.ram_addr(data_addr), 
+		.ram_addr(data_addr_tmp), 
 		.ram_data_i(data_data_i), 
 		.ram_data_o(data_data_o)
 	);
@@ -196,21 +197,21 @@ module MiniMIPS32_SYS(
 	  .addrb(data_addr),  // input wire [11 : 0] addrb
 	  .doutb(data_data_i)  // output wire [31 : 0] doutb
 	);*/
-	
+	assign data_addr = data_addr[15:0];
 	blk_mem_gen_0 data_ram (
 	  .clka(clk100mhz),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
-	  .addra(data_addr),  // input wire [11 : 0] addra
+	  .addra(data_addr),  // input wire [15 : 0] addra
 	  .dina(data_data_o),    // input wire [31 : 0] dina
 	  .douta(data_data_i)  // output wire [31 : 0] douta
 	);
 
 	wire [3:0] inst_wea;
-	wire [11:0] inst_addr;
+	wire [17:0] inst_addr;
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
     BRAM bram1(
-		.wb_clk_i(clk),
+		.wb_clk_i(clk100mhz),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s1_cyc_o), 
 		.wb_adr_i(s1_addr_o), 
@@ -230,7 +231,7 @@ module MiniMIPS32_SYS(
 	blk_mem_gen_1 inst_ram (
 	  .clka(clk100mhz),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
-	  .addra(inst_addr),  // input wire [11 : 0] addra
+	  .addra(inst_addr),  // input wire [17 : 0] addra
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
 	  .douta(inst_data_i)  // output wire [31 : 0] douta
 	);

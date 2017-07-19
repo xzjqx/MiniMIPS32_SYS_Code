@@ -39,7 +39,7 @@ module PC(
 	output reg ce
     );
 
-	wire[31:0] pc_next;
+	//wire[31:0] pc_next;
 	//assign pc_next = (branch_flag_i == 1'b1) ? branch_target_address_i : pc + 4'h4;
 	//wire [31:0] pc_tmp = pc;
 
@@ -65,7 +65,7 @@ module PC(
 		else begin
 			if (cp0_branch_flag == `Branch)
 				pc <= cp0_branch_addr;
-			if (stall[0] == `NoStop) begin
+			else if (stall[0] == `NoStop) begin
 				if (branch_flag_i == `Branch)
 					pc <= branch_target_address_i;
 				else
