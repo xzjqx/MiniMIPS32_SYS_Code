@@ -65,6 +65,15 @@ module iwishbone_bus_if(
 
   reg[1:0] wishbone_state;
   reg[`RegBus] rd_buf;
+  
+  reg [5:0] stall_i_pre;
+  always @(posedge clk) begin
+  	if (stall_i != 6'b000000)
+  		stall_i_pre <= stall_i;
+  	else
+  		stall_i_pre <= 6'bzzzzzz;
+  end
+  
 
 	always @ (posedge clk) begin
 		if(rst == `RstEnable) begin
@@ -129,7 +138,18 @@ module iwishbone_bus_if(
 				end
 				`WB_WAIT_FOR_STALL:		begin
 					if(stall_i == 6'b000000) begin
-						//wishbone_state <= `WB_BUSY;
+						wishbone_state <= `WB_IDLE;
+						/*wishbone_stb_o <= 1'b1;
+						wishbone_cyc_o <= 1'b1;
+						wishbone_addr_o <= cpu_addr_i;
+						wishbone_data_o <= cpu_data_i;
+						wishbone_we_o <= cpu_we_i;
+						wishbone_sel_o <=  cpu_sel_i;
+						wishbone_state <= `WB_BUSY;
+						rd_buf <= `ZeroWord;*/
+					end
+					if(stall_i_pre == 6'b001111) begin
+						wishbone_state <= `WB_BUSY;
 						wishbone_stb_o <= 1'b1;
 						wishbone_cyc_o <= 1'b1;
 						wishbone_addr_o <= cpu_addr_i;
