@@ -470,6 +470,10 @@ module EX(
 					{hi_o, lo_o} <= arithout;
 					whilo_o <= 1'b1;
 				end
+				`MULTU: begin
+					{hi_o, lo_o} <= arithout;
+					whilo_o <= 1'b1;
+				end 
 				`MTHI: begin
 					hi_o <= reg1_i;
 					lo_o <= lo_t;
