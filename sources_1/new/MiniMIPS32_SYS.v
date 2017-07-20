@@ -197,7 +197,7 @@ module MiniMIPS32_SYS(
 	  .addrb(data_addr),  // input wire [11 : 0] addrb
 	  .doutb(data_data_i)  // output wire [31 : 0] doutb
 	);*/
-	assign data_addr = data_addr[15:0];
+	assign data_addr = data_addr_tmp[15:0];
 	blk_mem_gen_0 data_ram (
 	  .clka(clk100mhz),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
