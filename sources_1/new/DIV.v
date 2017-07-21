@@ -114,7 +114,7 @@ module DIV(
                 if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ opdata2_i[31]) == 1'b1)) begin
                     dividend[31:0] <= (~dividend[31:0] + 1);
                 end
-                if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ dividend[64]) == 1'b1)) begin              
+                if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ dividend[65]) == 1'b1)) begin              
                     dividend[65:34] <= (~dividend[65:34] + 1);
                 end
                 state <= `DivEnd;
