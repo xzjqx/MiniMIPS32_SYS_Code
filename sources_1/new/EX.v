@@ -419,13 +419,6 @@ module EX(
 			exc_code_o <= `EC_None;
 			exc_epc_o <= `ZeroWord;		
 		end
-		else if (exc_code_i != `EC_None) begin
-			wd_o <= 5'b0;
-			wreg_o <= 1'b0;
-			wdata_o <= `ZeroWord;
-			exc_code_o <= exc_code_i;
-			exc_epc_o <= exc_epc_i;
-		end
 		else begin
 			wd_o <= wd_i;
 			wreg_o <= wreg_i;

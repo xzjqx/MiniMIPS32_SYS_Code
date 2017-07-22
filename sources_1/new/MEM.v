@@ -99,25 +99,6 @@ module MEM(
 			exc_epc_o <= `ZeroWord;
 			exc_badvaddr_o <= `ZeroWord;
 		end
-		else if (exc_code_i != `EC_None) begin
-			wd_o = 5'b0;
-			wreg_o = 1'b0;
-			wdata_o = 32'b0;
-			whilo_o = 1'b0;
-			hi_o = 32'b0;
-			lo_o = 32'b0;
-			mem_data_o = 32'b0;
-			mem_ce_o = 1'b0;
-			mem_sel_o = 4'b0;
-			mem_addr_o = 32'b0;
-			mem_we_o = 1'b0;
-			cp0_reg_we_o <= 1'b0;
-			cp0_reg_write_addr_o <= 5'b00000;
-			cp0_reg_data_o <= 32'b0;
-			exc_code_o <= exc_code_i;
-			exc_epc_o <= exc_epc_i;
-			exc_badvaddr_o <= exc_badvaddr_i;
-		end
 		else begin
 			wd_o = wd_i;
 			wreg_o = wreg_i;
