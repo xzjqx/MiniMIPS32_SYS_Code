@@ -267,6 +267,21 @@ module MiniMIPS32(
 		.ce_i(pc_rom_ce),
 		.ce_o(rom_ce)
     );
+    
+    reg stop_from_if0;
+    wire stop_from_if1;
+    always @(posedge clk) begin
+    	if (rst == `RstEnable) begin
+    		stop_from_if0 <= `NoStop;
+    	end
+    	else begin
+    		if(mem_ce_o == `ChipEnable && mem_addr_o[31:20] == inst_addr[31:20]) begin
+    			stop_from_if0 <= `Stop;
+    		end
+    		else
+    			stop_from_if0 <= `NoStop;
+    	end
+    end
 	
 	iwishbone_bus_if iwishbone_bus_if(
     	.clk(clk_2),
@@ -291,8 +306,9 @@ module MiniMIPS32(
     	.wishbone_stb_o(iwishbone_stb_o),
     	.wishbone_cyc_o(iwishbone_cyc_o),
 						
-    	.stallreq(stop_from_if)       
+    	.stallreq(stop_from_if1)       
 	);
+	assign stop_from_if = stop_from_if0 | stop_from_if1;
 	
 	IF_ID if_id0(.clk(clk), .rst(rst),
 				.if_pc(if_addr_o),

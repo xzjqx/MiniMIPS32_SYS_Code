@@ -148,7 +148,7 @@ module iwishbone_bus_if(
 						wishbone_state <= `WB_BUSY;
 						rd_buf <= `ZeroWord;*/
 					end
-					if(stall_i_pre == 6'b001111) begin
+					if(stall_i_pre == 6'b001111 || stall_i_pre == 6'b000011) begin
 						wishbone_state <= `WB_BUSY;
 						wishbone_stb_o <= 1'b1;
 						wishbone_cyc_o <= 1'b1;
