@@ -164,7 +164,7 @@ module CP0(
 				`Cp0_Count: data_o <= count_o;
 				`Cp0_Compare: data_o <= compare_o;
 				`Cp0_Status: data_o <= status_o;
-				`Cp0_Cause: data_o <= {16'b0, int_i, cause_o[9:0]};
+				`Cp0_Cause: data_o <= cause_o;
 				`Cp0_EPC: data_o <= epc_o;
 			endcase
       end 
