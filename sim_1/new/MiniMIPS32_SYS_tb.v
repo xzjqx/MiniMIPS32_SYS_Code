@@ -25,16 +25,20 @@ module MiniMIPS32_SYS_tb;
 	// Inputs
 	reg clk_init;
 	reg rst_init;
+	reg [7:0] switch;
 	
 	MiniMIPS32_SYS SoC (
 		.clk_init(clk_init),
-		.rst_init(rst_init)
+		.rst_init(rst_init),
+		
+		.switch(switch)
 	);
 	
 	initial begin
 		// Initialize Inputs
 		clk_init = 0;
 		rst_init = 0;
+		switch = 8'h3d;
 		
 		rst_init = 1'b0;
 		#50 
