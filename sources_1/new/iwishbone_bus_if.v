@@ -59,20 +59,21 @@ module iwishbone_bus_if(
 	output reg                    wishbone_stb_o,
 	output reg                    wishbone_cyc_o,
 
-	output reg                    stallreq	       
-	
+	output reg                    stallreq	  
+	     
+	//input wire mem_ce_o
 );
 
   reg[1:0] wishbone_state;
   reg[`RegBus] rd_buf;
   
-  reg [5:0] stall_i_pre;
+  /*reg [5:0] stall_i_pre;
   always @(posedge clk) begin
   	if (stall_i != 6'b000000)
   		stall_i_pre <= stall_i;
   	else
   		stall_i_pre <= 6'bzzzzzz;
-  end
+  end*/
   
 
 	always @ (posedge clk) begin
@@ -89,7 +90,11 @@ module iwishbone_bus_if(
 		end else begin
 			case (wishbone_state)
 				`WB_IDLE:		begin
-					if((cpu_ce_i == 1'b1) && (flush_i == `False_v)) begin
+				    /*if(cpu_addr_i[31:28] == 4'b0000 && mem_ce_o == `ChipEnable) begin
+						wishbone_stb_o <= 1'b0;
+                        wishbone_cyc_o <= 1'b0;
+				    end*/
+					else if((cpu_ce_i == 1'b1) && (flush_i == `False_v)) begin
 						wishbone_stb_o <= 1'b1;
 						wishbone_cyc_o <= 1'b1;
 						wishbone_addr_o <= cpu_addr_i;
@@ -148,7 +153,7 @@ module iwishbone_bus_if(
 						wishbone_state <= `WB_BUSY;
 						rd_buf <= `ZeroWord;*/
 					end
-					if(stall_i_pre == 6'b001111 || stall_i_pre == 6'b000011) begin
+					/*if(stall_i_pre == 6'b001111 || stall_i_pre == 6'b000011 || stall_i_pre == 6'b000111) begin
 						wishbone_state <= `WB_BUSY;
 						wishbone_stb_o <= 1'b1;
 						wishbone_cyc_o <= 1'b1;
@@ -158,7 +163,7 @@ module iwishbone_bus_if(
 						wishbone_sel_o <=  cpu_sel_i;
 						wishbone_state <= `WB_BUSY;
 						rd_buf <= `ZeroWord;
-					end
+					end*/
 				end
 				default: begin
 				end 

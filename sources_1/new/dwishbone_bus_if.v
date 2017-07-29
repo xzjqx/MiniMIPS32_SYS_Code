@@ -145,28 +145,24 @@ module dwishbone_bus_if(
 			cpu_data_o <= `ZeroWord;
 		end else begin
 			stallreq <= `NoStop;
-			//cpu_data_o <= wishbone_data_i;
 			case (wishbone_state)
 				`WB_IDLE:		begin
 					if((cpu_ce_i == 1'b1) && (flush_i == `False_v)) begin
 						stallreq <= `Stop;
-						cpu_data_o <= `ZeroWord;	
-						//cpu_data_o <= wishbone_data_i;			
+						cpu_data_o <= `ZeroWord;				
 					end
-					cpu_data_o <= wishbone_data_i;
 				end
 				`WB_BUSY:		begin
-					cpu_data_o <= wishbone_data_i;
 					if(wishbone_ack_i == 1'b1) begin
 						stallreq <= `NoStop;
-						//if(wishbone_we_o == `WriteDisable) begin
-							//cpu_data_o <= wishbone_data_i;  //????
-						//end else begin
-						  //cpu_data_o <= `ZeroWord;
-						//end							
+						if(wishbone_we_o == `WriteDisable) begin
+							cpu_data_o <= wishbone_data_i;  //????
+						end else begin
+						  cpu_data_o <= `ZeroWord;
+						end							
 					end else begin
 						stallreq <= `Stop;	
-						//cpu_data_o <= `ZeroWord;				
+						cpu_data_o <= `ZeroWord;				
 					end
 				end
 				`WB_WAIT_FOR_STALL:		begin

@@ -96,8 +96,8 @@ module MiniMIPS32_SYS(
     
 	wire[5:0] int;
     wire int_time;
-    wire gpio_int;
-    wire uart_int;
+    wire gpio_int = 0;
+    wire uart_int = 0;
 	assign int = {3'b000, gpio_int, uart_int, int_time};
 	
 	wire clk5mhz;
