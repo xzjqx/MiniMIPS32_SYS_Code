@@ -271,7 +271,7 @@ module MEM(
                 end
                 `SH: begin
                 	if(!halfAlignedFlag) begin 
-                	exc_code_o <= `EC_AdEL;
+                	exc_code_o <= `EC_AdES;
 						if(in_delay_i) exc_epc_o <= pc_i -4;
 					    else exc_epc_o <= pc_i;
 						exc_badvaddr_o <= mem_addr_i;
