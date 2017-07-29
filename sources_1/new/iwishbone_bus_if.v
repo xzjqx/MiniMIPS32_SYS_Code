@@ -94,7 +94,7 @@ module iwishbone_bus_if(
 						wishbone_stb_o <= 1'b0;
                         wishbone_cyc_o <= 1'b0;
 				    end*/
-					else if((cpu_ce_i == 1'b1) && (flush_i == `False_v)) begin
+					if((cpu_ce_i == 1'b1) && (flush_i == `False_v)) begin
 						wishbone_stb_o <= 1'b1;
 						wishbone_cyc_o <= 1'b1;
 						wishbone_addr_o <= cpu_addr_i;
