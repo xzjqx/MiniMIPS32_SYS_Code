@@ -227,191 +227,260 @@ module ID(
 					case(func)
 						//AND
 						6'b100100:begin
-							alusel_o<=`Logic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`AND;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Logic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`AND;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//OR
 						6'b100101:begin
-							alusel_o<=`Logic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`OR;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Logic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`OR;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//XOR
 						6'b100110:begin
-							alusel_o<=`Logic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`XOR;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Logic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`XOR;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//NOR
 						6'b100111:begin
-							alusel_o<=`Logic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`NOR;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Logic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`NOR;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SLL
 						//NOP IS IGNORED!!!!
 						6'b000000:begin 
-							alusel_o<=`Shift;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SLL;
-							imm<={{27{1'b0}},inst_i[10:6]};
+						    if (rs == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SLL;
+                                imm<={{27{1'b0}},inst_i[10:6]};
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SRL
 						6'b000010:begin
-							alusel_o<=`Shift;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SRL; 
-							imm<={{27{1'b0}},inst_i[10:6]};
+						    if (rs == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SRL; 
+                                imm<={{27{1'b0}},inst_i[10:6]};
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SRA
 						6'b000011:begin
-							alusel_o<=`Shift;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SRA; 
-							imm<={{27{1'b0}},inst_i[10:6]};
-						end
+						    if (rs == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SRA; 
+                                imm<={{27{1'b0}},inst_i[10:6]};							
+							end
+                            else begin
+                                InvalidInstruction();
+                            end						end
 						
 						//SLLV
 						6'b000100:begin
-							alusel_o<=`Shift;
-							wreg_o<=1;
-							wd_o<=rd;
-							reg1_read_o<=1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1;
-							reg2_addr_o<=rs;
-							next_delay<=0;
-							branch_flag<=0;
-							aluop_o<=`SLLV; 
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1;
+                                wd_o<=rd;
+                                reg1_read_o<=1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1;
+                                reg2_addr_o<=rs;
+                                next_delay<=0;
+                                branch_flag<=0;
+                                aluop_o<=`SLLV; 
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SRLV
 						6'b000110:begin
-							alusel_o<=`Shift;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rs;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SRLV; 
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rs;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SRLV; 
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SRAV
 						6'b000111:begin
-							alusel_o<=`Shift;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rt;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rs;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SRAV; 
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Shift;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rt;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rs;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SRAV; 
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//MFHI
 						6'b010000:begin
-							alusel_o<=`Move;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b0;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`MFHI; 
+						    if (rs == 5'b00000 && rt == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`Move;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b0;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`MFHI; 
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//MFLO
 						6'b010010:begin
-							alusel_o<=`Move;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b0;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`MFLO;
+						    if (rs == 5'b00000 && rt == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`Move;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b0;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`MFLO;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//MTHI
 						6'b010001:begin
-							alusel_o<=`Move;
-							wreg_o<=1'b0;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`MTHI;
+						    if (rt == 5'b00000 && rd == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`Move;
+                                wreg_o<=1'b0;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`MTHI;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//MTLO
 						6'b010011:begin
-							alusel_o<=`Move;
-							wreg_o<=1'b0;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`MTLO;
+						    if (rt == 5'b00000 && rd == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`Move;
+                                wreg_o<=1'b0;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`MTLO;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//ADD
@@ -430,72 +499,97 @@ module ID(
 						
 						//ADDU
 						6'b100001:begin
-							alusel_o<=`Arithmetic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`ADDU;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Arithmetic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`ADDU;
+							end
+							else begin
+							    InvalidInstruction();
+							end
 						end
 
 						//SUB
 						6'b100010:begin
-							alusel_o<=`Arithmetic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SUB;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Arithmetic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SUB;
+                            end
+							else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SUBU
 						6'b100011:begin
-							alusel_o<=`Arithmetic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SUBU;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Arithmetic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SUBU;
+                            end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 
 						//SLT
 						6'b101010:begin
-							alusel_o<=`Arithmetic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SLT;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Arithmetic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SLT;
+                            end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//SLTU
 						6'b101011:begin
-							alusel_o<=`Arithmetic;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b1;
-							reg2_addr_o<=rt;
-							next_delay<=1'b0;
-							branch_flag<=1'b0;
-							aluop_o<=`SLTU;
+						    if (sa == 5'b00000) begin
+                                alusel_o<=`Arithmetic;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b1;
+                                reg2_addr_o<=rt;
+                                next_delay<=1'b0;
+                                branch_flag<=1'b0;
+                                aluop_o<=`SLTU;
+                            end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//MULT
@@ -526,30 +620,40 @@ module ID(
 						
 						//JR
 						6'b001000:begin
-							alusel_o<=`BranchJump;
-							aluop_o<=`JR;
-							wreg_o<=1'b0;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b1;
-							branch_flag<=1'b1;
-							branch_addr<=reg1_o;
+						    if (rt == 5'b00000 && rd == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`BranchJump;
+                                aluop_o<=`JR;
+                                wreg_o<=1'b0;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b1;
+                                branch_flag<=1'b1;
+                                branch_addr<=reg1_o;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 						
 						//JALR
 						6'b001001:begin
-							alusel_o<=`BranchJump;
-							wreg_o<=1'b1;
-							wd_o<=rd;
-							link_addr_o<=pc_8;
-							reg1_read_o<=1'b1;
-							reg1_addr_o<=rs;
-							reg2_read_o<=1'b0;
-							next_delay<=1'b1;
-							branch_flag<=1'b1;
-							branch_addr<=reg1_o;
-							aluop_o<=`JALR;
+						    if (rt == 5'b00000 && sa == 5'b00000) begin
+                                alusel_o<=`BranchJump;
+                                wreg_o<=1'b1;
+                                wd_o<=rd;
+                                link_addr_o<=pc_8;
+                                reg1_read_o<=1'b1;
+                                reg1_addr_o<=rs;
+                                reg2_read_o<=1'b0;
+                                next_delay<=1'b1;
+                                branch_flag<=1'b1;
+                                branch_addr<=reg1_o;
+                                aluop_o<=`JALR;
+							end
+                            else begin
+                                InvalidInstruction();
+                            end
 						end
 
 						//BREAK
@@ -665,15 +769,20 @@ module ID(
 				
 				//LUI
 				6'b001111:begin
-					alusel_o<=`Logic;
-					aluop_o<=`LUI;
-					wreg_o<=1'b1;
-					wd_o<=rt;
-					reg1_read_o<=1'b0;
-					reg2_read_o<=1'b0;
-					branch_flag<=1'b0;
-					next_delay<=1'b0;
-					imm<=zero_imm;
+				    if (rs == 5'b00000) begin
+                        alusel_o<=`Logic;
+                        aluop_o<=`LUI;
+                        wreg_o<=1'b1;
+                        wd_o<=rt;
+                        reg1_read_o<=1'b0;
+                        reg2_read_o<=1'b0;
+                        branch_flag<=1'b0;
+                        next_delay<=1'b0;
+                        imm<=zero_imm;
+					end
+					else begin
+					    InvalidInstruction();
+					end
 				end
 
 				//ADDI
@@ -961,39 +1070,49 @@ module ID(
 				
 				//BGTZ
 				6'b000111:begin
-					alusel_o<=`BranchJump;
-					aluop_o<=`BGTZ; 
-					wreg_o<=1'b0;
-					reg1_read_o<=1'b1;
-					reg1_addr_o<=rs;
-					reg2_read_o<=1'b0;
-					next_delay<=1'b1;
-					if ((reg1_o[31]==1'b0) && (reg1_o!=`ZeroWord))begin
-						branch_flag<=1'b1;
-						branch_addr<=jump_addr_16;
-					end
-					else
-					begin
-						branch_flag<=1'b0;
-					end
+				    if (rt == 5'b00000) begin
+                        alusel_o<=`BranchJump;
+                        aluop_o<=`BGTZ; 
+                        wreg_o<=1'b0;
+                        reg1_read_o<=1'b1;
+                        reg1_addr_o<=rs;
+                        reg2_read_o<=1'b0;
+                        next_delay<=1'b1;
+                        if ((reg1_o[31]==1'b0) && (reg1_o!=`ZeroWord))begin
+                            branch_flag<=1'b1;
+                            branch_addr<=jump_addr_16;
+                        end
+                        else
+                        begin
+                            branch_flag<=1'b0;
+                        end
+                    end
+                    else begin
+                        InvalidInstruction();
+                    end 
 				end
 				
 				//BLEZ
 				6'b000110:begin
-					alusel_o<=`BranchJump;
-					aluop_o<=`BLEZ;
-					wreg_o<=1'b0;
-					reg1_read_o<=1'b1;
-					reg1_addr_o<=rs;
-					reg2_read_o<=1'b0;
-					next_delay<=1'b1;
-					if ((reg1_o[31]==1'b1) || (reg1_o==`ZeroWord)) begin
-						branch_flag<=1'b1;
-						branch_addr<=jump_addr_16;
-					end else
-					begin
-						branch_flag<=1'b0;
-					end
+				    if (rt == 5'b00000) begin
+                        alusel_o<=`BranchJump;
+                        aluop_o<=`BLEZ;
+                        wreg_o<=1'b0;
+                        reg1_read_o<=1'b1;
+                        reg1_addr_o<=rs;
+                        reg2_read_o<=1'b0;
+                        next_delay<=1'b1;
+                        if ((reg1_o[31]==1'b1) || (reg1_o==`ZeroWord)) begin
+                            branch_flag<=1'b1;
+                            branch_addr<=jump_addr_16;
+                        end else
+                        begin
+                            branch_flag<=1'b0;
+                        end
+                    end
+                    else begin
+                        InvalidInstruction();
+                    end 
 				end
 				
 				//BNE
@@ -1015,7 +1134,7 @@ module ID(
 					end
 				end
 				
-				//BLTZ && BGEZ
+				//BLTZ && BGEZ && BGEZAL && BLTZAL
 				6'b000001:begin
 					case(rt)
 					
