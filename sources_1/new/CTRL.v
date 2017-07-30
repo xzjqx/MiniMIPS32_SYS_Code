@@ -66,7 +66,7 @@ module CTRL(
 			stall <= 6'b000111;
 			flush_o<=0;
 		end else if (stop_from_if == `Stop) begin
-			stall <= 6'b000011;
+			stall <= 6'b000111;
 			flush_o<=0;
 		end else begin
 			stall <= 6'b000000;

@@ -133,7 +133,7 @@ module MiniMIPS32_SYS(
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk(clk),
+		.clk(clk100mhz),
 		.clk_2(clk100mhz),
 		.clk_3(clk200mhz),
 		.clk_pc(clk),
