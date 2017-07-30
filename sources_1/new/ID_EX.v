@@ -92,7 +92,6 @@ module ID_EX(
 			ex_wreg <= 1'b0;
 			ex_is_in_delayslot <= 1'b0;
 			ex_link_address <= 1'b0;
-			is_in_delayslot_o <= 1'b0;
 			ex_inst <= 32'b0;
 			ex_pc <= `ZeroWord;
 			exc_code_o <= `EC_None;
@@ -106,9 +105,9 @@ module ID_EX(
 			ex_reg2 <= id_reg2;
 			ex_wd <= id_wd;
 			ex_wreg <= id_wreg;
-			ex_is_in_delayslot <= next_inst_in_delayslot_i;
+			ex_is_in_delayslot <= id_is_in_delayslot;
 			ex_link_address <= id_link_address;
-			is_in_delayslot_o <= id_is_in_delayslot;
+			is_in_delayslot_o <= next_inst_in_delayslot_i;
 			ex_inst <= id_inst;
 			ex_pc <= id_pc;
 			exc_code_o <= exc_code_i;

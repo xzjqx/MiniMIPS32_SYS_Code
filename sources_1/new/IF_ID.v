@@ -54,7 +54,7 @@ module IF_ID(
 			exc_code_o <= `EC_None;
 			exc_badvaddr_o <= `ZeroWord;
 		end
-		else if (stall[2] == `NoStop) begin
+		else if (stall[1] == `NoStop) begin
 			id_pc <= if_pc;
 			id_inst <= if_inst;
 			exc_code_o <= exc_code_i;
