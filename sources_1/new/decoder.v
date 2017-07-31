@@ -90,12 +90,13 @@ module decoder(
 			num_data <= `ZeroWord;
 		end
 		else begin
-			case({led_we,led_rg0_we,led_rg1_we,num_we})
-				4'b1000: led_data <= wb_dat_i;
-				4'b0100: led_rg0_data <= wb_dat_i;
-				4'b0010: led_rg1_data <= wb_dat_i;
-				4'b0001: num_data <= wb_dat_i;
-			endcase
+		    if(wb_ack_o)
+                case({led_we,led_rg0_we,led_rg1_we,num_we})
+                    4'b1000: led_data <= wb_dat_i;
+                    4'b0100: led_rg0_data <= wb_dat_i;
+                    4'b0010: led_rg1_data <= wb_dat_i;
+                    4'b0001: num_data <= wb_dat_i;
+                endcase
 		end
 	end 
 	

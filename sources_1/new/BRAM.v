@@ -53,7 +53,7 @@ module BRAM(
 	wire [31:0] data_in = wb_dat_i;
 	
 	////////////////////////////
-    assign  wea = wb_we_i ? wb_sel_i : 4'b0;
+    assign  wea = (wb_stb_i && wb_we_i) ? wb_sel_i : 4'b0;
     assign	ram_data_o = wb_dat_i;
     assign  ram_addr = wb_adr_i[19:2];
     assign  wb_dat_o = ram_data_i;
