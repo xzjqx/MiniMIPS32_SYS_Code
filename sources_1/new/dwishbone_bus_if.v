@@ -37,6 +37,8 @@ module dwishbone_bus_if(
 	input wire					  clk,
 	input wire					  rst,
 	
+	input wire[2:0]               s0_msel,
+	
 	//??????ctrl
 	input wire[5:0]               stall_i,
 	input                         flush_i,
@@ -65,6 +67,12 @@ module dwishbone_bus_if(
 
   reg[1:0] wishbone_state;
   reg[`RegBus] rd_buf;
+  reg flag;
+  
+  reg [3:0] s0_msel_d;
+  always @(posedge clk) begin
+    s0_msel_d <= s0_msel;
+  end
 
 	always @ (posedge clk) begin
 		if(rst == `RstEnable) begin
@@ -98,7 +106,11 @@ module dwishbone_bus_if(
 //						wishbone_stb_o <= 1'b0;
 //						wishbone_cyc_o <= 1'b0;
 //						cpu_data_o <= `ZeroWord;			
-					end							
+					end		
+					if(flag == 1) begin
+					   flag <= 0;
+					   wishbone_state <= `WB_BUSY;
+					end					
 				end
 				`WB_BUSY:		begin
 					if(wishbone_ack_i == 1'b1) begin
@@ -125,6 +137,16 @@ module dwishbone_bus_if(
 						wishbone_sel_o <=  4'b0000;
 						wishbone_state <= `WB_IDLE;
 						rd_buf <= `ZeroWord;
+					end
+					if(s0_msel == 3'b000 && s0_msel_d == 3'b001) begin
+					   wishbone_state <= `WB_IDLE;
+					   flag <= 1;
+					   wishbone_stb_o <= 1'b1;
+                       wishbone_cyc_o <= 1'b1;
+                       wishbone_addr_o <= cpu_addr_i;
+                       wishbone_data_o <= cpu_data_i;
+                       wishbone_we_o <= cpu_we_i;
+                       wishbone_sel_o <=  cpu_sel_i;
 					end
 				end
 				`WB_WAIT_FOR_STALL:		begin
@@ -163,6 +185,10 @@ module dwishbone_bus_if(
 					end else begin
 						stallreq <= `Stop;	
 						cpu_data_o <= `ZeroWord;				
+					end
+					if(s0_msel == 3'b000 && s0_msel_d == 3'b001) begin
+					   stallreq <= `Stop;
+					   cpu_data_o <= `ZeroWord;
 					end
 				end
 				`WB_WAIT_FOR_STALL:		begin

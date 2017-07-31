@@ -95,7 +95,7 @@ module wb_conmax_top(
 
 	// Slave 0 Interface
 	s0_data_i, s0_data_o, s0_addr_o, s0_sel_o, s0_we_o, s0_cyc_o,
-	s0_stb_o, s0_ack_i, s0_err_i, s0_rty_i,
+	s0_stb_o, s0_ack_i, s0_err_i, s0_rty_i, s0_msel,
 
 	// Slave 1 Interface
 	s1_data_i, s1_data_o, s1_addr_o, s1_sel_o, s1_we_o, s1_cyc_o,
@@ -299,6 +299,7 @@ output			s0_stb_o;
 input			s0_ack_i;
 input			s0_err_i;
 input			s0_rty_i;
+output  [2:0]   s0_msel;
 
 // Slave 1 Interface
 input	[dw-1:0]	s1_data_i;
@@ -3235,6 +3236,7 @@ wb_conmax_slave_if #(pri_sel0,aw,dw,sw) s0(
 		.wb_ack_i(	s0_ack_i	),
 		.wb_err_i(	s0_err_i	),
 		.wb_rty_i(	s0_rty_i	),
+		.mast_sel(  s0_msel     ),
 		.m0_data_i(	m0s0_data_o	),
 		.m0_data_o(	m0s0_data_i	),
 		.m0_addr_i(	m0s0_addr	),

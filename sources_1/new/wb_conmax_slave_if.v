@@ -64,7 +64,7 @@ module wb_conmax_slave_if(
 
 	// Slave interface
 	wb_data_i, wb_data_o, wb_addr_o, wb_sel_o, wb_we_o, wb_cyc_o,
-	wb_stb_o, wb_ack_i, wb_err_i, wb_rty_i,
+	wb_stb_o, wb_ack_i, wb_err_i, wb_rty_i, mast_sel,
 
 	// Master 0 Interface
 	m0_data_i, m0_data_o, m0_addr_i, m0_sel_i, m0_we_i, m0_cyc_i,
@@ -224,7 +224,7 @@ input			m7_stb_i;
 output			m7_ack_o;
 output			m7_err_o;
 output			m7_rty_o;
-
+output          mast_sel;
 ////////////////////////////////////////////////////////////////////
 //
 // Local Wires
