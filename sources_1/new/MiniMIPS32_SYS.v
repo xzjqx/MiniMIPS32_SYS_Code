@@ -66,6 +66,7 @@ module MiniMIPS32_SYS(
     wire       s0_cyc_o; 
     wire       s0_stb_o;
     wire       s0_ack_i;
+    wire[2:0]  s0_msel;
 
     wire[31:0] s1_data_i;
     wire[31:0] s1_data_o;
@@ -133,10 +134,8 @@ module MiniMIPS32_SYS(
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk(clk100mhz),
-		.clk_2(clk100mhz),
-		.clk_3(clk200mhz),
-		.clk_pc(clk),
+		.clk(clk),
+		.clk_2(clk),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
@@ -158,6 +157,8 @@ module MiniMIPS32_SYS(
 		.dwishbone_sel_o(m0_sel_i),
 		.dwishbone_stb_o(m0_stb_i),
 		.dwishbone_cyc_o(m0_cyc_i),
+		
+		.s0_msel(s0_msel),
 	
 		.int_time_o(int_time)	
 	
@@ -171,7 +172,7 @@ module MiniMIPS32_SYS(
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
     BRAM bram0(
-		.wb_clk_i(clk100mhz),
+		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s0_cyc_o), 
 		.wb_adr_i(s0_addr_o), 
@@ -199,7 +200,7 @@ module MiniMIPS32_SYS(
 	);*/
 	assign data_addr = data_addr_tmp[15:0];
 	blk_mem_gen_0 data_ram (
-	  .clka(clk100mhz),    // input wire clka
+	  .clka(clk),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
 	  .addra(data_addr),  // input wire [15 : 0] addra
 	  .dina(data_data_o),    // input wire [31 : 0] dina
@@ -211,7 +212,7 @@ module MiniMIPS32_SYS(
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
     BRAM bram1(
-		.wb_clk_i(clk100mhz),
+		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s1_cyc_o), 
 		.wb_adr_i(s1_addr_o), 
@@ -229,7 +230,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	blk_mem_gen_1 inst_ram (
-	  .clka(clk100mhz),    // input wire clka
+	  .clka(clk),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
 	  .addra(inst_addr),  // input wire [17 : 0] addra
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
@@ -237,7 +238,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	decoder decoder0(
-    	.wb_clk_i(clk100mhz),
+    	.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s2_cyc_o),
 		.wb_adr_i(s2_addr_o),
@@ -256,7 +257,7 @@ module MiniMIPS32_SYS(
   	);
    
 	wb_conmax_top wb_conmax_top0(
-        .clk_i(clk100mhz),
+        .clk_i(clk),
         .rst_i(rstn),
    
    	    // Master 0 Interface
@@ -362,6 +363,7 @@ module MiniMIPS32_SYS(
    	    .s0_ack_i(s0_ack_i), 
    	    .s0_err_i(1'b0), 
    	    .s0_rty_i(1'b0),
+   	    .s0_msel(s0_msel),
    
    	    // Slave 1 Interface
    	    .s1_data_i(s1_data_i),
