@@ -37,8 +37,6 @@ module MiniMIPS32_SYS(
 	input wire [1:0] btn_step*/
     );
     
-    //assign led = rst_init ? 16'h2345 : 16'hf0f0;
-    
 	wire[31:0] m0_data_i;
     wire[31:0] m0_data_o;
     wire[31:0] m0_addr_i;
@@ -120,17 +118,6 @@ module MiniMIPS32_SYS(
 	  .clk_out4(clk200mhz),     // output clk_out3
 	 // Clock in ports
 	  .clk_in1(clk_init));      // input clk_in1
-	
-	/*CPU  cpu0 (.clk_init(clk_init), 
-              .rst_init(rst_o), 
-              .clk5mhz(clk), 
-              .clk20mhz(clk20mhz), 
-              .clk100mhz(clk100mhz), 
-              .rst(rst),
-              .rstn(rstn));*/
-	/*RST_SYNC  rst_sync0 (.clk_sys(clk), 
-						.rst_in(rst_init), 
-						.rst(rst_o));*/
     
 	MiniMIPS32 MiniMIPS320(
 		
@@ -189,15 +176,6 @@ module MiniMIPS32_SYS(
 		.ram_data_o(data_data_o)
 	);
 	
-	/*blk_mem_gen_0 data_ram (
-	  .clka(clk100mhz),    // input wire clka
-	  .wea(data_wea),      // input wire [0 : 0] wea
-	  .addra(data_addr),  // input wire [11 : 0] addra
-	  .dina(data_data_o),    // input wire [31 : 0] dina
-	  .clkb(clk100mhz),    // input wire clkb
-	  .addrb(data_addr),  // input wire [11 : 0] addrb
-	  .doutb(data_data_i)  // output wire [31 : 0] doutb
-	);*/
 	assign data_addr = data_addr_tmp[15:0];
 	blk_mem_gen_0 data_ram (
 	  .clka(clk),    // input wire clka
