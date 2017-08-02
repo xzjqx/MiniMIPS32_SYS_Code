@@ -114,8 +114,8 @@ module MiniMIPS32_SYS(
 	clk_wiz_0 clocking
 	 (
 	  // Clock out ports
-	  .clk_out1(clk),     // output clk_out1
-	  .clk_out2(clk50mhz),     // output clk_out2
+	  .clk_out1(clk50mhz),     // output clk_out1
+	  .clk_out2(clk),     // output clk_out2
 	  .clk_out3(clk100mhz),     // output clk_out3
 	  .clk_out4(clk200mhz),     // output clk_out3
 	 // Clock in ports
