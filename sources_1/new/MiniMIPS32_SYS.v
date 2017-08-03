@@ -122,7 +122,6 @@ module MiniMIPS32_SYS(
 	MiniMIPS32 MiniMIPS320(
 		
 		.clk(clk),
-		.clk_2(clk),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
