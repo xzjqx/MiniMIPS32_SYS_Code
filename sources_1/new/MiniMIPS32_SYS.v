@@ -31,10 +31,10 @@ module MiniMIPS32_SYS(
 	output wire [1:0] led_rg1,
 	output wire [7:0] num_csn,
 	output wire [6:0] num_a_g,
-	input wire [7:0] switch
-	/*input wire [3:0] btn_key_col,
-	input wire [3:0] btn_key_row,
-	input wire [1:0] btn_step*/
+	input wire [7:0] switch,
+	output wire [3:0] btn_key_col,
+	input wire [3:0] btn_key_row
+	//input wire [1:0] btn_step
     );
     
 	wire[31:0] m0_data_i;
@@ -101,8 +101,8 @@ module MiniMIPS32_SYS(
 	
 	wire clk5mhz;
 	wire clk50mhz;
+	wire clk75mhz;
 	wire clk100mhz;
-	wire clk200mhz;
 	wire rst_o;
 	
 	wire clk;
@@ -114,8 +114,8 @@ module MiniMIPS32_SYS(
 	  // Clock out ports
 	  .clk_out1(clk50mhz),     // output clk_out1
 	  .clk_out2(clk),     // output clk_out2
-	  .clk_out3(clk100mhz),     // output clk_out3
-	  .clk_out4(clk200mhz),     // output clk_out3
+	  .clk_out3(clk75mhz),     // output clk_out3
+	  .clk_out4(clk100mhz),     // output clk_out3
 	 // Clock in ports
 	  .clk_in1(clk_init));      // input clk_in1
     
@@ -216,23 +216,26 @@ module MiniMIPS32_SYS(
 	);
 	
 	decoder decoder0(
-    	.wb_clk_i(clk),
-		.wb_rst_i(rst), 
-		.wb_cyc_i(s2_cyc_o),
-		.wb_adr_i(s2_addr_o),
-		.wb_dat_i(s2_data_o),
-		.wb_sel_i(s2_sel_o),
-		.wb_we_i(s2_we_o),
-		.wb_stb_i(s2_stb_o),
-	  	.wb_dat_o(s2_data_i),
-		.wb_ack_o(s2_ack_i),
-		.led(led),
-		.led_rg0(led_rg0),
-		.led_rg1(led_rg1),
-		.num_csn(num_csn),
-		.num_a_g(num_a_g),
-		.switch(switch)
-  	);
+        .wb_clk_i(clk),
+        .wb_rst_i(rst), 
+        .wb_cyc_i(s2_cyc_o),
+        .wb_adr_i(s2_addr_o),
+        .wb_dat_i(s2_data_o),
+        .wb_sel_i(s2_sel_o),
+        .wb_we_i(s2_we_o),
+        .wb_stb_i(s2_stb_o),
+        .wb_dat_o(s2_data_i),
+        .wb_ack_o(s2_ack_i),
+        .clk100(clk100mhz),
+        .led(led),
+        .led_rg0(led_rg0),
+        .led_rg1(led_rg1),
+        .num_csn(num_csn),
+        .num_a_g(num_a_g),
+        .switch(switch),
+        .btn_key_col(btn_key_col),
+        .btn_key_row(btn_key_row)
+      );
    
 	wb_conmax_top wb_conmax_top0(
         .clk_i(clk),

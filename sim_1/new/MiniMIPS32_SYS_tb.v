@@ -26,12 +26,18 @@ module MiniMIPS32_SYS_tb;
 	reg clk_init;
 	reg rst_init;
 	reg [7:0] switch;
+	reg [3:0] btn_key_row;
+	
+	//outputs
+	wire [3:0] btn_key_col;
 	
 	MiniMIPS32_SYS SoC (
 		.clk_init(clk_init),
 		.rst_init(rst_init),
 		
-		.switch(switch)
+		.switch(switch),
+		.btn_key_row(btn_key_row),
+		.btn_key_col(btn_key_col)
 	);
 	
 	initial begin
@@ -44,6 +50,12 @@ module MiniMIPS32_SYS_tb;
 		#50 
 		#1000
 		rst_init = 1'b1;
+		
+		#5000
+		btn_key_row = 4'b1110;
+		
+		#10000
+		btn_key_row = 4'b0111;
 		
 		#100000 $stop;
 

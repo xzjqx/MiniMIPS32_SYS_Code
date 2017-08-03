@@ -34,7 +34,7 @@ module decoder(
 	wb_clk_i, wb_rst_i, wb_cyc_i, wb_adr_i, wb_dat_i, wb_sel_i, wb_we_i, wb_stb_i,
 	wb_dat_o, wb_ack_o,
 
-	led, led_rg0, led_rg1, num_csn, num_a_g, switch, btn_key_col, btn_key_row, btn_step
+	led, led_rg0, led_rg1, clk100, num_csn, num_a_g, switch, btn_key_col, btn_key_row, btn_step
     );
     
     input             	wb_clk_i;	// Clock
@@ -51,6 +51,7 @@ module decoder(
     output 	[15:0]		led;
 	output  [1:0] 		led_rg0;
 	output  [1:0] 		led_rg1;
+	input               clk100;
 	output	reg [7:0]	num_csn;
 	output	reg [6:0]	num_a_g;
     input   [7:0] 		switch;
@@ -61,13 +62,15 @@ module decoder(
     assign wb_ack_o = wb_cyc_i & wb_stb_i;
     ////////////////////////////
     wire [31:0] switch_data = {24'b0, switch};
-    wire [31:0] btn_key_data = {28'b0, btn_key_row};
+    wire [31:0] btn_key_data;
     wire [31:0] btn_step_data = {30'b0, btn_step};
+    reg [31:0] timer;
 	wire [31:0] addr = wb_adr_i;
 	
 	assign wb_dat_o = `AddrIsSwitch(addr) ? switch_data :
 					  `AddrIsBtnKey(addr) ? btn_key_data :
-					  `AddrIsBtnStep(addr) ? btn_step_data : 32'h00000000;
+					  `AddrIsBtnStep(addr) ? btn_step_data :
+					  `AddrIsTimer(addr) ? timer : 32'h00000000;
 	
 	wire led_we = wb_we_i && `AddrIsLed(addr);
 	wire led_rg0_we = wb_we_i && `AddrIsLedRg0(addr); 
@@ -84,7 +87,7 @@ module decoder(
 	
 	always @(posedge wb_clk_i or negedge wb_rst_i) begin
 		if(wb_rst_i == `RstEnable) begin
-			led_data <= 32'hffffffff;
+			led_data <= `ZeroWord;
 			led_rg0_data <= `ZeroWord;
 			led_rg1_data <= `ZeroWord;
 			num_data <= `ZeroWord;
@@ -99,9 +102,29 @@ module decoder(
                 endcase
 		end
 	end 
+
+//-------------------------------{timer}begin----------------------------//
+    wire write_timer = wb_we_i & `AddrIsTimer(addr);
+    always @(posedge wb_clk_i)
+    begin
+        if(!wb_rst_i)
+        begin
+            timer <= 32'd0;
+        end
+        else if (write_timer)
+        begin
+            timer <= wb_dat_i;
+        end
+        else
+        begin
+            timer <= timer + 1'b1;
+        end
+    end
+//--------------------------------{timer}end-----------------------------//
+
 	
 	reg [19:0] div_counter;
-	always @(posedge wb_clk_i or negedge wb_rst_i) begin 
+	always @(posedge clk100) begin 
 	    if(wb_rst_i == `RstEnable) begin
 	       div_counter <= 0;
 	    end
@@ -119,9 +142,8 @@ module decoder(
 	               SEG7 = 3'b110,
 	               SEG8 = 3'b111;
 	                
-	reg [2:0] state;
 	reg [3:0] value;
-    always @(posedge wb_clk_i or negedge wb_rst_i) begin
+    always @(posedge clk100) begin
 	    if(wb_rst_i == `RstEnable) begin
 	        num_csn <= 8'b11111111;
 	        value <= 4'b0;
@@ -165,7 +187,7 @@ module decoder(
 	     end
 	end
 	
-    always @(posedge wb_clk_i or negedge wb_rst_i) begin
+    always @(posedge clk100) begin
     	if(wb_rst_i == `RstEnable)
     		num_a_g <= 7'b0000000;
     	else begin
@@ -190,5 +212,115 @@ module decoder(
 			endcase
 		end
 	end
+	
+//------------------------------{btn key}begin---------------------------//
+    //btn key data
+    reg [15:0] btn_key_r;
+    assign btn_key_data = {16'd0,btn_key_r};
+    
+    //state machine
+    reg  [2:0] state;
+    wire [2:0] next_state;
+    
+    //eliminate jitter
+    reg        key_flag;
+    reg [19:0] key_count;
+    reg [3:0] state_count;
+    wire key_start = (state==3'b000) && !(&btn_key_row);
+    wire key_end   = (state==3'b111) &&  (&btn_key_row);
+    wire key_sample= key_count[19];
+    always @(posedge clk100)
+    begin
+        if(!wb_rst_i)
+        begin
+            key_flag <= 1'd0;
+        end
+        else if (key_sample && state_count[3]) 
+        begin
+            key_flag <= 1'b0;
+        end
+        else if( key_start || key_end )
+        begin
+            key_flag <= 1'b1;
+        end
+    
+        if(!wb_rst_i || !key_flag)
+        begin
+            key_count <= 20'd0;
+        end
+        else
+        begin
+            key_count <= key_count + 1'b1;
+        end
+    end
+    
+    always @(posedge clk100)
+    begin
+        if(!wb_rst_i || state_count[3])
+        begin
+            state_count <= 4'd0;
+        end
+        else
+        begin
+            state_count <= state_count + 1'b1;
+        end
+    end
+    
+    always @(posedge clk100)
+    begin
+        if(!wb_rst_i)
+        begin
+            state <= 3'b000;
+        end
+        else if (state_count[3])
+        begin
+            state <= next_state;
+        end
+    end
+    
+    assign next_state = (state == 3'b000) ? ( (key_sample && !(&btn_key_row)) ? 3'b001 : 3'b000 ) :
+                        (state == 3'b001) ? (                !(&btn_key_row)  ? 3'b111 : 3'b010 ) :
+                        (state == 3'b010) ? (                !(&btn_key_row)  ? 3'b111 : 3'b011 ) :
+                        (state == 3'b011) ? (                !(&btn_key_row)  ? 3'b111 : 3'b100 ) :
+                        (state == 3'b100) ? (                !(&btn_key_row)  ? 3'b111 : 3'b000 ) :
+                        (state == 3'b111) ? ( (key_sample &&  (&btn_key_row)) ? 3'b000 : 3'b111 ) :
+                                                                                            3'b000;
+    assign btn_key_col = (state == 3'b000) ? 4'b0000:
+                         (state == 3'b001) ? 4'b1110:
+                         (state == 3'b010) ? 4'b1101:
+                         (state == 3'b011) ? 4'b1011:
+                         (state == 3'b100) ? 4'b0111:
+                                             4'b0000;
+    wire [15:0] btn_key_tmp;
+    always @(posedge clk100) begin
+        if(!wb_rst_i) begin
+            btn_key_r   <= 16'd0;
+        end
+        else if(next_state==3'b000)
+        begin
+            btn_key_r   <=16'd0;
+        end
+        else if(next_state == 3'b111 && state != 3'b111) begin
+            btn_key_r   <= btn_key_tmp;
+        end
+    end
+    
+    assign btn_key_tmp = (state == 3'b001)&(btn_key_row == 4'b1110) ? 16'h0001:
+                         (state == 3'b001)&(btn_key_row == 4'b1101) ? 16'h0010:
+                         (state == 3'b001)&(btn_key_row == 4'b1011) ? 16'h0100:
+                         (state == 3'b001)&(btn_key_row == 4'b0111) ? 16'h1000:
+                         (state == 3'b010)&(btn_key_row == 4'b1110) ? 16'h0002:
+                         (state == 3'b010)&(btn_key_row == 4'b1101) ? 16'h0020:
+                         (state == 3'b010)&(btn_key_row == 4'b1011) ? 16'h0200:
+                         (state == 3'b010)&(btn_key_row == 4'b0111) ? 16'h2000:
+                         (state == 3'b011)&(btn_key_row == 4'b1110) ? 16'h0004:
+                         (state == 3'b011)&(btn_key_row == 4'b1101) ? 16'h0040:
+                         (state == 3'b011)&(btn_key_row == 4'b1011) ? 16'h0400:
+                         (state == 3'b011)&(btn_key_row == 4'b0111) ? 16'h4000:
+                         (state == 3'b100)&(btn_key_row == 4'b1110) ? 16'h0008:
+                         (state == 3'b100)&(btn_key_row == 4'b1101) ? 16'h0080:
+                         (state == 3'b100)&(btn_key_row == 4'b1011) ? 16'h0800:
+                         (state == 3'b100)&(btn_key_row == 4'b0111) ? 16'h8000:16'h0000;
+    //-------------------------------{btn key}end----------------------------//
     
 endmodule
