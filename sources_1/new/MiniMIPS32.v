@@ -266,7 +266,7 @@ module MiniMIPS32(
     );
 	
 	iwishbone_bus_if iwishbone_bus_if(
-    	.clk(clk_2),
+    	.clk(clk),
     	.rst(rst),
     	
     	.s0_msel(s0_msel),
@@ -427,7 +427,7 @@ module MiniMIPS32(
 				.in_delay_o(cp0_in_delay_i));
 	
 	dwishbone_bus_if dwishbone_bus_if(
-    	.clk(clk_2),
+    	.clk(clk),
     	.rst(rst),
     	
     	.s0_msel(s0_msel),
