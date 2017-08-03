@@ -31,13 +31,11 @@ module MiniMIPS32_SYS(
 	output wire [1:0] led_rg1,
 	output wire [7:0] num_csn,
 	output wire [6:0] num_a_g,
-	input wire [7:0] switch
-	/*input wire [3:0] btn_key_col,
-	input wire [3:0] btn_key_row,
-	input wire [1:0] btn_step*/
+	input wire [7:0] switch,
+	output wire [3:0] btn_key_col,
+	input wire [3:0] btn_key_row
+	//input wire [1:0] btn_step
     );
-    
-    //assign led = rst_init ? 16'h2345 : 16'hf0f0;
     
 	wire[31:0] m0_data_i;
     wire[31:0] m0_data_o;
@@ -103,8 +101,8 @@ module MiniMIPS32_SYS(
 	
 	wire clk5mhz;
 	wire clk50mhz;
+	wire clk75mhz;
 	wire clk100mhz;
-	wire clk200mhz;
 	wire rst_o;
 	
 	wire clk;
@@ -116,26 +114,14 @@ module MiniMIPS32_SYS(
 	  // Clock out ports
 	  .clk_out1(clk50mhz),     // output clk_out1
 	  .clk_out2(clk),     // output clk_out2
-	  .clk_out3(clk100mhz),     // output clk_out3
-	  .clk_out4(clk200mhz),     // output clk_out3
+	  .clk_out3(clk75mhz),     // output clk_out3
+	  .clk_out4(clk100mhz),     // output clk_out3
 	 // Clock in ports
 	  .clk_in1(clk_init));      // input clk_in1
-	
-	/*CPU  cpu0 (.clk_init(clk_init), 
-              .rst_init(rst_o), 
-              .clk5mhz(clk), 
-              .clk20mhz(clk20mhz), 
-              .clk100mhz(clk100mhz), 
-              .rst(rst),
-              .rstn(rstn));*/
-	/*RST_SYNC  rst_sync0 (.clk_sys(clk), 
-						.rst_in(rst_init), 
-						.rst(rst_o));*/
     
 	MiniMIPS32 MiniMIPS320(
 		
 		.clk(clk),
-		.clk_2(clk),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
@@ -171,7 +157,8 @@ module MiniMIPS32_SYS(
 	wire [15:0] data_addr;
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
-    BRAM bram0(
+    //BRAM bram0(
+    data_ram_delay data_ram_delay0(
 		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s0_cyc_o), 
@@ -189,15 +176,6 @@ module MiniMIPS32_SYS(
 		.ram_data_o(data_data_o)
 	);
 	
-	/*blk_mem_gen_0 data_ram (
-	  .clka(clk100mhz),    // input wire clka
-	  .wea(data_wea),      // input wire [0 : 0] wea
-	  .addra(data_addr),  // input wire [11 : 0] addra
-	  .dina(data_data_o),    // input wire [31 : 0] dina
-	  .clkb(clk100mhz),    // input wire clkb
-	  .addrb(data_addr),  // input wire [11 : 0] addrb
-	  .doutb(data_data_i)  // output wire [31 : 0] doutb
-	);*/
 	assign data_addr = data_addr_tmp[15:0];
 	blk_mem_gen_0 data_ram (
 	  .clka(clk),    // input wire clka
@@ -211,7 +189,8 @@ module MiniMIPS32_SYS(
 	wire [17:0] inst_addr;
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
-    BRAM bram1(
+    //BRAM bram1(
+    inst_ram_delay inst_ram_delay0(
 		.wb_clk_i(clk),
 		.wb_rst_i(rst), 
 		.wb_cyc_i(s1_cyc_o), 
@@ -248,12 +227,15 @@ module MiniMIPS32_SYS(
 		.wb_stb_i(s2_stb_o),
 	  	.wb_dat_o(s2_data_i),
 		.wb_ack_o(s2_ack_i),
+		.clk100(clk100mhz),
 		.led(led),
 		.led_rg0(led_rg0),
 		.led_rg1(led_rg1),
 		.num_csn(num_csn),
 		.num_a_g(num_a_g),
-		.switch(switch)
+		.switch(switch),
+		.btn_key_col(btn_key_col),
+		.btn_key_row(btn_key_row)
   	);
    
 	wb_conmax_top wb_conmax_top0(

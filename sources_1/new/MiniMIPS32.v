@@ -24,7 +24,6 @@
 
 module MiniMIPS32(
 	input wire clk,
-	input wire clk_2,
 	input wire rst,
 
 	//instruction wishbone interface signal
@@ -265,110 +264,7 @@ module MiniMIPS32(
 		.ce_i(pc_rom_ce),
 		.ce_o(rom_ce)
     );
-    
-    reg stop_from_if0;
-    wire stop_from_if1;
-    reg stop_from_if2;
-    reg stop_from_ex0;
-    wire stop_from_ex1;
-    reg stop_from_mem2;
-    reg rom_ce_o;
-    reg dcyc_o;
-    reg dstb_o;
-    /*always @(posedge clk) begin
-    	if (rst == `RstEnable) begin
-    		stop_from_if0 <= `NoStop;
-    		stop_from_if2 <= `NoStop;
-    		//stop_from_mem0 <= `NoStop;
-    		//stop_from_mem2 <= `NoStop;
-    		rom_ce_o <= `ChipDisable;
-    		//stop_from_pc <= `NoStop;
-    	end
-    	else begin     
-    	    if(stop_from_if0) stop_from_if2 <= `Stop;
-    	    else stop_from_if2 <= `NoStop;
-    	
-    	    //if(stop_from_if0) stop_from_mem2 <= `Stop;
-            //else stop_from_mem2 <= `NoStop;
-                
-    		if(mem_ce_o == `ChipEnable && mem_addr_o[31:20] == inst_addr[31:20]) begin
-    			stop_from_if0 <= `Stop;
-    			rom_ce_o <= 0;
-    			//stop_from_mem0 <= `Stop;
-    			//rom_ce_o <= `ChipDisable;
-    			//stop_from_pc <= `Stop;
-    		end
-    		else begin
-    			stop_from_if0 <= `NoStop;
-    			rom_ce_o <= rom_ce;
-    			//stop_from_mem0 <= `NoStop;
-    			//rom_ce_o <= rom_ce;
-    			//stop_from_pc <= `NoStop;
-    		end
-    	end
-    end*/
-    
-    reg flag;
-    reg [3:0] cnt;
-    always @(*) begin
-        if (rst == `RstEnable) begin
-            //stop_from_if0 <= `NoStop;
-            //stop_from_if2 <= `NoStop;
-            //stop_from_ex0 <= `NoStop;
-            //stop_from_mem2 <= `NoStop;
-            rom_ce_o <= `ChipDisable;
-            //stop_from_pc <= `NoStop;
-            dcyc_o <= 1'b1;
-            dstb_o <= 1'b1;
-        end
-        else begin     
-            //if(stop_from_if0) stop_from_if2 <= `Stop;
-            //else stop_from_if2 <= `NoStop;
-        
-            //if(stop_from_if0) stop_from_mem2 <= `Stop;
-            //else stop_from_mem2 <= `NoStop;
-                
-            if((mem_ce_o == `ChipEnable) && (mem_addr_o[31:20] == inst_addr[31:20])) begin
-            //if((mem_ce_o == `ChipEnable)) begin
-                //stop_from_if0 <= `Stop;
-                //stop_from_ex0 <= `Stop;
-                rom_ce_o <= `ChipDisable;
-                //stop_from_pc <= `Stop;
-                dcyc_o <= 1'b0;
-                dstb_o <= 1'b0;
-            end
-            else begin
-                //stop_from_if0 <= `NoStop;
-                //stop_from_ex0 <= `NoStop;
-                rom_ce_o <= rom_ce;
-                //stop_from_pc <= `NoStop;
-                dcyc_o <= 1'b1;
-                dstb_o <= 1'b1;
-            end
-            //if(flag)
-            //    stop_from_ex0 <= `NoStop;
-        end
-    end
-    
-    always @(posedge clk) begin
-        if (rst == `RstEnable) begin
-            flag <= 0;
-            cnt <= 0;
-        end
-        else begin
-            if((mem_ce_o == `ChipEnable) && (mem_addr_o[31:20] == inst_addr[31:20])) begin
-                cnt <= cnt + 1;
-                flag <= 0;
-            end
-            if(cnt == 3) begin
-                cnt <= 0;
-                flag <= 1;
-            end
-        end
-    end
 	
-	wire iwishbone_stb_o0;
-	wire iwishbone_cyc_o0;
 	iwishbone_bus_if iwishbone_bus_if(
     	.clk(clk_2),
     	.rst(rst),
@@ -395,11 +291,7 @@ module MiniMIPS32(
     	.wishbone_cyc_o(iwishbone_cyc_o),
 						
     	.stallreq(stop_from_if)    
-    	//.mem_ce_o(mem_ce_o)   
 	);
-	//assign stop_from_if = stop_from_if0 | stop_from_if1 | stop_from_if2;
-    //assign iwishbone_stb_o = dstb_o & iwishbone_stb_o0;
-    //assign iwishbone_cyc_o = dcyc_o & iwishbone_cyc_o0;
 	
 	IF_ID if_id0(.clk(clk), .rst(rst),
 				.if_pc(if_addr_o),
@@ -489,7 +381,6 @@ module MiniMIPS32(
              .div_start_o(div_start),
              .signed_div_o(signed_div),    
 			 .stop(stop_from_ex));
-	//assign stop_from_mem = stop_from_ex0 | stop_from_ex1;
 	
 	EX_MEM ex_mem0(.clk(clk), .rst(rst), .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o), .ex_wdata(ex_wdata_o),
 						.ex_whilo(ex_whilo_o), .ex_hi(ex_hi_o), .ex_lo(ex_lo_o),
@@ -562,8 +453,6 @@ module MiniMIPS32(
 						
     	.stallreq(stop_from_mem)       
 	);
-	//assign stop_from_mem = stop_from_mem0 | stop_from_mem1;
-	//assign stop_from_mem = stop_from_mem0;
 				
 	MEM_WB mem_wb0(.clk(clk), .rst(rst),
 						.mem_wd(mem_wd_o), .mem_wreg(mem_wreg_o),	.mem_wdata(mem_wdata_o),
