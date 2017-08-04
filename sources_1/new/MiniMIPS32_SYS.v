@@ -84,15 +84,6 @@ module MiniMIPS32_SYS(
     wire       s2_stb_o;
     wire       s2_ack_i;
     
-    wire[31:0] s3_data_i;
-    wire[31:0] s3_data_o;
-    wire[31:0] s3_addr_o;
-    wire[3:0]  s3_sel_o;
-    wire       s3_we_o; 
-    wire       s3_cyc_o; 
-    wire       s3_stb_o;
-    wire       s3_ack_i;
-    
 	wire[5:0] int;
     wire int_time;
     wire gpio_int = 0;
