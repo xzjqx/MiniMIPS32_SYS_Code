@@ -176,7 +176,7 @@ module MiniMIPS32_SYS(
 	);
 	
 	assign data_addr = data_addr_tmp[15:0];
-	blk_mem_gen_0 data_ram (
+	data_ram data_ram0 (
 	  .clka(clk),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
 	  .addra(data_addr),  // input wire [15 : 0] addra
@@ -206,7 +206,7 @@ module MiniMIPS32_SYS(
 		.ram_data_o(inst_data_o)
 	);
 	
-	blk_mem_gen_1 inst_ram (
+	inst_ram inst_ram0 (
 	  .clka(clk),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
 	  .addra(inst_addr),  // input wire [17 : 0] addra
@@ -370,14 +370,14 @@ module MiniMIPS32_SYS(
    	    .s2_rty_i(1'b0),
    
    	    // Slave 3 Interface
-   	    .s3_data_i(s3_data_i),
-   	    .s3_data_o(s3_data_o),
-   	    .s3_addr_o(s3_addr_o),
-   	    .s3_sel_o(s3_sel_o),
-   	    .s3_we_o(s3_we_o), 
-   	    .s3_cyc_o(s3_cyc_o), 
-   	    .s3_stb_o(s3_stb_o),
-   	    .s3_ack_i(s3_ack_i), 
+   	    .s3_data_i(),
+   	    .s3_data_o(),
+   	    .s3_addr_o(),
+   	    .s3_sel_o(),
+   	    .s3_we_o(), 
+   	    .s3_cyc_o(), 
+   	    .s3_stb_o(),
+   	    .s3_ack_i(1'b0), 
    	    .s3_err_i(1'b0), 
    	    .s3_rty_i(1'b0),
    
