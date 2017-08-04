@@ -153,6 +153,7 @@ module MiniMIPS32_SYS(
 	assign m0_addr_i = (m0_addr_i_temp[28] == 0) ? m0_addr_i_temp : {4'b0010,m0_addr_i_temp[27:0]};
 	
 	wire [3:0] data_wea;
+	wire data_ce;
 	wire [17:0] data_addr_tmp;
 	wire [15:0] data_addr;
 	wire [31:0] data_data_i;
@@ -170,6 +171,7 @@ module MiniMIPS32_SYS(
 		.wb_ack_o(s0_ack_i),
 		
 		.wea(data_wea), 
+		.ram_ce(data_ce),
 		.ram_addr(data_addr_tmp), 
 		.ram_data_i(data_data_i), 
 		.ram_data_o(data_data_o)
@@ -179,12 +181,14 @@ module MiniMIPS32_SYS(
 	data_ram data_ram0 (
 	  .clka(clk),    // input wire clka
 	  .wea(data_wea),      // input wire [0 : 0] wea
+	  .ena(data_ce),
 	  .addra(data_addr),  // input wire [15 : 0] addra
 	  .dina(data_data_o),    // input wire [31 : 0] dina
 	  .douta(data_data_i)  // output wire [31 : 0] douta
 	);
 
 	wire [3:0] inst_wea;
+	wire inst_ce;
 	wire [17:0] inst_addr;
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
@@ -201,6 +205,7 @@ module MiniMIPS32_SYS(
 		.wb_ack_o(s1_ack_i),
 		
 		.wea(inst_wea), 
+		.ram_ce(inst_ce),
 		.ram_addr(inst_addr), 
 		.ram_data_i(inst_data_i), 
 		.ram_data_o(inst_data_o)
@@ -209,6 +214,7 @@ module MiniMIPS32_SYS(
 	inst_ram inst_ram0 (
 	  .clka(clk),    // input wire clka
 	  .wea(inst_wea),      // input wire [0 : 0] wea
+	  .ena(inst_ce),
 	  .addra(inst_addr),  // input wire [17 : 0] addra
 	  .dina(inst_data_o),    // input wire [31 : 0] dina
 	  .douta(inst_data_i)  // output wire [31 : 0] douta

@@ -26,7 +26,7 @@ module BRAM(
 	wb_clk_i, wb_rst_i, wb_cyc_i, wb_adr_i, wb_dat_i, wb_sel_i, wb_we_i, wb_stb_i,
 	wb_dat_o, wb_ack_o,
 	
-	wea, ram_addr, ram_data_i, ram_data_o
+	wea, ram_ce, ram_addr, ram_data_i, ram_data_o
     );
     
     //
@@ -44,6 +44,7 @@ module BRAM(
     output 				wb_ack_o;	// normal termination
     
     output 	[3:0]		wea;
+    output              ram_ce;
 	output  [17:0] 		ram_addr;
     input   [31:0] 		ram_data_i;
     output  [31:0] 		ram_data_o;
@@ -54,6 +55,7 @@ module BRAM(
 	
 	////////////////////////////
     assign  wea = (wb_stb_i && wb_we_i) ? wb_sel_i : 4'b0;
+    assign  ram_ce = |wb_sel_i;
     assign	ram_data_o = wb_dat_i;
     assign  ram_addr = wb_adr_i[19:2];
     assign  wb_dat_o = ram_data_i;
