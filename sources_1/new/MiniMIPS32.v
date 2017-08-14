@@ -52,6 +52,7 @@ module MiniMIPS32(
 	output wire int_time_o
     );
 
+    // 连接IF/ID模块与译码阶段ID模块的变量 
 	wire [31:0] pc;//(*mark_debug = "true"*)
 	wire [31:0] id_pc_i;
 	wire [31:0] id_inst_i;//(*mark_debug = "true"*)
@@ -62,6 +63,7 @@ module MiniMIPS32(
 	wire [31:0] inst_addr;
 	wire [31:0] inst_i;
 	
+	// 连接译码阶段ID模块与通用寄存器Regfile模块的变量 
 	wire 		reg1_read;
 	wire [4:0] 	reg1_addr;
 	wire [31:0] reg1_data;
@@ -69,10 +71,12 @@ module MiniMIPS32(
 	wire [4:0] 	reg2_addr;
 	wire [31:0] reg2_data;
 	
+	// 连接MEM/WB模块的输出与回写阶段的输入的变量
 	wire 		wb_wreg_i;
 	wire [4:0] 	wb_wd_i;
 	wire [31:0] wb_wdata_i;
 	
+	// 连接译码阶段ID模块输出与ID/EX模块的输入的变量 
 	wire [7:0] 	id_aluop_o;
 	wire [2:0] 	id_alusel_o;
 	wire [31:0] id_reg1_o;
@@ -93,6 +97,7 @@ module MiniMIPS32(
 	wire [31:0] id_exc_epc_o;
 	wire [31:0] id_exc_badvaddr_o;
 	
+	// 连接ID/EX模块输出与执行阶段EX模块的输入的变量
 	wire [7:0] 	ex_aluop_i;
 	wire [2:0] 	ex_alusel_i;
 	wire [31:0] ex_reg1_i;
@@ -100,6 +105,7 @@ module MiniMIPS32(
 	wire 		ex_wreg_i;
 	wire [4:0] 	ex_wd_i;
 	
+	// 连接执行阶段EX模块的输出与EX/MEM模块的输入的变量 
 	wire 		ex_wreg_o;
 	wire [4:0] 	ex_wd_o;
 	wire [31:0] ex_wdata_o;
@@ -140,6 +146,7 @@ module MiniMIPS32(
 	wire [31:0] ex_exc_epc_o;
 	wire [31:0] ex_exc_badvaddr_o;
 	
+	// 连接EX/MEM模块的输出与访存阶段MEM模块的输入的变量  
 	wire 		mem_wreg_i;
 	wire [4:0] 	mem_wd_i;
 	wire [31:0] mem_wdata_i;
@@ -148,6 +155,7 @@ module MiniMIPS32(
 	wire [31:0] mem_hi_i;
 	wire [31:0] mem_lo_i;
 
+	// 连接访存阶段MEM模块的输出与MEM/WB模块的输入的变量
 	wire 		mem_wreg_o;
 	wire [4:0] 	mem_wd_o;
 	wire [31:0] mem_wdata_o;
@@ -247,6 +255,8 @@ module MiniMIPS32(
 
 	wire		pc_rom_ce;	
 	wire		rom_ce;
+
+	// pc_reg例化
 	PC pc0(.clk(clk), .rst(rst), .pc(pc),
 			 .branch_flag_i(pc_branch_flag_i), .branch_target_address_i(pc_branch_target_address_i),
 			 .stall(stall),
@@ -254,6 +264,7 @@ module MiniMIPS32(
 			 .cp0_branch_addr(cp0_exc_jump_addr),
 			 .ce(pc_rom_ce));
 	
+
 	IF if0 (
 		.addr_i(pc), 
 		.rst(rst),
@@ -293,6 +304,7 @@ module MiniMIPS32(
     	.stallreq(stop_from_if)    
 	);
 	
+	// IF/ID模块例化
 	IF_ID if_id0(.clk(clk), .rst(rst),
 				.if_pc(if_addr_o),
 				.if_inst(if_inst_o),
@@ -305,6 +317,7 @@ module MiniMIPS32(
 				.exc_badvaddr_i(if_exc_badvaddr_o),
 				.exc_badvaddr_o(id_exc_badvaddr_i));
 
+	// 译码阶段ID模块例化
 	ID id0(.rst(rst), .pc_i(id_pc_i), .pc_o(id_pc_o), .inst_i(id_inst_i),
 			 .reg1_data_i(reg1_data), .reg2_data_i(reg2_data),
 			 .ex_wreg(ex_wreg_o), .ex_wdata(ex_wdata_o), .ex_wd(ex_wd_o),
@@ -326,10 +339,12 @@ module MiniMIPS32(
 			 .exc_epc_o(id_exc_epc_o),
 			 .exc_badvaddr_o(id_exc_badvaddr_o));
 	
+	// 通用寄存器Regfile模块例化
 	REG reg0(.clk(clk), .rst(rst), .we(wb_wreg_i), .waddr(wb_wd_i), .wdata(wb_wdata_i),
 				.re1(reg1_read), .raddr1(reg1_addr), .rdata1(reg1_data),
 				.re2(reg2_read), .raddr2(reg2_addr), .rdata2(reg2_data));
 	
+	// ID/EX模块例化
 	ID_EX id_ex0(.clk(clk), .rst(rst), .id_alusel(id_alusel_o), .id_aluop(id_aluop_o),
 					 .id_reg1(id_reg1_o), .id_reg2(id_reg2_o), .id_wd(id_wd_o), .id_wreg(id_wreg_o),
 					 .id_is_in_delayslot(id_in_delay_o), .id_link_address(id_link_addr_o), .next_inst_in_delayslot_i(id_next_delay),
@@ -347,6 +362,7 @@ module MiniMIPS32(
 					 .exc_epc_o(ex_exc_epc_i),
 					 .exc_badvaddr_o(ex_exc_badvaddr_i));
 	
+	// EX模块例化
 	EX ex0(.rst(rst), .alusel_i(ex_alusel_i), .aluop_i(ex_aluop_i), .pc_i(ex_pc_i), .pc_o(ex_pc_o),
 			 .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
 			 .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
@@ -405,6 +421,7 @@ module MiniMIPS32(
 					   .ex_in_delay(ex_in_delay_o), .mem_in_delay(mem_in_delay_i), 
 					   .ex_pc(ex_pc_o), .mem_pc(mem_pc_i));
 	
+	// MEM模块例化 
 	MEM mem0(.rst(rst), .wd_i(mem_wd_i), .wreg_i(mem_wreg_i), .wdata_i(mem_wdata_i), .in_delay_i(mem_in_delay_i), .pc_i(mem_pc_i),
 				.whilo_i(mem_whilo_i), .hi_i(mem_hi_i), .lo_i(mem_lo_i),
 				.aluop_i(mem_aluop_i), .mem_addr_i(mem_addr_i), .reg2_i(mem_reg2_i), .mem_data_i(mem_data_i),
@@ -453,7 +470,8 @@ module MiniMIPS32(
 						
     	.stallreq(stop_from_mem)       
 	);
-				
+	
+	// MEM/WB模块例化			
 	MEM_WB mem_wb0(.clk(clk), .rst(rst),
 						.mem_wd(mem_wd_o), .mem_wreg(mem_wreg_o),	.mem_wdata(mem_wdata_o),
 						.mem_whilo(mem_whilo_o), .mem_hi(mem_hi_o), .mem_lo(mem_lo_o),

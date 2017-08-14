@@ -25,6 +25,8 @@
 module MEM_WB(
 	input wire clk,
 	input wire rst,
+
+	// 访存阶段的结果
 	input wire [4:0] mem_wd,
 	input wire mem_wreg,
 	input wire [31:0] mem_wdata,
@@ -32,15 +34,8 @@ module MEM_WB(
 	input wire mem_whilo,
 	input wire [31:0] mem_hi,
 	input wire [31:0] mem_lo,
-	/*
-	input wire mem_cp0_reg_we,
-	input wire [4:0] mem_cp0_reg_write_addr,
-	input wire [31:0] mem_cp0_reg_data,
 
-	output reg wb_cp0_reg_we,
-	output reg [4:0] wb_cp0_reg_write_addr,
-	output reg [31:0] wb_cp0_reg_data,
-	*/
+	// 送到回写阶段的信息 
 	output reg [4:0] wb_wd,
 	output reg wb_wreg,
 	output reg [31:0] wb_wdata,
@@ -54,6 +49,11 @@ module MEM_WB(
 	input wire flush
     );
 
+       //（1）当stall[4]为Stop，stall[5]为NoStop时，表示访存阶段暂停，  
+       //     而回写阶段继续，所以使用空指令作为下一个周期进入回写阶段的指令。  
+       //（2）当stall[4]为NoStop时，访存阶段继续，访存后的指令进入回写阶段。  
+       //（3）其余情况下，保持回写阶段的寄存器wb_wd、wb_wreg、wb_wdata、  
+       //     wb_hi、wb_lo、wb_whilo不变。  
 	always @(posedge clk or negedge rst) begin
 		if (rst == `RstEnable || flush == 1'b1) begin
 			wb_wd <= 5'b0;

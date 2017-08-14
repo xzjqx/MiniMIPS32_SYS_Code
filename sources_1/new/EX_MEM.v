@@ -25,6 +25,8 @@
 module EX_MEM(
 	input wire clk,
 	input wire rst,
+
+	// 来自执行阶段的信息
 	input wire [4:0] ex_wd,
 	input wire ex_wreg,
 	input wire [31:0] ex_wdata,
@@ -45,6 +47,7 @@ module EX_MEM(
 	output reg [4:0] mem_cp0_reg_write_addr,
 	output reg [31:0] mem_cp0_reg_data,
 	
+	// 送到访存阶段的信息 
 	output reg [4:0] mem_wd,
 	output reg mem_wreg,
 	output reg [31:0] mem_wdata,
@@ -75,6 +78,11 @@ module EX_MEM(
 	output reg [31:0] mem_pc
     );
 
+       //（1）当stall[3]为Stop，stall[4]为NoStop时，表示执行阶段暂停，  
+       //     而访存阶段继续，所以使用空指令作为下一个周期进入访存阶段的指令。  
+       //（2）当stall[3]为NoStop时，执行阶段继续，执行后的指令进入访存阶段。  
+       //（3）其余情况下，保持访存阶段的寄存器mem_wb、mem_wreg、mwm_wdata、  
+       //     mem_hi、mem_lo、mem_whilo不变。 ?
 	always @(posedge clk or negedge rst) begin
 		if (rst == `RstEnable || flush) begin
 			mem_wd <= 5'b0;

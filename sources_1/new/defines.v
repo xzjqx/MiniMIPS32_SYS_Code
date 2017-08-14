@@ -19,199 +19,273 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+//全局
+//*************	Global	*******************//
+`define RstEnable 		1'b0 			   //复位信号有效
+`define RstDisable 		1'b1 			   //复位信号无效
+`define ZeroWord 		32'h00000000	   //32位的数值0
+`define WriteEnable 	1'b1 			   //使能写
+`define WriteDisable 	1'b0 			   //禁止写
+`define ReadEnable 		1'b1 			   //使能读
+`define ReadDisable 	1'b0 			   //禁止读
+`define AluOpBus        7: 0               //译码阶段的输出aluop_o的宽度  
+`define AluSelBus       2: 0               //译码阶段的输出alusel_o的宽度  
+`define InstValid       1'b0               //指令有效  
+`define InstInvalid     1'b1               //指令无效  
+`define True_v          1'b1               //逻辑“真”  
+`define False_v         1'b0               //逻辑“假”  
+`define ChipEnable      1'b1               //芯片使能  
+`define ChipDisable     1'b0               //芯片禁止  
+`define Branch     		1'b1               //转移  
+`define NotBranch  		1'b0               //不转移 
+`define InDelaySlot     1'b1               //在延迟槽中  
+`define NotInDelaySlot  1'b0               //不在延迟槽中
 
-`define Downto31_0 31:0
-`define Downto15_0 15:0
-`define WordSize 32
-`define HalfSize 16
-`define ByteSize 8
-`define RstEnable 1'b0
-`define RstDisable 1'b1
-`define ZeroWord 32'h00000000
-`define ZeroHalf 16'h0000
-`define ChipEnable 1'b1
-`define ChipDisable 1'b0
-`define WriteEnable 1'b1
-`define WriteDisable 1'b0
-`define ReadEnable 1'b1
-`define ReadDisable 1'b0
-`define RegBus 31:0
-`define True_v 1'b1
-`define False_v 1'b0
-`define Stop 1'b1
-`define NoStop 1'b0
-`define Branch 1'b1
-`define NoBranch 1'b0
-
-//xu
-`define InstAddrBus 31:0
-`define InstBus 31:0
-`define InstMemNum 131071
-`define InstMemNumLog2 17
+`define Stop 			1'b1
+`define NoStop 			1'b0
+`define init_pc			32'hBFC00000
+`define RegAddrBus 		4:0
+`define RegBus 			31:0
+`define RegWidth 		32
+`define DoubleRegWidth 	64
+`define DoubleRegBus 	63:0
+`define RegNum 			32
+`define RegNumLog2 		5
+`define NOPRegAddr 		5'b00000
 
 
-//xu
-`define RegAddrBus 4:0
-`define RegBus 31:0
-`define RegWidth 32
-`define DoubleRegWidth 64
-`define DoubleRegBus 63:0
-`define RegNum 32
-`define RegNumLog2 5
-`define NOPRegAddr 5'b00000
-`define AluOpBus 7:0        //xu
-`define AluSelBus 2:0       //xu
-`define InstValid 1'b0      //xu
-`define InstInvalid 1'b1    //xu
-
-`define InDelaySlot 1'b1    //xu
-`define NotInDelaySlot 1'b0 //xu
-
-`define InterruptAssert 1'b1//xu
-`define InterruptNotAssert 1'b0//xu
-`define TrapAssert 1'b1     //xu
-`define TrapNotAssert 1'b0  //xu
-
+//指令
 //**************alusel*******//
-`define Arithmetic 3'b000
-`define BranchJump 3'b001
-`define Mem 3'b010
-`define Logic 3'b011
-`define Shift 3'b100
-`define Move 3'b101
-`define Trap 3'b110
-`define Privilege 3'b111
+`define Arithmetic 		3'b000
+`define BranchJump 		3'b001
+`define Mem 			3'b010
+`define Logic 			3'b011
+`define Shift 			3'b100
+`define Move 			3'b101
+`define Trap 			3'b110
+`define Privilege 		3'b111
 
+//指令
 //*************aluop*******************//
-`define ADDIU 8'b00000000
-`define ADDU 8'b00000001
-`define SLT 8'b00000010
-`define SLTI 8'b00000011
-`define SLTIU 8'b00000100
-`define SLTU 8'b00000101
-`define SUBU 8'b00000110
-`define MULT 8'b00000111
-`define BEQ 8'b00001000
-`define BGEZ 8'b00001001
-`define BGTZ 8'b00001010
-`define BLEZ 8'b00001011
-`define BLTZ 8'b00001100
-`define BNE 8'b00001101
-`define J 8'b00001110
-`define JR 8'b00001111
-`define JAL 8'b00010000
-`define JALR 8'b00010001
-`define LW 8'b00010010
-`define SW 8'b00010011
-`define LB 8'b00010100
-`define SB 8'b00010101
-`define LBU 8'b00010110
-`define LHU 8'b00010111
-`define AND 8'b00011000
-`define ANDI 8'b00011001
-`define LUI 8'b00011010
-`define NOR 8'b00011011
-`define OR 8'b00011100
-`define ORI 8'b00011101
-`define XOR 8'b00011110
-`define XORI 8'b00011111
-`define MFHI 8'b00100000
-`define MFLO 8'b00100001
-`define MTHI 8'b00100010
-`define MTLO 8'b00100011
-`define SLL 8'b00100100
-`define SLLV 8'b00100101
-`define SRA 8'b00100110
-`define SRAV 8'b00100111
-`define SRL 8'b00101000
-`define SRLV 8'b00101001
-`define SYSCALL 8'b00101010
-`define ERET 8'b00101011
-`define MFC0 8'b00101100
-`define MTC0 8'b00101101
-`define TLBWI 8'b00101110
-//************* New *******************//
-`define DIV     8'b00101111    	//div
-`define DIVU    8'b00110000    	//div
-`define ADD		8'b00110001		//add
-`define ADDI	8'b00110010		//addi
-`define SUB		8'b00110011		//sub
-`define MULTU	8'b00110100		//multu
-`define BLTZAL	8'b00110101		//bltzal
-`define BGEZAL	8'b00110110		//bgezal
-`define BREAK	8'b00110111		//break
-`define LH		8'b00111000		//lh
-`define SH		8'b00111001		//sh
+`define ADDIU 			8'h00
 
-`define DivFree 2'b00
-`define DivByZero 2'b01
-`define DivOn 2'b10
-`define DivEnd 2'b11
-`define DivResultReady 1'b1
-`define DivResultNotReady 1'b0
-`define DivStart 1'b1
-`define DivStop 1'b0
+`define ADDU 			8'h01
+
+`define SLT 			8'h02
+
+`define SLTI 			8'h03
+
+`define SLTIU 			8'h04
+
+`define SLTU 			8'h05
+
+`define SUBU 			8'h06
+
+`define MULT 			8'h07
+
+`define BEQ 			8'h08
+
+`define BGEZ 			8'h09
+
+`define BGTZ 			8'h0a
+
+`define BLEZ 			8'h0b
+
+`define BLTZ 			8'h0c
+
+`define BNE 			8'h0d
+
+`define J 				8'h0e
+
+`define JR 				8'h0f
+
+`define JAL 			8'h10
+
+`define JALR 			8'h11
+
+`define LW 				8'h12
+
+`define SW 				8'h13
+
+`define LB 				8'h14
+
+`define SB 				8'h15
+
+`define LBU 			8'h16
+
+`define LHU 			8'h17
+
+`define AND 			8'h18		// and指令的功能码
+
+`define ANDI 			8'h19
+
+`define LUI 			8'h1a
+
+`define NOR 			8'h1b
+
+`define OR 				8'h1c		//  or指令的功能码
+
+`define ORI 			8'h1d
+
+`define XOR 			8'h1e
+
+`define XORI 			8'h1f
+
+`define MFHI 			8'h20
+
+`define MFLO 			8'h21
+
+`define MTHI 			8'h22
+
+`define MTLO 			8'h23
+
+`define SLL 			8'h24
+
+`define SLLV 			8'h25
+
+`define SRA 			8'h26
+
+`define SRAV 			8'h27
+
+`define SRL 			8'h28
+
+`define SRLV 			8'h29
+
+`define SYSCALL 		8'h2a
+
+`define ERET 			8'h2b
+
+`define MFC0 			8'h2c
+
+`define MTC0 			8'h2d
+
+//************* New *******************//
+
+`define DIV     		8'h2f   	//div
+
+`define DIVU    		8'h30    	//div
+
+`define ADD				8'h31		//add
+
+`define ADDI			8'h32		//addi
+
+`define SUB				8'h33		//sub
+
+`define MULTU			8'h34		//multu
+
+`define BLTZAL			8'h35		//bltzal
+
+`define BGEZAL			8'h36		//bgezal
+
+`define BREAK			8'h37		//break
+
+`define LH				8'h38		//lh
+
+`define SH				8'h39		//sh
+
+`define DivFree 			2'b00
+`define DivByZero 			2'b01
+`define DivOn 				2'b10
+`define DivEnd 				2'b11
+`define DivResultReady 		1'b1
+`define DivResultNotReady 	1'b0
+`define DivStart 			1'b1
+`define DivStop 			1'b0
 
 //**************31:26 OP********//
-`define SPECIAL_OP 		6'b000000
-`define ADDI_OP			6'b001000 
-`define ADDIU_OP		6'b001001 
-`define SLTI_OP 		6'b001010
-`define SLTIU_OP 		6'b001011
-`define COP0_OP			6'b010000 
-`define LH_OP			6'b100001
-`define LHU_OP			6'b100101
-`define LW_OP			6'b100011
-`define SB_OP			6'b101000
-`define SH_OP			6'b101001
-`define SW_OP			6'b101011
+`define SPECIAL_OP 			6'b000000
+`define ADDI_OP				6'b001000 
+`define ADDIU_OP			6'b001001 
+`define SLTI_OP 			6'b001010
+`define SLTIU_OP 			6'b001011
+`define COP0_OP				6'b010000 
+`define LH_OP				6'b100001
+`define LHU_OP				6'b100101
+`define LW_OP				6'b100011
+`define SB_OP				6'b101000
+`define SH_OP				6'b101001
+`define SW_OP				6'b101011
 
 //************5:0 op2*********//
-`define ADD_OP2			6'b100000
-`define ADDU_OP2 		6'b100001
-`define SLT_OP2			6'b101010
-`define SLTU_OP2 		6'b101011
-`define SUB_OP2			6'b100010
-`define SUBU_OP2		6'b100011 
-`define MULT_OP2		6'b011000
-`define MULTU_OP2		6'b011001 
-`define DIV_OP2			6'b011010
-`define DIVU_OP2		6'b011011
-`define AND_OP2 		6'b100100
-`define ERET_OP2		6'b011000 
-`define TLBWI_OP2	 	6'b000010 
-`define BREAK_OP2		6'b001101
-`define SYSCALL_OP2		6'b001100
+`define ADD_OP2				6'b100000
+`define ADDU_OP2 			6'b100001
+`define SLT_OP2				6'b101010
+`define SLTU_OP2 			6'b101011
+`define SUB_OP2				6'b100010
+`define SUBU_OP2			6'b100011 
+`define MULT_OP2			6'b011000
+`define MULTU_OP2			6'b011001 
+`define DIV_OP2				6'b011010
+`define DIVU_OP2			6'b011011
+`define AND_OP2 			6'b100100
+`define ERET_OP2			6'b011000 
+`define TLBWI_OP2	 		6'b000010 
+`define BREAK_OP2			6'b001101
+`define SYSCALL_OP2			6'b001100
 //************25:21 op4************//
-`define CP0_OP4		5'b10000
-`define MFC0_OP4		5'b00000 
-`define MTC0_OP4		5'b00100 
+`define CP0_OP4				5'b10000
+`define MFC0_OP4			5'b00000 
+`define MTC0_OP4			5'b00100 
 
+
+//*********************   与指令存储器ROM有关的宏定义   **********************  
+`define InstAddrBus         31:0               //ROM的地址总线宽度  
+`define InstBus             31:0               //ROM的数据总线宽度  
+`define InstMemNum          131071             //ROM的实际大小为128KB  
+`define InstMemNumLog2      17                 //ROM实际使用的地址线宽度  
+  
+//数据存储器data_ram
+`define DataAddrBus 		31:0
+`define DataBus 			31:0
+`define DataMemNum 			131071
+`define DataMemNumLog2 		17
+`define ByteWidth 			7:0
+
+//*********************  与通用寄存器Regfile有关的宏定义   *******************  
+`define RegAddrBus          4:0                //Regfile模块的地址线宽度  
+`define RegBus              31:0               //Regfile模块的数据线宽度  
+`define RegWidth            32                 //通用寄存器的宽度  
+`define DoubleRegWidth      64                 //两倍的通用寄存器的宽度  
+`define DoubleRegBus        63:0               //两倍的通用寄存器的数据线宽度  
+`define RegNum              32                 //通用寄存器的数量  
+`define RegNumLog2          5                  //寻址通用寄存器使用的地址位数  
+`define NOPRegAddr          5'b00000  
+
+//除法div
+`define DivFree 			2'b00
+`define DivByZero 			2'b01
+`define DivOn 				2'b10
+`define DivEnd 				2'b11
+`define DivResultReady 		1'b1
+`define DivResultNotReady 	1'b0
+`define DivStart 			1'b1
+`define DivStop 			1'b0
 // exc code definitions
-`define EXC_CODE_WIDTH	5
+`define EXC_CODE_WIDTH		5
 
-`define EC_Int		5'h00	// interrupt
-`define EC_AdEL		5'h04	// AdEL Address error exception (load or instruction fetch)
-`define EC_AdES		5'h05	// AdES Address error exception (store)
-`define EC_Sys		5'h08	// Syscall exception
-`define EC_Bp		5'h09	// Break exception
-`define EC_RI		5'h0a	// reserved instruction
-`define EC_Ov		5'h0c	// Integer overflow exception
+`define EC_Int				5'h00	// interrupt
+`define EC_AdEL				5'h04	// AdEL Address error exception (load or instruction fetch)
+`define EC_AdES				5'h05	// AdES Address error exception (store)
+`define EC_Sys				5'h08	// Syscall exception
+`define EC_Bp				5'h09	// Break exception
+`define EC_RI				5'h0a	// reserved instruction
+`define EC_Ov				5'h0c	// Integer overflow exception
 
-`define EC_None		5'h10	// dummy value for no exception
-`define EC_Eret		5'h11	// dummy value to implement ERET
+`define EC_None				5'h10	// dummy value for no exception
+`define EC_Eret				5'h11	// dummy value to implement ERET
 
-`define Cp0_BadVAddr 8
-`define Cp0_Count 9
-`define Cp0_Compare 11
-`define Cp0_Status 12
-`define Cp0_Cause 13
-`define Cp0_EPC 14
+//CP0寄存器地址
+`define Cp0_BadVAddr 		8
+`define Cp0_Count	 		9
+`define Cp0_Compare 		11
+`define Cp0_Status 			12
+`define Cp0_Cause 			13
+`define Cp0_EPC 			14
 
-`define WB_IDLE 2'b00
-`define WB_BUSY 2'b01
-`define WB_WAIT_FOR_FLUSHING 2'b10
-`define WB_WAIT_FOR_STALL 2'b11
+`define WB_IDLE 				2'b00
+`define WB_BUSY 				2'b01
+`define WB_WAIT_FOR_FLUSHING 	2'b10
+`define WB_WAIT_FOR_STALL 		2'b11
 
 `define ORDER_REG_ADDR 16'h1160   //32'hbfd0_1160
 `define LED_ADDR       16'hf000   //32'hbfd0_f000 

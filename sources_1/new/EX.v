@@ -24,6 +24,8 @@
 
 module EX(
 	input wire 			rst,
+
+	// 译码阶段送到执行阶段的信息
 	input wire [2:0] 	alusel_i,
 	input wire [7:0] 	aluop_i,
 	input wire [31:0]   pc_i,
@@ -33,19 +35,28 @@ module EX(
 	input wire [4:0] 	wd_i,
 	input wire 			wreg_i,
 	
+	// HILO模块给出的HI、LO寄存器的值 
 	input wire [31:0] 	hi_i,
 	inout wire [31:0] 	lo_i,
+
+	// 访存阶段的指令是否要写HI、LO，用于检测HI、LO寄存器带来的数据相关问题
 	input wire 			mem_whilo_i,
 	input wire [31:0] 	mem_hi_i,
 	input wire [31:0] 	mem_lo_i,
+
+	// 回写阶段的指令是否要写HI、LO，用于检测HI、LO寄存器带来的数据相关问题 
 	input wire 			wb_whilo_i,
 	input wire [31:0] 	wb_hi_i,
 	input wire [31:0] 	wb_lo_i,
 	
+	// 当前执行阶段的指令是否位于延迟槽
 	input wire 			in_delay_i,
 	output wire			in_delay_o,
+
+	// 处于执行阶段的转移指令要保存的返回地址
 	input wire [31:0] 	link_addr_i,
 	
+	//新增输入接口inst_i，其值就是当前处于执行阶段的指令
 	input wire [31:0] 	inst_i,
 	
 	input wire		  	mem_cp0_we,
@@ -59,14 +70,17 @@ module EX(
 	output reg[4:0]     cp0_reg_waddr_o,
 	output reg[31:0] 	cp0_reg_wdata_o,
 
+	// 执行的结果
 	output reg [4:0] 	wd_o,
 	output reg 			wreg_o,
 	output reg [31:0] 	wdata_o,
 	
+	// 处于执行阶段的指令对HI、LO寄存器的写操作请求
 	output reg 			whilo_o,
 	output reg [31:0] 	hi_o,
 	output reg [31:0] 	lo_o,
 	
+	//为加载、存储指令准备的输出接口
 	output wire [7:0] 	aluop_o,
 	output reg [31:0] 	mem_addr_o,
 	output wire [31:0] 	reg2_o,
@@ -82,9 +96,11 @@ module EX(
 	output reg cp0_reg_read_o,
 	
 	
-	//           div
+	// 来自除法模块的输入
 	input wire[`DoubleRegBus]     div_result_i,
     input wire                    div_ready_i,
+
+    // 到除法模块的输出
     output reg[`RegBus]           div_opdata1_o,
     output reg[`RegBus]           div_opdata2_o,
     output reg                    div_start_o,
@@ -98,28 +114,25 @@ module EX(
 	wire[31:0] signed_low16_inst;
 	assign signed_low16_inst = { {16{inst_i[15]}}, inst_i[15:0] };
 
-	reg[31:0] logicout;
-	reg[31:0] shiftout;
-	reg[31:0] moveout;
-	reg[31:0] hi_t;
-	reg[31:0] lo_t;
+	reg[31:0] logicout;		// 保存逻辑运算的结果
+	reg[31:0] shiftout;		// 保存移位运算结果
+	reg[31:0] moveout;		// 移动操作的结果
+	reg[31:0] hi_t;			// 保存HI寄存器的最新值
+	reg[31:0] lo_t;			// 保存LO寄存器的最新值
 	reg[63:0] arithout;
 	reg[31:0] cp0out;
 	
-	reg stallreq_for_div;
+	reg stallreq_for_div;	 // 是否由于除法运算导致流水线暂停 
 	assign stop = stallreq_for_div;
 
+	//aluop_o会传递到访存阶段，届时将利用其确定加载、存储类型
 	assign aluop_o = aluop_i;
 	assign reg2_o = reg2_i;
   
 	always @(*)begin
 		if (rst==`RstEnable) begin
-			//exc_code_o <= 0;
-			//exc_epc_o <= 0;
 			exc_badvaddr_o <= 0;
 		end else begin
-			//exc_code_o <= exc_code_i;
-			//exc_epc_o <= exc_epc_i;
 			exc_badvaddr_o <= exc_badvaddr_i;
 		end
 	end
@@ -140,12 +153,7 @@ module EX(
 					cp0_reg_we_o <= 1'b0;
 					cp0_reg_wdata_o <= 32'h00000000;
 					cp0_reg_waddr_o <= 5'b00000;
-					// if (mem_cp0_we == `WriteEnable && mem_cp0_waddr == inst_i[15:11]) begin
-					//     cp0out <= mem_cp0_wdata;
-					// end
-					// else begin
 					cp0out <= cp0_reg_read_data_i;
-					// end
 				end
 				`MTC0: begin
 					cp0_reg_read_o <= 1'b0;
@@ -241,11 +249,13 @@ module EX(
 	end
 
 	// 4/6 move instructions======================================================
+	//得到最新的HI、LO寄存器的值，此处要解决数据相关问题
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			hi_t <= `ZeroWord;
 			lo_t <= `ZeroWord;
 		end else begin
+			// 访存阶段的指令要写HI、LO寄存器
 			hi_t <= (mem_whilo_i == 1'b1) ? mem_hi_i :
               (wb_whilo_i == 1'b1) ? wb_hi_i : hi_i;
 			lo_t <= (mem_whilo_i == 1'b1) ? mem_lo_i :
@@ -258,10 +268,10 @@ module EX(
 			moveout <= `ZeroWord;
 		end else begin
 			case (aluop_i)
-				`MFHI: begin
+				`MFHI: begin		// 如果是mfhi指令，那么将HI的值作为移动操作的结果
 					moveout <= hi_t;
 				end
-				`MFLO: begin
+				`MFLO: begin		// 如果是mflo指令，那么将LO的值作为移动操作的结果
 					moveout <= lo_t;
 				end
 				default: begin
@@ -348,6 +358,7 @@ module EX(
 	end
 
 	//div 
+	//输出DIV模块控制信息，获取DIV模块给出的结果
 	always @ (*) begin
         if(rst == `RstEnable) begin
             stallreq_for_div <= `NoStop;
@@ -364,17 +375,17 @@ module EX(
             case (aluop_i) 
                 `DIV:        begin
                     if(div_ready_i == `DivResultNotReady) begin
-                        div_opdata1_o <= reg1_i;
-                        div_opdata2_o <= reg2_i;
-                        div_start_o <= `DivStart;
-                        signed_div_o <= 1'b1;
-                        stallreq_for_div <= `Stop;
+                        div_opdata1_o <= reg1_i;	//被除数
+                        div_opdata2_o <= reg2_i;	//除数
+                        div_start_o <= `DivStart;	//开始除法运算
+                        signed_div_o <= 1'b1;		//有符号除法
+                        stallreq_for_div <= `Stop;	//请求流水线暂停
                     end else if(div_ready_i == `DivResultReady) begin
                         div_opdata1_o <= reg1_i;
                         div_opdata2_o <= reg2_i;
-                        div_start_o <= `DivStop;
+                        div_start_o <= `DivStop;	//结束除法运算
                         signed_div_o <= 1'b1;
-                        stallreq_for_div <= `NoStop;
+                        stallreq_for_div <= `NoStop;	//不再请求流水线暂停
                     end else begin                        
                         div_opdata1_o <= `ZeroWord;
                         div_opdata2_o <= `ZeroWord;
@@ -388,7 +399,7 @@ module EX(
                         div_opdata1_o <= reg1_i;
                         div_opdata2_o <= reg2_i;
                         div_start_o <= `DivStart;
-                        signed_div_o <= 1'b0;
+                        signed_div_o <= 1'b0;		//无符号除法
                         stallreq_for_div <= `Stop;
                     end else if(div_ready_i == `DivResultReady) begin
                         div_opdata1_o <= reg1_i;
@@ -411,6 +422,7 @@ module EX(
     end 
 
 	// output general
+	// 如果是mflo指令，那么将LO的值作为移动操作的结果
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			wd_o <= 5'b0;
@@ -467,13 +479,15 @@ module EX(
 					{hi_o, lo_o} <= arithout;
 					whilo_o <= 1'b1;
 				end 
+
+				//如果是MTHI、MTLO指令，那么需要给出whilo_o、hi_o、lo_i的值
 				`MTHI: begin
 					hi_o <= reg1_i;
-					lo_o <= lo_t;
+					lo_o <= lo_t;		// 写HI寄存器，所以LO保持不变 
 					whilo_o <= 1'b1;
 				end
 				`MTLO: begin
-					hi_o <= hi_t;
+					hi_o <= hi_t;		// 写LO寄存器，所以HI保持不变
 					lo_o <= reg1_i;
 					whilo_o <= 1'b1;
 				end

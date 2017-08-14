@@ -25,11 +25,11 @@
 module CTRL(
 	input wire clk,
 	input wire rst,
-	input wire stop_from_id,
-	input wire stop_from_ex,
-	input wire stop_from_mem, 
-	input wire stop_from_pc,
-	input wire stop_from_if,
+	input wire stop_from_id,	// 来自译码阶段的暂停请求
+	input wire stop_from_ex,	// 来自执行阶段的暂停请求
+	input wire stop_from_mem, 	// 来自译码阶段的暂停请求   !!
+	input wire stop_from_pc,	// 来自译码阶段的暂停请求!!
+	input wire stop_from_if,	// 来自译码阶段的暂停请求!!
 	input wire flush_i, 
 	output reg[5:0] stall,
 	output reg flush_o

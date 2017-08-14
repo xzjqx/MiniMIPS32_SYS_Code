@@ -25,10 +25,13 @@
 module HILO(
 	input wire clk,
 	input wire rst,
+
+	// 写端口 
 	input wire we,
 	input wire [31:0] hi_i,
 	input wire [31:0] lo_i,
 	
+	// 读端口 
 	output reg [31:0] hi_o,
 	output reg [31:0] lo_o
     );

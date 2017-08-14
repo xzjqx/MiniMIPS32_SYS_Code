@@ -24,6 +24,8 @@
 
 module MEM(
 	input wire rst,
+
+    // 来自执行阶段的信息
 	input wire [4:0] wd_i,
 	input wire wreg_i,
 	input wire [31:0] wdata_i,
@@ -32,10 +34,12 @@ module MEM(
 	input wire [31:0] hi_i,
 	input wire [31:0] lo_i,
 	
+    //来自执行阶段的信息 
 	input wire [7:0] aluop_i,
 	input wire [31:0] mem_addr_i,
 	input wire [31:0] reg2_i,
 	
+    //来自外部数据存储器RAM的信息
 	input wire [31:0] mem_data_i,
 	input wire cp0_reg_we_i,
 	input wire [4:0] cp0_reg_write_addr_i,
@@ -45,6 +49,7 @@ module MEM(
 	output reg [4:0] cp0_reg_write_addr_o,
 	output reg [31:0] cp0_reg_data_o,
 	
+    // 访存阶段的结果
 	output reg [4:0] wd_o,
 	output reg wreg_o,
 	output reg [31:0] wdata_o,

@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ns / 1ps    // 时间单位是1ns，精度是1ps 
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -67,7 +67,7 @@ module MiniMIPS32_SYS_tb;
 	end
 	
 	initial begin
-	  clk_init = 1'b0;
+	  clk_init = 1'b0;                 // 每隔5ns，clk_init信号翻转一次，所以一个周期是10ns，对应100MHz
 	  forever #5 clk_init  = ~clk_init ;
 	end
 

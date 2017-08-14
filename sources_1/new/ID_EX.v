@@ -25,6 +25,8 @@
 module ID_EX(
 	input wire clk,
 	input wire rst,
+
+	// 从译码阶段传递过来的信息
 	input wire [2:0] id_alusel,
 	input wire [7:0] id_aluop,
 	input wire [31:0] id_reg1,
@@ -36,9 +38,10 @@ module ID_EX(
 	input wire [31:0] id_link_address,
 	input wire next_inst_in_delayslot_i,
 	
-	input wire [31:0] id_inst,
+	input wire [31:0] id_inst,	// 来自ID模块的信号
 	input wire [31:0] id_pc,
 	
+	// 传递到执行阶段的信息
 	output reg [2:0] ex_alusel,
 	output reg [7:0] ex_aluop,
 	output reg [31:0] ex_reg1,
@@ -50,9 +53,10 @@ module ID_EX(
 	output reg [31:0] ex_link_address,
 	output reg is_in_delayslot_o,
 	
-	output reg [31:0] ex_inst,
+	output reg [31:0] ex_inst,	// 传递到EX模块
 	output reg [31:0] ex_pc,
 	
+	//来自控制模块的信息
 	input wire [5:0] stall,
 	
 	input wire flush,
@@ -66,6 +70,11 @@ module ID_EX(
 	output reg [31:0] exc_badvaddr_o
     );
 
+       //（1）当stall[2]为Stop，stall[3]为NoStop时，表示译码阶段暂停，  
+       //     而执行阶段继续，所以使用空指令作为下一个周期进入执行阶段的指令。  
+       //（2）当stall[2]为NoStop时，译码阶段继续，译码后的指令进入执行阶段。  
+       //（3）其余情况下，保持执行阶段的寄存器ex_aluop、ex_alusel、ex_reg1、  
+       //    ex_reg2、ex_wd、ex_wreg不变  ?
 	always @(posedge clk or negedge rst) begin
 		if (rst == `RstEnable || flush == 1'b1) begin
 			ex_alusel <= 3'b0;
@@ -108,7 +117,8 @@ module ID_EX(
 			ex_is_in_delayslot <= id_is_in_delayslot;
 			ex_link_address <= id_link_address;
 			is_in_delayslot_o <= next_inst_in_delayslot_i;
-			ex_inst <= id_inst;
+			//在译码阶段没有暂停的情况下，直接将ID模块的输入通过接口ex_inst输出
+			ex_inst <= id_inst;	
 			ex_pc <= id_pc;
 			exc_code_o <= exc_code_i;
 			exc_epc_o <= exc_epc_i;
