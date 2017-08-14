@@ -110,6 +110,7 @@ module MiniMIPS32_SYS(
 	 // Clock in ports
 	  .clk_in1(clk_init));      // input clk_in1
     
+	//wire [5:0] stall;
 	MiniMIPS32 MiniMIPS320(
 		
 		.clk(clk),
@@ -123,6 +124,8 @@ module MiniMIPS32_SYS(
 		.iwishbone_sel_o(m1_sel_i),
 		.iwishbone_stb_o(m1_stb_i),
 		.iwishbone_cyc_o(m1_cyc_i), 
+
+		//.stall(stall),
      
      	.int_i(int),
      
@@ -166,6 +169,7 @@ module MiniMIPS32_SYS(
 		.ram_addr(data_addr_tmp), 
 		.ram_data_i(data_data_i), 
 		.ram_data_o(data_data_o)
+		//.stall(6'b000000)
 	);
 	
 	assign data_addr = data_addr_tmp[15:0];
@@ -200,6 +204,7 @@ module MiniMIPS32_SYS(
 		.ram_addr(inst_addr), 
 		.ram_data_i(inst_data_i), 
 		.ram_data_o(inst_data_o)
+		//.stall(stall)
 	);
 	
 	inst_ram inst_ram0 (

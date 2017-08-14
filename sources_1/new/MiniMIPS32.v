@@ -35,6 +35,8 @@ module MiniMIPS32(
 	output wire[3:0] iwishbone_sel_o,
 	output wire iwishbone_stb_o,
 	output wire iwishbone_cyc_o,
+
+	//output wire[5:0] stall,
 	
 	//data wishbone interface signal
 	input wire[31:0] dwishbone_data_i,
@@ -209,7 +211,7 @@ module MiniMIPS32(
 	wire 		stop_from_pc;
 	wire		stop_from_if;
 	wire 		ctrl_flush_i;
-	wire [5:0] 	stall;
+	wire [5:0] 	stall;////////////
 	wire 		flush;
 	
 	wire 		mem_ce_o;
@@ -279,7 +281,7 @@ module MiniMIPS32(
     	.cpu_addr_i(inst_addr),
     	.cpu_we_i(`WriteDisable),
     	.cpu_sel_i(4'b1111),
-    	.cpu_data_o(if_inst_o),
+    	.cpu_data_o(if_inst_o),////////////id_inst_i
 						
     	.wishbone_data_i(iwishbone_data_i),
     	.wishbone_ack_i(iwishbone_ack_i),
@@ -298,7 +300,7 @@ module MiniMIPS32(
 				.if_inst(if_inst_o),
 				.exc_code_i(if_exc_code_o),
 			 	.id_pc(id_pc_i),
-			 	.id_inst(id_inst_i),
+			 	.id_inst(id_inst_i),////////////
 				.stall(stall),
 				.flush(flush),
 				.exc_code_o(id_exc_code_i),
