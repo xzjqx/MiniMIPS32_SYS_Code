@@ -23,8 +23,8 @@
 module MiniMIPS32_SYS_tb;
 
 	// Inputs
-	reg clk_init;
-	reg rst_init;
+	reg sys_clk_100M;
+	reg sys_rst_n;
 	reg [7:0] switch;
 	reg [3:0] btn_key_row;
 	
@@ -32,8 +32,8 @@ module MiniMIPS32_SYS_tb;
 	wire [3:0] btn_key_col;
 	
 	MiniMIPS32_SYS SoC (
-		.clk_init(clk_init),
-		.rst_init(rst_init),
+		.sys_clk_100M(sys_clk_100M),
+		.sys_rst_n(sys_rst_n),
 		
 		.switch(switch),
 		.btn_key_row(btn_key_row),
@@ -42,14 +42,14 @@ module MiniMIPS32_SYS_tb;
 	
 	initial begin
 		// Initialize Inputs
-		clk_init = 0;
-		rst_init = 0;
+		sys_clk_100M = 0;
+		sys_rst_n = 0;
 		switch = 8'h3d;
 		
-		rst_init = 1'b0;
+		sys_rst_n = 1'b0;
 		#50 
 		#1000
-		rst_init = 1'b1;
+		sys_rst_n = 1'b1;
 		
 		#5000
 		btn_key_row = 4'b1110;
@@ -67,8 +67,8 @@ module MiniMIPS32_SYS_tb;
 	end
 	
 	initial begin
-	  clk_init = 1'b0;                 // 每隔5ns，clk_init信号翻转一次，所以一个周期是10ns，对应100MHz
-	  forever #5 clk_init  = ~clk_init ;
+	  sys_clk_100M = 1'b0;                 // 每隔5ns，sys_clk_100M信号翻转一次，所以一个周期是10ns，对应100MHz
+	  forever #5 sys_clk_100M  = ~sys_clk_100M ;
 	end
 
 endmodule

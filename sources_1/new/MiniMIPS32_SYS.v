@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module MiniMIPS32_SYS(
-	input wire clk_init,
-	input wire rst_init,
+	input wire sys_clk_100M,
+	input wire sys_rst_n,
 	
 	output wire [15:0] led,
 	output wire [1:0] led_rg0,
@@ -97,22 +97,22 @@ module MiniMIPS32_SYS(
 	wire rst_o;
 	
 	wire clk;
-	wire rst = rst_init;
-	wire rstn = ~rst_init;
+	wire rst = sys_rst_n;
+	wire rstn = ~sys_rst_n;
 	
 	clk_wiz_0 clocking
 	 (
 	  // Clock out ports
-	  .clk_out1(clk50mhz),     // output clk_out1
-	  .clk_out2(clk),     // output clk_out2
-	  .clk_out3(clk75mhz),     // output clk_out3
+	  .clk_out1(clk75mhz),     // output clk_out1
+	  .clk_out2(clk50mhz),     // output clk_out2
+	  .clk_out3(clk),     // output clk_out3
 	  .clk_out4(clk100mhz),     // output clk_out3
 	 // Clock in ports
-	  .clk_in1(clk_init));      // input clk_in1
+	  .clk_in1(sys_clk_100M));      // input clk_in1
     
 	MiniMIPS32 MiniMIPS320(
 		
-		.clk(clk),
+		.cpu_clk_75M(clk),
 		.rst(rst),
 	
 		.iwishbone_data_i(m1_data_o),
