@@ -23,20 +23,20 @@
 `include "defines.v"
 
 module PC(
-	input wire 			clk,
-	input wire 			rst,
+	input 	wire 			clk						,
+	input 	wire 			rst 					,
 	
-	input wire 			branch_flag_i,
-	input wire [31:0] 	branch_target_address_i,
+	input 	wire 			branch_flag_i 			,
+	input 	wire [31:0] 	branch_target_address_i ,
 	
-	input wire [ 5:0] 	stall,					// 来自控制模块CTRL
+	input 	wire [ 5:0] 	stall				    ,	// 来自控制模块CTRL
 	
-	output reg [31:0] 	pc,
+	output 	reg  [31:0] 	pc 						,
 	
-	input wire 			cp0_branch_flag,
-	input wire [31:0] 	cp0_branch_addr,
+	input 	wire 			cp0_branch_flag 		,
+	input 	wire [31:0] 	cp0_branch_addr 		,
 	
-	output reg ce
+	output 	reg 			ce
     );
 
 	//First Stop, Then Branch

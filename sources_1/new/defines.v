@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 //全局
-//*************	Global	*******************//
-`define RstEnable 		1'b0 			   //复位信号有效
+//*************		Global	*******************//
+`define RstEnable 		1'b0 			   //复位信号有效  RSTENABLE
 `define RstDisable 		1'b1 			   //复位信号无效
 `define ZeroWord 		32'h00000000	   //32位的数值0
 `define WriteEnable 	1'b1 			   //使能写
@@ -41,7 +41,7 @@
 `define InDelaySlot     1'b1               //在延迟槽中  
 `define NotInDelaySlot  1'b0               //不在延迟槽中
 
-`define Stop 			1'b1
+`define Stop 			1'b1 			
 `define NoStop 			1'b0
 `define init_pc			32'hBFC00000
 `define RegAddrBus 		4:0
@@ -55,7 +55,7 @@
 
 
 //指令
-//**************alusel*******//
+//*************		alusel 	*******************//
 `define Arithmetic 		3'b000
 `define BranchJump 		3'b001
 `define Mem 			3'b010
@@ -66,7 +66,7 @@
 `define Privilege 		3'b111
 
 //指令
-//*************aluop*******************//
+//************* 	aluop 	*******************//
 `define ADDIU 			8'h00
 
 `define ADDU 			8'h01
@@ -159,7 +159,7 @@
 
 `define MTC0 			8'h2d
 
-//************* New *******************//
+//************* 	New  	*******************//
 
 `define DIV     		8'h2f   	//div
 
@@ -192,7 +192,7 @@
 `define DivStart 			1'b1
 `define DivStop 			1'b0
 
-//**************31:26 OP********//
+//************** Inst.[31:26] -> OP field ********//
 `define SPECIAL_OP 			6'b000000
 `define ADDI_OP				6'b001000 
 `define ADDIU_OP			6'b001001 
@@ -206,7 +206,7 @@
 `define SH_OP				6'b101001
 `define SW_OP				6'b101011
 
-//************5:0 op2*********//
+//************** Inst.[ 5: 0] -> func field *********//
 `define ADD_OP2				6'b100000
 `define ADDU_OP2 			6'b100001
 `define SLT_OP2				6'b101010
@@ -222,7 +222,7 @@
 `define TLBWI_OP2	 		6'b000010 
 `define BREAK_OP2			6'b001101
 `define SYSCALL_OP2			6'b001100
-//************25:21 op4************//
+//************ Inst.[25:21] -> func field ************//
 `define CP0_OP4				5'b10000
 `define MFC0_OP4			5'b00000 
 `define MTC0_OP4			5'b00100 

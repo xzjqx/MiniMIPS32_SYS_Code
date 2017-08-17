@@ -27,21 +27,21 @@ module REG(
 	input wire 			rst,
 	
 	// 写端口
-	input wire [ 4:0] 	waddr,
-	input wire [31:0] 	wdata,
-	input wire we,
+	input wire  [ 4:0] 	waddr,
+	input wire  [31:0] 	wdata,
+	input wire 			we,
 	
 	// 读端口1
-	input wire [ 4:0] 	raddr1,
-	output reg [31:0] 	rdata1,
+	input wire  [ 4:0] 	raddr1,
+	output reg  [31:0] 	rdata1,
 	input wire 			re1,
 	
 	// 读端口2 
-	input wire [ 4:0] 	raddr2,
-	output reg [31:0] 	rdata2,
-	input wire re2,
+	input wire  [ 4:0] 	raddr2,
+	output reg  [31:0] 	rdata2,
+	input wire 			re2,
 	
-	input wire [4:0] 	debug_addr,
+	input wire  [ 4:0] 	debug_addr,
 	output wire [31:0] 	debug_data
     );
 	
