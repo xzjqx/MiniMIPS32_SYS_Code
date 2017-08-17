@@ -64,36 +64,36 @@ module EX(
 	input wire [31:0]	mem_cp0_wdata,	
 
 	input wire[31:0]    cp0_reg_read_data_i,
-	output reg[4:0]     cp0_reg_read_addr_o,
+	output wire[4:0]     cp0_reg_read_addr_o,
 
-	output reg          cp0_reg_we_o,
-	output reg[4:0]     cp0_reg_waddr_o,
-	output reg[31:0] 	cp0_reg_wdata_o,
+	output wire          cp0_reg_we_o,
+	output wire[4:0]     cp0_reg_waddr_o,
+	output wire[31:0] 	cp0_reg_wdata_o,
 
 	// 执行的结果
-	output reg [4:0] 	wd_o,
-	output reg 			wreg_o,
-	output reg [31:0] 	wdata_o,
+	output wire [4:0] 	wd_o,
+	output wire 			wreg_o,
+	output wire [31:0] 	wdata_o,
 	
 	// 处于执行阶段的指令对HI、LO寄存器的写操作请求
-	output reg 			whilo_o,
-	output reg [31:0] 	hi_o,
-	output reg [31:0] 	lo_o,
+	output wire 			whilo_o,
+	output wire [31:0] 	hi_o,
+	output wire [31:0] 	lo_o,
 	
 	//为加载、存储指令准备的输出接口
 	output wire [7:0] 	aluop_o,
-	output reg [31:0] 	mem_addr_o,
+	output wire [31:0] 	mem_addr_o,
 	output wire [31:0] 	reg2_o,
 	
 	input wire [`EXC_CODE_WIDTH-1:0]exc_code_i,
 	input wire [31:0] exc_epc_i,
 	input wire [31:0] exc_badvaddr_i,
 	
-	output reg [`EXC_CODE_WIDTH-1:0]exc_code_o,
-	output reg [31:0] exc_epc_o,
-	output reg [31:0] exc_badvaddr_o,
+	output wire [`EXC_CODE_WIDTH-1:0]exc_code_o,
+	output wire [31:0] exc_epc_o,
+	output wire [31:0] exc_badvaddr_o,
 	
-	output reg cp0_reg_read_o,
+	output wire cp0_reg_read_o,
 	
 	
 	// 来自除法模块的输入
@@ -101,10 +101,10 @@ module EX(
     input wire                    div_ready_i,
 
     // 到除法模块的输出
-    output reg[`RegBus]           div_opdata1_o,
-    output reg[`RegBus]           div_opdata2_o,
-    output reg                    div_start_o,
-    output reg                    signed_div_o,
+    output wire[`RegBus]           div_opdata1_o,
+    output wire[`RegBus]           div_opdata2_o,
+    output wire                    div_start_o,
+    output wire                    signed_div_o,
     output stop
     );
     
@@ -114,21 +114,22 @@ module EX(
 	wire[31:0] signed_low16_inst;
 	assign signed_low16_inst = { {16{inst_i[15]}}, inst_i[15:0] };
 
-	reg[31:0] logicout;		// 保存逻辑运算的结果
-	reg[31:0] shiftout;		// 保存移位运算结果
-	reg[31:0] moveout;		// 移动操作的结果
-	reg[31:0] hi_t;			// 保存HI寄存器的最新值
-	reg[31:0] lo_t;			// 保存LO寄存器的最新值
+	wire[31:0] logicout;		// 保存逻辑运算的结果
+	wire[31:0] shiftout;		// 保存移位运算结果
+	wire[31:0] moveout;		// 移动操作的结果
+	wire[31:0] hi_t;			// 保存HI寄存器的最新值
+	wire[31:0] lo_t;			// 保存LO寄存器的最新值
 	reg[63:0] arithout;
-	reg[31:0] cp0out;
+	wire[31:0] cp0out;
 	
-	reg stallreq_for_div;	 // 是否由于除法运算导致流水线暂停 
+	wire stallreq_for_div;	 // 是否由于除法运算导致流水线暂停 
 	assign stop = stallreq_for_div;
 
 	//aluop_o会传递到访存阶段，届时将利用其确定加载、存储类型
 	assign aluop_o = aluop_i;
 	assign reg2_o = reg2_i;
   
+  	/*
 	always @(*)begin
 		if (rst==`RstEnable) begin
 			exc_badvaddr_o <= 0;
@@ -136,7 +137,10 @@ module EX(
 			exc_badvaddr_o <= exc_badvaddr_i;
 		end
 	end
+	*/
+	assign exc_badvaddr_o = (rst==`RstEnable) ? 0 : exc_badvaddr_i;
 
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			cp0_reg_we_o <= 1'b0;
@@ -174,8 +178,31 @@ module EX(
 			endcase
 		end
 	end
+	*/
+	
+	assign cp0_reg_we_o = (rst == `RstEnable) ? 1'b0 : 
+						  (aluop_i == `MFC0)  ? 1'b0 :
+						  (aluop_i == `MTC0)  ? 1'b1 : 1'b0;
 
+	assign cp0_reg_wdata_o = (rst == `RstEnable) ? 32'h00000000 : 
+						  (aluop_i == `MFC0)  ? 32'h00000000 :
+						  (aluop_i == `MTC0)  ? reg1_i : 32'h00000000;
+    assign cp0_reg_waddr_o = (rst == `RstEnable) ? 5'b00000 : 
+						  (aluop_i == `MFC0)  ? 5'b00000 :
+						  (aluop_i == `MTC0)  ? inst_i[15:11] : 5'b00000;
+	assign cp0_reg_read_addr_o = (rst == `RstEnable) ? 5'b00000 : 
+						  (aluop_i == `MFC0)  ? inst_i[15:11] :
+						  (aluop_i == `MTC0)  ? 5'b00000 : 5'b00000;
+	assign cp0_reg_read_o = (rst == `RstEnable) ? 1'b0 : 
+						  (aluop_i == `MFC0)  ? 1'b1 :
+						  (aluop_i == `MTC0)  ? 1'b0 : 1'b0;
+	assign cp0out = (rst == `RstEnable) ? `ZeroWord : 
+						  (aluop_i == `MFC0)  ? cp0_reg_read_data_i :
+						  (aluop_i == `MTC0)  ? `ZeroWord : `ZeroWord;
+
+	
 	// 8/8 logic instructions=====================================================
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			logicout <= `ZeroWord;
@@ -211,9 +238,21 @@ module EX(
 			endcase
 		end
 	end
-
+	*/
+	
+	assign logicout = (rst == `RstEnable) ? `ZeroWord : 
+						  (aluop_i == `AND)  ? (reg1_i & reg2_i) :
+						  (aluop_i == `ANDI)  ? (reg1_i & reg2_i) :
+						  (aluop_i == `LUI)  ? ({reg1_i[15:0], 16'b0}) :
+						  (aluop_i == `NOR)  ? (~(reg1_i | reg2_i)) :
+						  (aluop_i == `OR)  ? (reg1_i | reg2_i) :
+						  (aluop_i == `ORI)  ? (reg1_i | reg2_i) :
+						  (aluop_i == `XOR)  ? (reg1_i ^ reg2_i) :
+						  (aluop_i == `XORI)  ? (reg1_i ^ reg2_i) : `ZeroWord;
+	
 
 	// 6/6 shift word instructions================================================
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			shiftout <= 32'b0;
@@ -226,12 +265,10 @@ module EX(
 					shiftout <= reg1_i << reg2_i;
 				end
 				`SRA: begin
-					// shiftout <= reg1_i >>> reg2_i;
 					shiftout <= ({32{reg1_i[31]}} << (6'd32-{1'b0, reg2_i[4:0]}))
 												| reg1_i >> reg2_i[4:0];
 				end
 				`SRAV: begin                 // reg2_i should be 0 at [31:5]
-					//shiftout <= reg1_i >>> reg2_i;
 					shiftout <= ({32{reg1_i[31]}} << (6'd32-{1'b0, reg2_i[4:0]}))
 												| reg1_i >> reg2_i[4:0];
 				end
@@ -247,9 +284,19 @@ module EX(
 			endcase
 		end
 	end
-
+	*/
+	
+	assign shiftout = (rst == `RstEnable) ? `ZeroWord : 
+					  (aluop_i == `SLL)  ? (reg1_i <<  reg2_i) :
+					  (aluop_i == `SLLV)  ? (reg1_i <<  reg2_i) :
+					  (aluop_i == `SRA)  ? (({32{reg1_i[31]}} << (6'd32-{1'b0, reg2_i[4:0]})) | reg1_i >> reg2_i[4:0]) :
+					  (aluop_i == `SRAV)  ? (({32{reg1_i[31]}} << (6'd32-{1'b0, reg2_i[4:0]})) | reg1_i >> reg2_i[4:0]) :
+					  (aluop_i == `SRL)  ? (reg1_i >> reg2_i) :
+					  (aluop_i == `SRLV)  ? (reg1_i >> reg2_i) : `ZeroWord;
+	
 	// 4/6 move instructions======================================================
 	//得到最新的HI、LO寄存器的值，此处要解决数据相关问题
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			hi_t <= `ZeroWord;
@@ -262,7 +309,16 @@ module EX(
               (wb_whilo_i == 1'b1) ? wb_lo_i : lo_i;
 		end
 	end
-
+	*/
+	
+	assign hi_t = 	(rst == `RstEnable) ? `ZeroWord : 
+					(mem_whilo_i == 1'b1) ? mem_hi_i :
+              		(wb_whilo_i == 1'b1) ? wb_hi_i : hi_i;
+	assign lo_t = 	(rst == `RstEnable) ? `ZeroWord : 
+					(mem_whilo_i == 1'b1) ? mem_lo_i :
+              		(wb_whilo_i == 1'b1) ? wb_lo_i : lo_i;
+    
+    /*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			moveout <= `ZeroWord;
@@ -280,37 +336,46 @@ module EX(
 			endcase
 		end
 	end
-
+	*/
+	
+	assign moveout = (rst == `RstEnable) ? `ZeroWord : 
+					  (aluop_i == `MFHI)  ? hi_t :
+					  (aluop_i == `MFLO)  ? lo_t : `ZeroWord;
+	
 	// 8/21 arithmetic instructions===============================================
 	reg [32:0] tmp;
-	reg [5:0] exc_code_tmp;
-	reg [31:0] exc_epc_tmp;
+	wire [32:0] tmp_1;
+	wire [32:0] tmp_2;
+	wire [5:0] exc_code_tmp;
+	wire [31:0] exc_epc_tmp;
+
+	
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			arithout <= 64'b0;
-			exc_code_tmp <= `EC_None;
-			exc_epc_tmp <= `ZeroWord;
+			//exc_code_tmp <= `EC_None;
+			//exc_epc_tmp <= `ZeroWord;
 			//exc_badvaddr_o <= `ZeroWord;
 		end else begin
-			exc_code_tmp <= exc_code_i;
-			exc_epc_tmp <= exc_epc_i;
+			//exc_code_tmp <= exc_code_i;
+			//exc_epc_tmp <= exc_epc_i;
 			//exc_badvaddr_o <= exc_badvaddr_i;
 			case (aluop_i)
 				`ADD: begin
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_tmp <= `EC_Ov;
-						if(in_delay_i) exc_epc_tmp <= pc_i -4;
-						else exc_epc_tmp <= pc_i;
+						//exc_code_tmp <= `EC_Ov;
+						//if(in_delay_i) //exc_epc_tmp <= pc_i -4;
+						//else //exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
 				`ADDI: begin
 					tmp <= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_tmp <= `EC_Ov;
-						if(in_delay_i) exc_epc_tmp <= pc_i -4;
-					    else exc_epc_tmp <= pc_i;
+						//exc_code_tmp <= `EC_Ov;
+						//if(in_delay_i) //exc_epc_tmp <= pc_i -4;
+					    //else //exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -335,9 +400,9 @@ module EX(
 				`SUB: begin
 					tmp <= {reg1_i[31],reg1_i} - {reg2_i[31],reg2_i};
 					if(tmp[32] != tmp[31]) begin
-						exc_code_tmp <= `EC_Ov;
-						if(in_delay_i) exc_epc_tmp <= pc_i -4;
-					    else exc_epc_tmp <= pc_i;
+						//exc_code_tmp <= `EC_Ov;
+						//if(in_delay_i) //exc_epc_tmp <= pc_i -4;
+					    //else //exc_epc_tmp <= pc_i;
 					end
 					else arithout <= tmp[31:0];
 				end
@@ -356,9 +421,45 @@ module EX(
 			endcase
 		end
 	end
-
+	
+	
+	assign tmp_1 		= {reg1_i[31],reg1_i} + {reg2_i[31],reg2_i};
+	assign tmp_2 		= {reg1_i[31],reg1_i} - {reg2_i[31],reg2_i};
+	/*
+	assign arithout = (rst == `RstEnable) ? 64'b0 : 
+					  ((aluop_i == `ADD) && (tmp_1[32] == tmp_1[31]))  ? tmp_1[31:0] :
+					  ((aluop_i == `ADDI) && (tmp_1[32] == tmp_1[31]))  ? tmp_1[31:0] :
+					  (aluop_i == `ADDIU)  ? (reg1_i + reg2_i) :
+					  (aluop_i == `ADDU)  ? (reg1_i + reg2_i) :
+					  ((aluop_i == `SLT) && ($signed(reg1_i) < $signed(reg2_i))) ? 64'b1 :
+				      ((aluop_i == `SLT) && (!($signed(reg1_i) < $signed(reg2_i)))) ? 64'b0 :					  
+					  ((aluop_i == `SLTI) && ($signed(reg1_i) < $signed(reg2_i))) ? 64'b1 :
+					  ((aluop_i == `SLTI) && (!($signed(reg1_i) < $signed(reg2_i)))) ? 64'b0 :
+					  ((aluop_i == `SLTU)  && (reg1_i < reg2_i)) ? 64'b1 :
+					  ((aluop_i == `SLTU)  && (!(reg1_i < reg2_i))) ? 64'b0 :
+					  ((aluop_i == `SLTIU) && (reg1_i < reg2_i)) ? 64'b1 :
+					  ((aluop_i == `SLTIU)  && (!(reg1_i < reg2_i))) ? 64'b0 :
+					  ((aluop_i == `SUB) && (tmp_2[32] == tmp_2[31]))  ? tmp_2[31:0] :
+					  (aluop_i == `SUBU)  ? (reg1_i - reg2_i) :
+					  (aluop_i == `MULT)  ? ($signed(reg1_i) * $signed(reg2_i)) :
+					  (aluop_i == `MULTU)  ? ({1'b0,reg1_i} * {1'b0,reg2_i}) : 64'b0;
+	*/			  
+	assign exc_code_tmp = (rst == `RstEnable) ? `EC_None : 
+					  ((aluop_i == `ADD) && (tmp_1[32] != tmp_1[31]))  ? `EC_Ov :
+					  ((aluop_i == `ADDI) && (tmp_1[32] != tmp_1[31]))  ? `EC_Ov :
+					  ((aluop_i == `SUB) && (tmp_2[32] != tmp_2[31]))  ? `EC_Ov : exc_code_i;
+	assign exc_epc_tmp = (rst == `RstEnable) ? `ZeroWord : 
+					  ((aluop_i == `ADD) && (tmp_1[32] != tmp_1[31]) && (in_delay_i))  ? (pc_i -4) :
+					  ((aluop_i == `ADD) && (tmp_1[32] != tmp_1[31]) && (!in_delay_i))  ? pc_i :
+					  ((aluop_i == `ADDI) && (tmp_1[32] != tmp_1[31]) && (in_delay_i))  ? (pc_i -4) :
+					  ((aluop_i == `ADDI) && (tmp_1[32] != tmp_1[31]) && (!in_delay_i))  ? pc_i :
+					  ((aluop_i == `SUB) && (tmp_2[32] != tmp_2[31]) && (in_delay_i))  ? (pc_i -4) :
+					  ((aluop_i == `SUB) && (tmp_2[32] != tmp_2[31]) && (!in_delay_i))  ? pc_i : exc_epc_i;			
+			  
+					  
 	//div 
 	//输出DIV模块控制信息，获取DIV模块给出的结果
+	/*
 	always @ (*) begin
         if(rst == `RstEnable) begin
             stallreq_for_div <= `NoStop;
@@ -420,9 +521,47 @@ module EX(
             endcase
         end
     end 
-
+    */
+    
+	assign stallreq_for_div = (rst == `RstEnable) ? `NoStop : 
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultNotReady))  ? `Stop :
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultReady))  ? `NoStop :
+					  (aluop_i == `DIV)  ? `NoStop :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? `Stop :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? `NoStop :
+					  (aluop_i == `DIVU)  ? `NoStop : `NoStop;
+	assign div_opdata1_o = (rst == `RstEnable) ? `ZeroWord : 
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultNotReady))  ? reg1_i :
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultReady))  ? reg1_i :
+					  (aluop_i == `DIV)  ? `ZeroWord :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? reg1_i :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? reg1_i :
+					  (aluop_i == `DIVU)  ? `ZeroWord : `ZeroWord;		
+	assign div_opdata2_o = (rst == `RstEnable) ? `ZeroWord : 
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultNotReady))  ? reg2_i :
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultReady))  ? reg2_i :
+					  (aluop_i == `DIV)  ? `ZeroWord :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? reg2_i :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? reg2_i :
+					  (aluop_i == `DIVU)  ? `ZeroWord : `ZeroWord;					  			  
+	assign div_start_o = (rst == `RstEnable) ? `DivStop : 
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultNotReady))  ? `DivStart :
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultReady))  ? `DivStop :
+					  (aluop_i == `DIV)  ? `DivStop :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? `DivStart :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? `DivStop :
+					  (aluop_i == `DIVU)  ? `DivStop : `DivStop; 
+	assign signed_div_o = (rst == `RstEnable) ? 1'b0 : 
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultNotReady))  ? 1'b1 :
+					  ((aluop_i == `DIV) && (div_ready_i == `DivResultReady))  ? 1'b1 :
+					  (aluop_i == `DIV)  ? 1'b0 :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? 1'b0 :
+					  ((aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? 1'b0 :
+					  (aluop_i == `DIVU)  ? 1'b0: 1'b0; 					  
+	
 	// output general
 	// 如果是mflo指令，那么将LO的值作为移动操作的结果
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			wd_o <= 5'b0;
@@ -461,9 +600,23 @@ module EX(
 			endcase
 		end
 	end
+	*/
+	
+	assign wd_o = (rst == `RstEnable) ? 5'b0 : wd_i;
+	assign wreg_o = (rst == `RstEnable) ? 1'b0 : wreg_i;
+	assign exc_code_o = (rst == `RstEnable) ? `EC_None : exc_code_tmp;
+	assign exc_epc_o = (rst == `RstEnable) ? `ZeroWord : exc_epc_tmp;
+	assign wdata_o = (rst == `RstEnable) ? `ZeroWord : 
+					  (alusel_i == `Logic)  ? logicout :
+					  (alusel_i == `Shift)  ? shiftout :
+					  (alusel_i == `Move)  ? moveout :
+					  (alusel_i == `Arithmetic)  ? arithout[31:0] :
+					  (alusel_i == `BranchJump)  ? link_addr_i :
+					  (alusel_i == `Privilege)  ? cp0out : `ZeroWord;
 
 
 	// output hi lo
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			lo_o <= `ZeroWord;
@@ -509,8 +662,32 @@ module EX(
 			endcase
 		end
 	end
+	*/
+	
+	assign lo_o = (rst == `RstEnable) ? `ZeroWord : 
+					  (aluop_i == `MULT)  ? arithout[31:0] :
+					  (aluop_i == `MULTU)  ? arithout[31:0] :
+					  (aluop_i == `MTHI)  ? lo_t :
+					  (aluop_i == `MTLO)  ? reg1_i :
+					  (aluop_i == `DIV)  ? div_result_i[31:0] :
+					  (aluop_i == `DIVU)  ? div_result_i[31:0] : `ZeroWord;	
+	assign hi_o = (rst == `RstEnable) ? `ZeroWord : 
+					  (aluop_i == `MULT)  ? arithout[63:32] :
+					  (aluop_i == `MULTU)  ? arithout[63:32] :
+					  (aluop_i == `MTHI)  ? reg1_i :
+					  (aluop_i == `MTLO)  ? hi_t :
+					  (aluop_i == `DIV)  ? div_result_i[63:32] :
+					  (aluop_i == `DIVU)  ? div_result_i[63:32] : `ZeroWord;	
+	assign whilo_o = (rst == `RstEnable) ? 1'b0 : 
+					  (aluop_i == `MULT)  ? 1'b1 :
+					  (aluop_i == `MULTU)  ? 1'b1 :
+					  (aluop_i == `MTHI)  ? 1'b1 :
+					  (aluop_i == `MTLO)  ? 1'b1 :
+					  (aluop_i == `DIV)  ? 1'b1 :
+					  (aluop_i == `DIVU)  ? 1'b1 : 1'b0;						  
 
 	// output mem addr
+	/*
 	always @ (*) begin
 		if (rst == `RstEnable) begin
 			mem_addr_o <= `ZeroWord;
@@ -525,6 +702,8 @@ module EX(
 			endcase
 		end
 	end
-	
-	
+	*/
+	assign mem_addr_o = (rst == `RstEnable) ? `ZeroWord : 
+					  (alusel_i == `Mem)  ? (reg1_i + signed_low16_inst) : `ZeroWord;
+
 endmodule

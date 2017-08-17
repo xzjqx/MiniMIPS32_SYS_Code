@@ -47,35 +47,35 @@ module ID(
       input wire[ 7:0]  ex_aluop,
       
       output wire[31:0] pc_o,
-      output reg        stop, 
+      output wire        stop, 
       output wire[31:0] inst_o,           //current instruction
       
       // 输出到Regfile的信息
-      output reg [2:0]  alusel_o,         //defined in header.v, 8 types in total
-      output reg [7:0]  aluop_o,           //defined in header.v, 47 types of instructions in total 
+      output wire [2:0]  alusel_o,         //defined in header.v, 8 types in total
+      output wire [7:0]  aluop_o,           //defined in header.v, 47 types of instructions in total 
 
       //送到执行阶段的源操作数1、源操作数2
-      output reg [31:0] reg1_o,           //value of register 1
-      output reg [31:0] reg2_o,           //value of register 2
-      output reg [4:0]  wd_o,              //target register if write
-      output reg        wreg_o,                  //whether write to register or not
+      output wire [31:0] reg1_o,           //value of register 1
+      output wire [31:0] reg2_o,           //value of register 2
+      output wire [4:0]  wd_o,              //target register if write
+      output wire        wreg_o,                  //whether write to register or not
       
       // 输出到Regfile的信息
-      output reg        reg2_read_o,             //nothing to do with ALU
-      output reg [4:0]  reg2_addr_o,       //nothing to do with ALU
-      output reg        reg1_read_o,             //nothing to do with ALU
-      output reg [4:0]  reg1_addr_o,       //nothing to do with ALU
+      output wire        reg2_read_o,             //nothing to do with ALU
+      output wire [4:0]  reg2_addr_o,       //nothing to do with ALU
+      output wire        reg1_read_o,             //nothing to do with ALU
+      output wire [4:0]  reg1_addr_o,       //nothing to do with ALU
       output wire       in_delay_o,             //indicator of delay slot for CURRENT instruction
-      output reg [31:0] link_addr_o,      //link address to be put in //wd_o if neccessary
-      output reg        next_delay,              //indicator of delay slot for NEXT instruction
-      output reg        branch_flag,             //whether jump/branch or not
-      output reg [31:0] branch_addr,      //target address if jump/branch
+      output wire [31:0] link_addr_o,      //link address to be put in //wd_o if neccessary
+      output wire        next_delay,              //indicator of delay slot for NEXT instruction
+      output wire        branch_flag,             //whether jump/branch or not
+      output wire [31:0] branch_addr,      //target address if jump/branch
       
       input wire [ 4:0] exc_code_i,
       input wire [31:0] exc_badvaddr_i,
-      output reg [ 4:0] exc_code_o,
-      output reg [31:0] exc_epc_o,
-      output reg [31:0] exc_badvaddr_o
+      output wire [ 4:0] exc_code_o,
+      output wire [31:0] exc_epc_o,
+      output wire [31:0] exc_badvaddr_o
       );
       
       // 输出到Regfile的信息
@@ -87,7 +87,7 @@ module ID(
       wire[4:0] rd=inst_i[15:11];
 
       // 输出到Regfile的信息
-      reg[31:0] imm;
+      wire[31:0] imm;
 
       // inst_o的值就是译码阶段的指令
       assign inst_o = inst_i;
@@ -98,8 +98,13 @@ module ID(
       //   那么直接把执行阶段的结果ex_wdata 作为reg1_o的值;  
       //2、如果Regfile模块读端口1要读取的寄存器就是访存阶段要写的目的寄存器，  
       //   那么直接把访存阶段的结果mem_wdata作为reg1_o的值;  
-      always @(*) begin
+      /*always @(*) begin
             reg1_o <= (ex_wreg == `WriteEnable && ex_wd == reg1_addr_o && reg1_read_o == `ReadEnable) ? ex_wdata :  
+                      (mem_wreg    == `WriteEnable && mem_wd == reg1_addr_o && reg1_read_o  == `ReadEnable)  ? mem_wdata       :
+                      (reg1_read_o == `ReadEnable)  ? reg1_data_i     :
+                      (reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
+      */
+      assign reg1_o = (ex_wreg == `WriteEnable && ex_wd == reg1_addr_o && reg1_read_o == `ReadEnable) ? ex_wdata :  
                       (mem_wreg    == `WriteEnable && mem_wd == reg1_addr_o && reg1_read_o  == `ReadEnable)  ? mem_wdata       :
                       (reg1_read_o == `ReadEnable)  ? reg1_data_i     :
                       (reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
@@ -107,12 +112,19 @@ module ID(
       //   那么直接把执行阶段的结果ex_wdata 作为reg2_o的值;  
       //2、如果Regfile模块读端口2要读取的寄存器就是访存阶段要写的目的寄存器，  
       //   那么直接把访存阶段的结果mem_wdata作为reg2_o的值; 
+      /*      
             reg2_o <= (ex_wreg == `WriteEnable && ex_wd == reg2_addr_o && reg2_read_o == `ReadEnable) ? ex_wdata :
                       (mem_wreg    == `WriteEnable && mem_wd == reg2_addr_o && reg2_read_o  == `ReadEnable)  ? mem_wdata       :
                       (reg2_read_o == `ReadEnable)  ? reg2_data_i     :
                       (reg2_read_o == `ReadDisable) ? imm : `ZeroWord ;
-      end
+      */
+      assign reg2_o = (ex_wreg == `WriteEnable && ex_wd == reg2_addr_o && reg2_read_o == `ReadEnable) ? ex_wdata :
+                      (mem_wreg    == `WriteEnable && mem_wd == reg2_addr_o && reg2_read_o  == `ReadEnable)  ? mem_wdata       :
+                      (reg2_read_o == `ReadEnable)  ? reg2_data_i     :
+                      (reg2_read_o == `ReadDisable) ? imm : `ZeroWord ;
 
+      //end
+      
       assign in_delay_o = in_delay_i;
 
       wire [31:0] pc_4;
@@ -544,7 +556,7 @@ module ID(
       assign dec_stop = ((!rst)) ? `NoStop : 
                         (ex_aluop == (`LB ||`LBU||`LH||`LHU||`LW||`SB||`SH||`SW)) ? `Stop : `NoStop;
 
-
+      /*
       always @(*) begin
             aluop_o       <= dec_op         ;     //xu
             alusel_o      <= dec_sel        ;
@@ -564,6 +576,25 @@ module ID(
             imm           <= dec_imm        ;
             stop          <= dec_stop       ;
       end
+      */
+
+      assign      aluop_o       = dec_op         ;     //xu
+      assign      alusel_o      = dec_sel        ;
+      assign      wreg_o        = dec_wreg_o     ;
+      assign      wd_o          = dec_wd_o       ;
+      assign      reg1_read_o   = dec_reg1_read_o;
+      assign      reg2_read_o   = dec_reg2_read_o;
+      assign      next_delay    = dec_next_delay ;
+      assign      branch_flag   = dec_branch_flag;
+      assign      reg1_addr_o   = dec_reg1_addr_o;
+      assign      reg2_addr_o   = dec_reg2_addr_o;
+      assign      branch_addr   = dec_branch_addr;
+      assign      link_addr_o   = dec_link_addr_o;
+      assign      exc_code_o    = dec_exc_code_o ;
+      assign      exc_badvaddr_o= dec_exc_badvaddr_o;
+      assign      exc_epc_o     = dec_exc_epc_o  ;
+      assign      imm           = dec_imm        ;
+      assign      stop          = dec_stop       ;
 
 endmodule
 
