@@ -34,7 +34,7 @@ module decoder(
 	wb_clk_i, wb_rst_i, wb_cyc_i, wb_adr_i, wb_dat_i, wb_sel_i, wb_we_i, wb_stb_i,
 	wb_dat_o, wb_ack_o,
 
-	led, led_rg0, led_rg1, clk100, num_csn, num_a_g, switch, btn_key_col, btn_key_row, btn_step
+	led, led_rg0, led_rg1, clk50, num_csn, num_a_g, switch, btn_key_col, btn_key_row, btn_step
     );
     
     input             	wb_clk_i;	// Clock
@@ -51,7 +51,7 @@ module decoder(
     output 	[15:0]		led;
 	output  [1:0] 		led_rg0;
 	output  [1:0] 		led_rg1;
-	input               clk100;
+	input               clk50;
 	output	reg [7:0]	num_csn;
 	output	reg [6:0]	num_a_g;
     input   [7:0] 		switch;
@@ -229,7 +229,7 @@ module decoder(
     wire key_start = (state==3'b000) && !(&btn_key_row);
     wire key_end   = (state==3'b111) &&  (&btn_key_row);
     wire key_sample= key_count[19];
-    always @(posedge wb_clk_i)
+    always @(posedge clk50)
     begin
         if(!wb_rst_i)
         begin
@@ -254,7 +254,7 @@ module decoder(
         end
     end
     
-    always @(posedge wb_clk_i)
+    always @(posedge clk50)
     begin
         if(!wb_rst_i || state_count[3])
         begin
@@ -266,7 +266,7 @@ module decoder(
         end
     end
     
-    always @(posedge wb_clk_i)
+    always @(posedge clk50)
     begin
         if(!wb_rst_i)
         begin
@@ -292,7 +292,7 @@ module decoder(
                          (state == 3'b100) ? 4'b0111:
                                              4'b0000;
     wire [15:0] btn_key_tmp;
-    always @(posedge wb_clk_i) begin
+    always @(posedge clk50) begin
         if(!wb_rst_i) begin
             btn_key_r   <= 16'd0;
         end

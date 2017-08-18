@@ -222,7 +222,7 @@ module MiniMIPS32_SYS(
         .wb_stb_i(s2_stb_o),
         .wb_dat_o(s2_data_i),
         .wb_ack_o(s2_ack_i),
-        .clk100(clk100mhz),
+        .clk50(clk50mhz),
         .led(led),
         .led_rg0(led_rg0),
         .led_rg1(led_rg1),
