@@ -23,104 +23,93 @@
 `include "defines.v"
 
 module ID(
-      input wire        cpu_rst_n,
-      input wire[31:0]  id_pc_i,
-      input wire[31:0]  id_inst_i,
+      input  wire                   cpu_rst_n,
+      input  wire [`InstAddrBus]    id_pc_i,
+      input  wire [`InstBus    ]    id_inst_i,
 
       //读端口2的读操作 
-      input wire[31:0]  id_reg1_data_i,
-      input wire[31:0]  id_reg2_data_i,
+      input  wire [`RegBus     ]    id_reg1_data_i,
+      input  wire [`RegBus     ]    id_reg2_data_i,
 
       //处于执行阶段的指令的运算结果
-      input wire        ex_wreg,
-      input wire[ 4:0]  ex_wd,
-      input wire[31:0]  ex_wdata,
+      input  wire                   ex_wreg,
+      input  wire [`RegAddrBus ]    ex_wd,
+      input  wire [`RegBus     ]    ex_wdata,
 
       //处于访存阶段的指令的运算结果
-      input wire        mem_wreg,
-      input wire[4:0]   mem_wd,
-      input wire[31:0]  mem_wdata,
+      input  wire                   mem_wreg,
+      input  wire[`RegAddrBus  ]    mem_wd,
+      input  wire[`RegBus      ]    mem_wdata,
 
       // 如果上一条指令是转移指令，那么下一条指令进入译码阶段的时候，输入变量  
       // is_in_delayslot_i为true，表示是延迟槽指令，反之，为false 
-      input wire        id_in_delay_i,
-      input wire[ 7:0]  ex_aluop,
+      input  wire                   id_in_delay_i,
+      input  wire[`AluOpBus    ]    ex_aluop,
       
-      output wire[31:0] id_pc_o,
-      output wire       stop_from_id, 
-      output wire[31:0] id_inst_o,           //current instruction
+      output wire[`InstAddrBus ]    id_pc_o,
+      output wire                   stop_from_id, 
+      output wire[`InstBus     ]    id_inst_o,      //current instruction
       
       // 输出到Regfile的信息
-      output wire [2:0]  id_alusel_o,         //defined in header.v, 8 types in total
-      output wire [7:0]  id_aluop_o,           //defined in header.v, 47 types of instructions in total 
+      output wire [`AluSelBus  ]    id_alusel_o,    //defined in header.v, 8 types in total
+      output wire [`AluOpBus   ]    id_aluop_o,     //defined in header.v, 47 types of instructions in total 
 
       //送到执行阶段的源操作数1、源操作数2
-      output wire [31:0] id_reg1_o,           //value of register 1
-      output wire [31:0] id_reg2_o,           //value of register 2
-      output wire [4:0]  id_wd_o,              //target register if write
-      output wire        id_wreg_o,                  //whether write to register or not
+      output wire [`RegBus     ]    id_reg1_o,      //value of register 1
+      output wire [`RegBus     ]    id_reg2_o,      //value of register 2
+      output wire [`RegAddrBus ]    id_wd_o,        //target register if write
+      output wire                   id_wreg_o,      //whether write to register or not
       
       // 输出到Regfile的信息
-      output wire        id_reg2_read_o,             //nothing to do with ALU
-      output wire [4:0]  id_reg2_addr_o,       //nothing to do with ALU
-      output wire        id_reg1_read_o,             //nothing to do with ALU
-      output wire [4:0]  id_reg1_addr_o,       //nothing to do with ALU
-      output wire       id_in_delay_o,             //indicator of delay slot for CURRENT instruction
-      output wire [31:0] id_link_addr_o,      //link address to be put in //id_wd_o if neccessary
-      output wire        id_next_delay,              //indicator of delay slot for NEXT instruction
-      output wire        branch_flag,             //whether jump/branch or not
-      output wire [31:0] branch_addr,      //target address if jump/branch
+      output wire                   id_reg2_read_o, //nothing to do with ALU
+      output wire [`InstAddrBus]    id_reg2_addr_o, //nothing to do with ALU
+      output wire                   id_reg1_read_o, //nothing to do with ALU
+      output wire [`InstAddrBus]    id_reg1_addr_o, //nothing to do with ALU
+      output wire                   id_in_delay_o,  //indicator of delay slot for CURRENT instruction
+      output wire [`InstAddrBus]    id_link_addr_o, //link address to be put in 
+      output wire                   id_next_delay,  //indicator of delay slot for NEXT instruction
+      output wire                   branch_flag,    //whether jump/branch or not
+      output wire [`InstAddrBus]    branch_addr,    //target address if jump/branch
       
-      input wire [ 4:0] id_exc_code_i,
-      input wire [31:0] id_exc_badvaddr_i,
-      output wire [ 4:0] id_exc_code_o,
-      output wire [31:0] id_exc_epc_o,
-      output wire [31:0] id_exc_badvaddr_o
+      input  wire [`ExcCode    ]    id_exc_code_i,
+      input  wire [`InstAddrBus]    id_exc_badvaddr_i,
+      output wire [`ExcCode    ]    id_exc_code_o,
+      output wire [`InstAddrBus]    id_exc_epc_o,
+      output wire [`InstAddrBus]    id_exc_badvaddr_o
       );
       
       // 输出到Regfile的信息
-      wire[5:0] op  =     id_inst_i[31:26];   // 指令码
-      wire[4:0] sa  =     id_inst_i[10:6] ;
-      wire[5:0] func=     id_inst_i[5:0];   // 功能码
-      wire[4:0] rs  =     id_inst_i[25:21];
-      wire[4:0] rt  =     id_inst_i[20:16];
-      wire[4:0] rd  =     id_inst_i[15:11];
+      wire[5:0] op  =  id_inst_i[31:26];   // 指令码
+      wire[4:0] sa  =  id_inst_i[10: 6];
+      wire[5:0] func=  id_inst_i[ 5: 0];   // 功能码
+      wire[4:0] rs  =  id_inst_i[25:21];
+      wire[4:0] rt  =  id_inst_i[20:16];
+      wire[4:0] rd  =  id_inst_i[15:11];
 
       // 输出到Regfile的信息
-      wire[31:0] imm;
+      wire[`RegBus]    imm;
 
       // inst_o的值就是译码阶段的指令
       assign id_inst_o = id_inst_i;
-      assign id_pc_o = id_pc_i;
+      assign id_pc_o   = id_pc_i;
 
       //id_reg1_o   forwarding
       //1、如果Regfile模块读端口1要读取的寄存器就是执行阶段要写的目的寄存器，  
       //   那么直接把执行阶段的结果ex_wdata 作为id_reg1_o的值;  
       //2、如果Regfile模块读端口1要读取的寄存器就是访存阶段要写的目的寄存器，  
       //   那么直接把访存阶段的结果mem_wdata作为id_reg1_o的值;  
-      /*always @(*) begin
-            id_reg1_o <= (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o && id_reg1_read_o == `ReadEnable) ? ex_wdata :  
-                      (mem_wreg    == `WriteEnable && mem_wd == id_reg1_addr_o && id_reg1_read_o  == `ReadEnable)  ? mem_wdata       :
-                      (id_reg1_read_o == `ReadEnable)  ? id_reg1_data_i     :
+      assign id_reg1_o = (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o &&     id_reg1_read_o == `ReadEnable) ? ex_wdata :  
+                      (mem_wreg       == `WriteEnable && mem_wd == id_reg1_addr_o && id_reg1_read_o  == `ReadEnable ) ? mem_wdata       :
+                      (id_reg1_read_o == `ReadEnable ) ? id_reg1_data_i     :
                       (id_reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
-      */
-      assign id_reg1_o = (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o && id_reg1_read_o == `ReadEnable) ? ex_wdata :  
-                      (mem_wreg    == `WriteEnable && mem_wd == id_reg1_addr_o && id_reg1_read_o  == `ReadEnable)  ? mem_wdata       :
-                      (id_reg1_read_o == `ReadEnable)  ? id_reg1_data_i     :
-                      (id_reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
+
       //1、如果Regfile模块读端口2要读取的寄存器就是执行阶段要写的目的寄存器，  
       //   那么直接把执行阶段的结果ex_wdata 作为id_reg2_o的值;  
       //2、如果Regfile模块读端口2要读取的寄存器就是访存阶段要写的目的寄存器，  
       //   那么直接把访存阶段的结果mem_wdata作为id_reg2_o的值; 
-      /*      
-            id_reg2_o <= (ex_wreg == `WriteEnable && ex_wd == id_reg2_addr_o && id_reg2_read_o == `ReadEnable) ? ex_wdata :
-                      (mem_wreg    == `WriteEnable && mem_wd == id_reg2_addr_o && id_reg2_read_o  == `ReadEnable)  ? mem_wdata       :
-                      (id_reg2_read_o == `ReadEnable)  ? reg2_data_i     :
-                      (id_reg2_read_o == `ReadDisable) ? imm : `ZeroWord ;
-      */
       assign id_reg2_o = (ex_wreg == `WriteEnable && ex_wd == id_reg2_addr_o && id_reg2_read_o == `ReadEnable) ? ex_wdata :
-                      (mem_wreg    == `WriteEnable && mem_wd == id_reg2_addr_o && id_reg2_read_o  == `ReadEnable)  ? mem_wdata       :
-                      (id_reg2_read_o == `ReadEnable)  ? id_reg2_data_i     :
+                      (mem_wreg       == `WriteEnable && mem_wd == id_reg2_addr_o && id_reg2_read_o  == `ReadEnable ) ? mem_wdata       :
+                      (id_reg2_read_o == `ReadEnable ) ? id_reg2_data_i     :
                       (id_reg2_read_o == `ReadDisable) ? imm : `ZeroWord ;
 
       //end
@@ -128,24 +117,24 @@ module ID(
       assign id_in_delay_o = id_in_delay_i;
 
       wire [31:0] pc_4;
-      assign pc_4=id_pc_i+4;     //保存当前译码阶段指令后面紧接着的指令的地址
+      assign pc_4 = id_pc_i+4;     //保存当前译码阶段指令后面紧接着的指令的地址
 
       wire [31:0] pc_8;
-      assign pc_8=id_pc_i+8;     //保存当前译码阶段指令后面第2条指令的地址
+      assign pc_8 = id_pc_i+8;     //保存当前译码阶段指令后面第2条指令的地址
 
       wire [31:0] jump_addr_26;
-      assign jump_addr_26={pc_4[31:28], id_inst_i[25:0], 2'b00};
+      assign jump_addr_26 = {pc_4[31:28], id_inst_i[25:0], 2'b00};
 
       // jump_addr_16对应分支指令中的offset左移两位，再符号扩展至32位的值 
       wire [31:0] jump_addr_16;
-      assign jump_addr_16=(id_pc_i+4)+{{14{id_inst_i[15]}}, id_inst_i[15:0], 2'b00};
+      assign jump_addr_16 = (id_pc_i+4)+{{14{id_inst_i[15]}}, id_inst_i[15:0], 2'b00};
       //sign extented
 
       wire [31:0] zero_imm;
-      assign zero_imm={ {16{1'b0}} , id_inst_i[15:0]};
+      assign zero_imm   = { {16{1'b0}}, id_inst_i[15:0]};
 
       wire [31:0] signed_imm;
-      assign signed_imm={ {16{id_inst_i[15]}}, id_inst_i[15:0] };
+      assign signed_imm = { {16{id_inst_i[15]}}, id_inst_i[15:0] };
 
 
       wire [63:0] op_d  ;
@@ -191,7 +180,7 @@ module ID(
       wire reg2_addr_rt ;
       wire branch_flag_0;
 
-      /****** CPU Arithmetic ******/
+      /******           CPU Arithmetic     ***********/
       wire inst_ADD       = op_d[6'h00]&sa_d[5'h00]&func_d[6'h20];
 
       wire inst_ADDI      = op_d[6'h08];
@@ -220,7 +209,7 @@ module ID(
 
       wire inst_SUBU      = op_d[6'h00]&sa_d[5'h00]&func_d[6'h23];
 
-      /****** CPU Branch and Jump ******/
+      /******     CPU Branch and Jump      ***********/
       wire inst_BEQ       = op_d[6'h04];
 
       wire inst_BGEZ      = op_d[6'h01]&rt_d[5'h01];        
@@ -263,7 +252,7 @@ module ID(
       wire inst_SW        = op_d[6'h2b];
 
 
-      /****** CPU Logical ******/
+      /************     CPU Logical     ****************/
       wire inst_AND       = op_d[6'h00]&sa_d[5'h00]&func_d[6'h24];
 
       wire inst_ANDI      = op_d[6'h0c];
@@ -280,7 +269,7 @@ module ID(
 
       wire inst_XORI      = op_d[6'h0e];
 
-      /****** CPU Move ******/
+      /***********   CPU Move          ********************/
       wire inst_MFHI      = op_d[6'h00]&rs_d[5'h00]&rt_d[5'h00]&sa_d[5'h00]&func_d[6'h10];
                                                      
       wire inst_MFLO      = op_d[6'h00]&rs_d[5'h00]&rt_d[5'h00]&sa_d[5'h00]&func_d[6'h12];
@@ -290,7 +279,7 @@ module ID(
       wire inst_MTLO      = op_d[6'h00]&rt_d[5'h00]&rd_d[5'h00]&sa_d[5'h00]&func_d[6'h13];
 
 
-      /****** CPU Shift ******/
+      /***********     CPU Shift ***************************/
       wire inst_SLL       = op_d[6'h00]&rs_d[5'h00]&func_d[6'h00];
 
       wire inst_SLLV      = op_d[6'h00]&sa_d[5'h00]&func_d[6'h04];
@@ -304,7 +293,7 @@ module ID(
       wire inst_SRLV      = op_d[6'h00]&sa_d[5'h00]&func_d[6'h06];
 
 
-      /****** CPU Trap ******/
+      /************    CPU Trap ******************************/
       wire inst_BREAK     = op_d[6'h00]&func_d[6'h0d];
           
       wire inst_SYSCALL   = op_d[6'h00]&func_d[6'h0c];
@@ -332,7 +321,7 @@ module ID(
                         |inst_DIV|inst_DIVU|inst_ADD|inst_ADDI|inst_SUB
                         |inst_BLTZAL|inst_BGEZAL|inst_BREAK|inst_LH|inst_SH);
 
-      /****** Internal opcode generation  ******/
+      /************ Internal opcode generation  ************/
       assign dec_op[7] = 0;
 
       assign dec_op[6] = 0;
@@ -420,6 +409,7 @@ module ID(
                         |inst_SRAV|inst_MFHI|inst_MFLO|inst_ADD|inst_ADDU
                         |inst_SUB|inst_SUBU|inst_SLT|inst_SLTU|inst_JALR
                         |inst_MTC0;
+
       assign wd_o_31 = inst_JAL|inst_BGEZAL|inst_BLTZAL;
 
       assign dec_wd_o = ((!cpu_rst_n)) ? 0  :
@@ -533,14 +523,14 @@ module ID(
                         (inst_BREAK || inst_SYSCALL || inst_ERET
                         )?  `ZeroWord  :  id_exc_badvaddr_i;
 
-      assign dec_exc_epc_o =  ((!cpu_rst_n))                ? `ZeroWord     :
+      assign dec_exc_epc_o =  ((!cpu_rst_n))               ? `ZeroWord        :
                         (inst_exc && id_in_delay_i)        ?  id_pc_i - 4     :
                         (inst_exc && (!id_in_delay_i))     ?  id_pc_i         :
                         ((inst_BREAK && id_in_delay_i)
                         ||(inst_SYSCALL && id_in_delay_i)) ? (id_pc_i - 4)    :
                         ((inst_BREAK && (!id_in_delay_i))
                         ||(inst_SYSCALL && (!id_in_delay_i)) 
-                        || inst_ERET)                   ? id_pc_i          : 
+                        || inst_ERET)                   ? id_pc_i             : 
                         (id_in_delay_i)                    ? (id_pc_i - 4)    : 
                         (!id_in_delay_i)                   ? id_pc_i          :
                         (inst_invalid && id_in_delay_i)    ?  id_pc_i - 4     :
@@ -548,8 +538,8 @@ module ID(
       
       assign dec_imm =  ((!cpu_rst_n)) ? `ZeroWord  :
                         (inst_exc) ? `ZeroWord  :
-                        (inst_SLL || inst_SRL || inst_SRA) ? {{27{1'b0}},id_inst_i[10:6]} :
-                        (inst_ORI || inst_ANDI || inst_XORI || inst_LUI) ? zero_imm :
+                        (inst_SLL  || inst_SRL  || inst_SRA) ? {{27{1'b0}},id_inst_i[10:6]} :
+                        (inst_ORI  || inst_ANDI || inst_XORI || inst_LUI) ? zero_imm :
                         (inst_ADDI || inst_ADDIU || inst_SLTI || inst_SLTIU
                         || inst_LB || inst_LBU || inst_LH || inst_LHU || inst_LW) ? signed_imm : `ZeroWord  ;
                         
@@ -563,16 +553,16 @@ module ID(
       assign      id_reg1_read_o   = dec_reg1_read_o;
       assign      id_reg2_read_o   = dec_reg2_read_o;
       assign      id_next_delay    = dec_next_delay ;
-      assign      branch_flag   = dec_branch_flag;
+      assign      branch_flag      = dec_branch_flag;
       assign      id_reg1_addr_o   = dec_reg1_addr_o;
       assign      id_reg2_addr_o   = dec_reg2_addr_o;
-      assign      branch_addr   = dec_branch_addr;
+      assign      branch_addr      = dec_branch_addr;
       assign      id_link_addr_o   = dec_link_addr_o;
       assign      id_exc_code_o    = dec_exc_code_o ;
       assign      id_exc_badvaddr_o= dec_exc_badvaddr_o;
       assign      id_exc_epc_o     = dec_exc_epc_o  ;
-      assign      imm           = dec_imm        ;
-      assign      stop_from_id          = dec_stop       ;
+      assign      imm              = dec_imm        ;
+      assign      stop_from_id      = dec_stop      ;
 
 endmodule
 

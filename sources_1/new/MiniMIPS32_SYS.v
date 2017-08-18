@@ -23,72 +23,71 @@
 `include "defines.v"
 
 module MiniMIPS32_SYS(
-	input wire sys_clk_100M,
-	input wire sys_rst_n,
+	input  wire        sys_clk_100M,
+	input  wire        sys_rst_n,
 	
 	output wire [15:0] led,
-	output wire [1:0] led_rg0,
-	output wire [1:0] led_rg1,
-	output wire [7:0] num_csn,
-	output wire [6:0] num_a_g,
-	input wire [7:0] switch,
-	output wire [3:0] btn_key_col,
-	input wire [3:0] btn_key_row
-	//input wire [1:0] btn_step
-    );
+	output wire [1 :0] led_rg0,
+	output wire [1 :0] led_rg1,
+	output wire [7 :0] num_csn,
+	output wire [6 :0] num_a_g,
+	input  wire [7 :0] switch,
+	output wire [3 :0] btn_key_col,
+	input  wire [3 :0] btn_key_row
+  );
     
-	wire[31:0] m0_data_i;
-    wire[31:0] m0_data_o;
-    wire[31:0] m0_addr_i;
-    wire[31:0] m0_addr_i_temp;
-    wire[3:0]  m0_sel_i;
-    wire       m0_we_i;
-    wire       m0_cyc_i; 
-    wire       m0_stb_i;
-    wire       m0_ack_o;  
-    
-    wire[31:0] m1_data_i;
-    wire[31:0] m1_data_o;
-    wire[31:0] m1_addr_i;
-    wire[3:0]  m1_sel_i;
-    wire       m1_we_i;
-    wire       m1_cyc_i; 
-    wire       m1_stb_i;
-    wire       m1_ack_o;  	
-
-    wire[31:0] s0_data_i;
-    wire[31:0] s0_data_o;
-    wire[31:0] s0_addr_o;
-    wire[3:0]  s0_sel_o;
-    wire       s0_we_o; 
-    wire       s0_cyc_o; 
-    wire       s0_stb_o;
-    wire       s0_ack_i;
-    wire[2:0]  s0_msel;
-
-    wire[31:0] s1_data_i;
-    wire[31:0] s1_data_o;
-    wire[31:0] s1_addr_o;
-    wire[3:0]  s1_sel_o;
-    wire       s1_we_o; 
-    wire       s1_cyc_o; 
-    wire       s1_stb_o;
-    wire       s1_ack_i;
+	wire [`RegBus     ] m0_data_i;
+  wire [`RegBus     ] m0_data_o;
+  wire [`InstAddrBus] m0_addr_i;
+  wire [`InstAddrBus] m0_addr_i_temp;
+  wire [`ByteSelect ] m0_sel_i;
+  wire                m0_we_i;
+  wire                m0_cyc_i; 
+  wire                m0_stb_i;
+  wire                m0_ack_o;  
   
-    wire[31:0] s2_data_i;
-    wire[31:0] s2_data_o;
-    wire[31:0] s2_addr_o;
-    wire[3:0]  s2_sel_o;
-    wire       s2_we_o; 
-    wire       s2_cyc_o; 
-    wire       s2_stb_o;
-    wire       s2_ack_i;
+  wire [`RegBus     ] m1_data_i;
+  wire [`RegBus     ] m1_data_o;
+  wire [`InstAddrBus] m1_addr_i;
+  wire [`ByteSelect ] m1_sel_i;
+  wire                m1_we_i;
+  wire                m1_cyc_i; 
+  wire                m1_stb_i;
+  wire                m1_ack_o;  	
+
+  wire [`RegBus     ] s0_data_i;
+  wire [`RegBus     ] s0_data_o;
+  wire [`InstAddrBus] s0_addr_o;
+  wire [`ByteSelect ] s0_sel_o;
+  wire                s0_we_o; 
+  wire                s0_cyc_o; 
+  wire                s0_stb_o;
+  wire                s0_ack_i;
+  wire[`AluSelBus   ] s0_msel;
+
+  wire [`RegBus     ] s1_data_i;
+  wire [`RegBus     ] s1_data_o;
+  wire [`InstAddrBus] s1_addr_o;
+  wire [`ByteSelect ] s1_sel_o;
+  wire                s1_we_o; 
+  wire                s1_cyc_o; 
+  wire                s1_stb_o;
+  wire                s1_ack_i;
+
+  wire [`RegBus     ] s2_data_i;
+  wire [`RegBus     ] s2_data_o;
+  wire [`InstAddrBus] s2_addr_o;
+  wire [`ByteSelect ] s2_sel_o;
+  wire                s2_we_o; 
+  wire                s2_cyc_o; 
+  wire                s2_stb_o;
+  wire                s2_ack_i;
     
-	wire[5:0] int;
-    wire int_time;
-    wire gpio_int = 0;
-    wire uart_int = 0;
-	assign int = {3'b000, gpio_int, uart_int, int_time};
+	wire [`Cp0Int     ] int;
+  wire                int_time;
+  wire   gpio_int = 0;
+  wire   uart_int = 0;
+	assign int      = {3'b000, gpio_int, uart_int, int_time};
 	
 	wire clk5mhz;
 	wire clk50mhz;
@@ -97,85 +96,80 @@ module MiniMIPS32_SYS(
 	wire rst_o;
 	
 	wire clk;
-	wire rst = sys_rst_n;
+	wire rst  = sys_rst_n;
 	wire rstn = ~sys_rst_n;
 	
-	clk_wiz_0 clocking
-	 (
-	  // Clock out ports
-	  .clk_out1(clk75mhz),     // output clk_out1
-	  .clk_out2(clk50mhz),     // output clk_out2
-	  .clk_out3(clk),     // output clk_out3
-	  .clk_out4(clk100mhz),     // output clk_out3
-	 // Clock in ports
-	  .clk_in1(sys_clk_100M));      // input clk_in1
+	clk_wiz_0 clocking(
+  	  // Clock out ports
+  	  .clk_out1(clk75mhz),     // output clk_out1
+  	  .clk_out2(clk50mhz),     // output clk_out2
+  	  .clk_out3(clk),          // output clk_out3
+  	  .clk_out4(clk100mhz),    // output clk_out3
+  	   // Clock in ports
+  	  .clk_in1(sys_clk_100M)); // input clk_in1
     
 	MiniMIPS32 MiniMIPS320(
-		
-		.cpu_clk_75M(clk),
-		.cpu_rst_n(rst),
-	
-		.imem_inst_i(m1_data_o),
-		.imem_ack_i(m1_ack_o),
-		.imem_addr_o(m1_addr_i),
-		.imem_inst_o(m1_data_i),
-		.imem_we_o(m1_we_i),
-		.imem_sel_o(m1_sel_i),
-		.imem_stb_o(m1_stb_i),
-		.imem_cyc_o(m1_cyc_i), 
-     
-     	.int_i(int),
-     
-		.dmem_data_i(m0_data_o),
-		.dmem_ack_i(m0_ack_o),
-		.dmem_addr_o(m0_addr_i_temp),
-		.dmem_data_o(m0_data_i),
-		.dmem_we_o(m0_we_i),
-		.dmem_sel_o(m0_sel_i),
-		.dmem_stb_o(m0_stb_i),
-		.dmem_cyc_o(m0_cyc_i),
-		
-		.s0_msel(s0_msel),
-	
-		.int_time_o(int_time)	
-	
+  		.cpu_clk_75M(clk),
+  		.cpu_rst_n(rst),
+  		.imem_inst_i(m1_data_o),
+  		.imem_ack_i(m1_ack_o),
+  		.imem_addr_o(m1_addr_i),
+  		.imem_inst_o(m1_data_i),
+  		.imem_we_o(m1_we_i),
+  		.imem_sel_o(m1_sel_i),
+  		.imem_stb_o(m1_stb_i),
+  		.imem_cyc_o(m1_cyc_i), 
+
+      .int_i(int),
+
+  		.dmem_data_i(m0_data_o),
+  		.dmem_ack_i(m0_ack_o),
+  		.dmem_addr_o(m0_addr_i_temp),
+  		.dmem_data_o(m0_data_i),
+  		.dmem_we_o(m0_we_i),
+  		.dmem_sel_o(m0_sel_i),
+  		.dmem_stb_o(m0_stb_i),
+  		.dmem_cyc_o(m0_cyc_i),
+  		
+  		.s0_msel(s0_msel),
+  		.int_time_o(int_time)	
 	);
 	
 	assign m0_addr_i = (m0_addr_i_temp[28] == 0) ? m0_addr_i_temp : {4'b0010,m0_addr_i_temp[27:0]};
 	
-	wire [3:0] data_wea;
-	wire data_ce;
+	wire [3 :0] data_wea;
+	wire        data_ce;
 	wire [17:0] data_addr_tmp;
 	wire [15:0] data_addr;
 	wire [31:0] data_data_i;
 	wire [31:0] data_data_o;
-    BRAM bram0(
-		.wb_clk_i(clk),
-		.wb_rst_i(rst), 
-		.wb_cyc_i(s0_cyc_o), 
-		.wb_adr_i(s0_addr_o), 
-		.wb_dat_i(s0_data_o), 
-		.wb_sel_i(s0_sel_o), 
-		.wb_we_i(s0_we_o), 
-		.wb_stb_i(s0_stb_o),
-		.wb_dat_o(s0_data_i), 
-		.wb_ack_o(s0_ack_i),
-		
-		.wea(data_wea), 
-		.ram_ce(data_ce),
-		.ram_addr(data_addr_tmp), 
-		.ram_data_i(data_data_i), 
-		.ram_data_o(data_data_o)
+  BRAM bram0(
+  		.wb_clk_i(clk),
+  		.wb_rst_i(rst), 
+  		.wb_cyc_i(s0_cyc_o), 
+  		.wb_adr_i(s0_addr_o), 
+  		.wb_dat_i(s0_data_o), 
+  		.wb_sel_i(s0_sel_o), 
+  		.wb_we_i(s0_we_o), 
+  		.wb_stb_i(s0_stb_o),
+  		.wb_dat_o(s0_data_i), 
+  		.wb_ack_o(s0_ack_i),
+  		
+  		.wea(data_wea), 
+  		.ram_ce(data_ce),
+  		.ram_addr(data_addr_tmp), 
+  		.ram_data_i(data_data_i), 
+  		.ram_data_o(data_data_o)
 	);
 	
 	assign data_addr = data_addr_tmp[15:0];
 	data_ram data_ram0 (
-	  .clka(clk),    // input wire clka
-	  .wea(data_wea),      // input wire [0 : 0] wea
-	  .ena(data_ce),
-	  .addra(data_addr),  // input wire [15 : 0] addra
-	  .dina(data_data_o),    // input wire [31 : 0] dina
-	  .douta(data_data_i)  // output wire [31 : 0] douta
+  	  .clka(clk),          // input wire clka
+  	  .wea(data_wea),      // input wire [0 : 0] wea
+  	  .ena(data_ce),
+  	  .addra(data_addr),   // input wire [15 : 0] addra
+  	  .dina(data_data_o),  // input wire [31 : 0] dina
+  	  .douta(data_data_i)  // output wire [31 : 0] douta
 	);
 
 	wire [3:0] inst_wea;
@@ -183,55 +177,55 @@ module MiniMIPS32_SYS(
 	wire [17:0] inst_addr;
 	wire [31:0] inst_data_i;
 	wire [31:0] inst_data_o;
-    BRAM bram1(
-		.wb_clk_i(clk),
-		.wb_rst_i(rst), 
-		.wb_cyc_i(s1_cyc_o), 
-		.wb_adr_i(s1_addr_o), 
-		.wb_dat_i(s1_data_o), 
-		.wb_sel_i(4'b1111), 
-		.wb_we_i(s1_we_o), 
-		.wb_stb_i(s1_stb_o),
-		.wb_dat_o(s1_data_i), 
-		.wb_ack_o(s1_ack_i),
-		
-		.wea(inst_wea), 
-		.ram_ce(inst_ce),
-		.ram_addr(inst_addr), 
-		.ram_data_i(inst_data_i), 
-		.ram_data_o(inst_data_o)
+  BRAM bram1(
+  		.wb_clk_i(clk),
+  		.wb_rst_i(rst), 
+  		.wb_cyc_i(s1_cyc_o), 
+  		.wb_adr_i(s1_addr_o), 
+  		.wb_dat_i(s1_data_o), 
+  		.wb_sel_i(4'b1111), 
+  		.wb_we_i(s1_we_o), 
+  		.wb_stb_i(s1_stb_o),
+  		.wb_dat_o(s1_data_i), 
+  		.wb_ack_o(s1_ack_i),
+  		
+  		.wea(inst_wea), 
+  		.ram_ce(inst_ce),
+  		.ram_addr(inst_addr), 
+  		.ram_data_i(inst_data_i), 
+  		.ram_data_o(inst_data_o)
 	);
 	
 	inst_ram inst_ram0 (
-	  .clka(clk),    // input wire clka
-	  .wea(inst_wea),      // input wire [0 : 0] wea
-	  .ena(inst_ce),
-	  .addra(inst_addr),  // input wire [17 : 0] addra
-	  .dina(inst_data_o),    // input wire [31 : 0] dina
-	  .douta(inst_data_i)  // output wire [31 : 0] douta
+  	  .clka(clk),          // input wire clka
+  	  .wea(inst_wea),      // input wire [0 : 0] wea
+  	  .ena(inst_ce),
+  	  .addra(inst_addr),   // input wire [17 : 0] addra
+  	  .dina(inst_data_o),  // input wire [31 : 0] dina
+  	  .douta(inst_data_i)  // output wire [31 : 0] douta
 	);
 	
 	decoder decoder0(
-        .wb_clk_i(clk),
-        .wb_rst_i(rst), 
-        .wb_cyc_i(s2_cyc_o),
-        .wb_adr_i(s2_addr_o),
-        .wb_dat_i(s2_data_o),
-        .wb_sel_i(s2_sel_o),
-        .wb_we_i(s2_we_o),
-        .wb_stb_i(s2_stb_o),
-        .wb_dat_o(s2_data_i),
-        .wb_ack_o(s2_ack_i),
-        .clk50(clk50mhz),
-        .led(led),
-        .led_rg0(led_rg0),
-        .led_rg1(led_rg1),
-        .num_csn(num_csn),
-        .num_a_g(num_a_g),
-        .switch(switch),
-        .btn_key_col(btn_key_col),
-        .btn_key_row(btn_key_row)
-      );
+      .wb_clk_i(clk),
+      .wb_rst_i(rst), 
+      .wb_cyc_i(s2_cyc_o),
+      .wb_adr_i(s2_addr_o),
+      .wb_dat_i(s2_data_o),
+      .wb_sel_i(s2_sel_o),
+      .wb_we_i(s2_we_o),
+      .wb_stb_i(s2_stb_o),
+      .wb_dat_o(s2_data_i),
+      .wb_ack_o(s2_ack_i),
+      .clk50(clk50mhz),
+      .led(led),
+      .led_rg0(led_rg0),
+      .led_rg1(led_rg1),
+      .num_csn(num_csn),
+      .num_a_g(num_a_g),
+      .switch(switch),
+      .btn_key_col(btn_key_col),
+      .btn_key_row(btn_key_row)
+  );
    
 	wb_conmax_top wb_conmax_top0(
         .clk_i(clk),
@@ -521,7 +515,7 @@ module MiniMIPS32_SYS(
    	    .s15_ack_i(1'b0), 
    	    .s15_err_i(1'b0), 
    	    .s15_rty_i(1'b0)
-   	);
+  );
     
     
 endmodule

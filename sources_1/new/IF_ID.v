@@ -23,26 +23,26 @@
 `include "defines.v"
 
 module IF_ID(
-	input wire 			cpu_clk_75M,
-	input wire 			cpu_rst_n,
+	input  wire 						cpu_clk_75M,
+	input  wire 						cpu_rst_n,
 
 
 	//来自取指阶段的信号，其中宏定义InstBus表示指令宽度，为32  
-	input wire [31:0] 	if_pc,
-	input wire [31:0] 	if_inst,
+	input  wire [`InstAddrBus       ] 	if_pc,
+	input  wire [`InstBus      	    ] 	if_inst,
 	
-	input wire [ 5:0] 	stall,
+	input  wire [`Stall 		    ] 	stall,
 	
 	//对应译码阶段的信号  
-	output reg [31:0] 	id_pc,
-	output reg [31:0] 	id_inst,
+	output reg  [`InstAddrBus  	    ] 	id_pc,
+	output reg  [`InstBus           ] 	id_inst,
 	
-	input wire 			flush,
+	input  wire 						flush,
 	
-	input wire [`EXC_CODE_WIDTH-1:0] exc_code_i,
-	input wire [31:0] 				 exc_badvaddr_i,
-	output reg [`EXC_CODE_WIDTH-1:0] exc_code_o,
-	output reg [31:0] 				 exc_badvaddr_o
+	input  wire [`EXC_CODE_WIDTH-1:0] 	exc_code_i,
+	input  wire [`InstAddrBus 		] 	exc_badvaddr_i,
+	output reg  [`EXC_CODE_WIDTH-1:0] 	exc_code_o,
+	output reg  [`InstAddrBus 		] 	exc_badvaddr_o
     );
 
     //（1）当stall[1]为Stop，stall[2]为NoStop时，表示取指阶段暂停，  
@@ -50,7 +50,7 @@ module IF_ID(
     //（2）当stall[1]为NoStop时，取指阶段继续，取得的指令进入译码阶段。  
     //（3）其余情况下，保持译码阶段的寄存器id_pc、id_inst不变。  
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
-		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
+		if (cpu_rst_n == `RstEnable || flush == `Flush) begin
 			id_pc 			<= `ZeroWord; 	// 复位的时候pc为0
 			id_inst 		<= `ZeroWord; 	// 复位的时候指令也为0，实际就是空指令
 			exc_code_o 		<= `EC_None ;

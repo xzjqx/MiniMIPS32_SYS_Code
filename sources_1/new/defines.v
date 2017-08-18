@@ -40,19 +40,18 @@
 `define NotBranch  		1'b0               //不转移 
 `define InDelaySlot     1'b1               //在延迟槽中  
 `define NotInDelaySlot  1'b0               //不在延迟槽中
+`define Flush  			1'b1 
+`define NoFlush  		1'b0 
 
 `define Stop 			1'b1 			
 `define NoStop 			1'b0
-`define init_pc			32'hBFC00000
-`define RegAddrBus 		4:0
-`define RegBus 			31:0
-`define RegWidth 		32
-`define DoubleRegWidth 	64
-`define DoubleRegBus 	63:0
-`define RegNum 			32
-`define RegNumLog2 		5
-`define NOPRegAddr 		5'b00000
-
+`define Init_pc			32'hBFC00000
+`define ByteSelect      3:0
+`define RamAddr 		17:0
+`define Cp0Int 			5:0
+`define ExcCode 		4:0
+`define Stall 			5:0
+`define NopAlusel 		3'b0
 
 //指令
 //*************		alusel 	*******************//

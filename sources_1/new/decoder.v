@@ -20,21 +20,23 @@
 //////////////////////////////////////////////////////////////////////////////////
 `include "defines.v"
 
-`define AddrIsOrder(addr) (addr[15:0] == 16'h1160)
-`define AddrIsLed(addr) (addr[15:0] == 16'hf000)
-`define AddrIsLedRg0(addr) (addr[15:0] == 16'hf004)
-`define AddrIsLedRg1(addr) (addr[15:0] == 16'hf008)
-`define AddrIsNum(addr) (addr[15:0] == 16'hf010)
-`define AddrIsSwitch(addr) (addr[15:0] == 16'hf020)
-`define AddrIsBtnKey(addr) (addr[15:0] == 16'hf024)
+`define AddrIsOrder(addr)   (addr[15:0] == 16'h1160)
+`define AddrIsLed(addr)     (addr[15:0] == 16'hf000)
+`define AddrIsLedRg0(addr)  (addr[15:0] == 16'hf004)
+`define AddrIsLedRg1(addr)  (addr[15:0] == 16'hf008)
+`define AddrIsNum(addr)     (addr[15:0] == 16'hf010)
+`define AddrIsSwitch(addr)  (addr[15:0] == 16'hf020)
+`define AddrIsBtnKey(addr)  (addr[15:0] == 16'hf024)
 `define AddrIsBtnStep(addr) (addr[15:0] == 16'hf028)
-`define AddrIsTimer(addr) (addr[15:0] == 16'he000)
+`define AddrIsTimer(addr)   (addr[15:0] == 16'he000)
 
 module decoder(
-	wb_clk_i, wb_rst_i, wb_cyc_i, wb_adr_i, wb_dat_i, wb_sel_i, wb_we_i, wb_stb_i,
-	wb_dat_o, wb_ack_o,
+    	wb_clk_i, wb_rst_i, wb_cyc_i, wb_adr_i, wb_dat_i, 
+        wb_sel_i, wb_we_i, wb_stb_i,
+    	wb_dat_o, wb_ack_o,
 
-	led, led_rg0, led_rg1, clk50, num_csn, num_a_g, switch, btn_key_col, btn_key_row, btn_step
+    	led, led_rg0, led_rg1, clk50, num_csn, num_a_g, 
+        switch, btn_key_col, btn_key_row, btn_step
     );
     
     input             	wb_clk_i;	// Clock
@@ -60,7 +62,6 @@ module decoder(
     input	[1:0] 		btn_step;
     
     assign wb_ack_o = wb_cyc_i & wb_stb_i;
-    ////////////////////////////
     wire [31:0] switch_data = {24'b0, switch};
     wire [31:0] btn_key_data;
     wire [31:0] btn_step_data = {30'b0, btn_step};

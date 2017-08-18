@@ -23,30 +23,30 @@
 `include "defines.v"
 
 module REG(
-	input wire 			cpu_clk_75M,
-	input wire 			cpu_rst_n,
+	input  wire 				cpu_clk_75M,
+	input  wire 				cpu_rst_n,
 	
 	// 写端口
-	input wire  [ 4:0] 	waddr,
-	input wire  [31:0] 	wdata,
-	input wire 			we,
+	input  wire  [`RegAddrBus] 	waddr,
+	input  wire  [`RegBus 	 ] 	wdata,
+	input  wire 				we,
 	
 	// 读端口1
-	input wire  [ 4:0] 	reg1_addr,
-	output reg  [31:0] 	reg1_data,
-	input wire 			reg1_read,
+	input  wire  [`RegAddrBus] 	reg1_addr,
+	output reg   [`RegBus 	 ] 	reg1_data,
+	input  wire 				reg1_read,
 	
 	// 读端口2 
-	input wire  [ 4:0] 	reg2_addr,
-	output reg  [31:0] 	reg2_data,
-	input wire 			reg2_read,
+	input  wire  [`RegAddrBus] 	reg2_addr,
+	output reg   [`RegBus 	 ] 	reg2_data,
+	input  wire 				reg2_read,
 	
-	input wire  [ 4:0] 	debug_addr,
-	output wire [31:0] 	debug_data
+	input  wire  [`RegAddrBus] 	debug_addr,
+	output wire  [`RegBus 	 ] 	debug_data
     );
 	
 	//定义32个32位寄存器
-	reg [31:0] regs[0:31];
+	reg [`RegBus] 	regs[0:`RegNum-1];
 	
 	always @(posedge cpu_clk_75M) begin
 		if (cpu_rst_n == `RstEnable) begin
@@ -84,7 +84,7 @@ module REG(
 			regs[31] <= 32'h00000000;
 		end
 		else begin
-			if ((we == `WriteEnable) && (waddr != 5'h0))	//0�żĴ���Ҫһֱ����Ϊȫ0
+			if ((we == `WriteEnable) && (waddr != 5'h0))	
 				regs[waddr] <= wdata;
 		end
 	end
@@ -93,30 +93,30 @@ module REG(
 	// reg1_addr是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
 	always @(*) begin
 		if (cpu_rst_n == `RstEnable)
-			reg1_data <= 32'b0;
-		else if (reg1_addr == 5'b0)
-			reg1_data <= 32'b0;
+			reg1_data <= `ZeroWord;
+		else if (reg1_addr == `NOPRegAddr)
+			reg1_data <= `ZeroWord;
 		else if ((reg1_read == `ReadEnable) && (we == `WriteEnable) && (waddr == reg1_addr))
 			reg1_data <= wdata;
 		else if (reg1_read == `ReadEnable)
 			reg1_data <= regs[reg1_addr];
 		else
-			reg1_data <= 32'b0;
+			reg1_data <= `ZeroWord;
 	end
 	
 	//读端口2的读操作 
 	// reg2_addr是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
 	always @(*) begin
 		if (cpu_rst_n == `RstEnable)
-			reg2_data <= 32'b0;
-		else if (reg2_addr == 5'b0)
-			reg2_data <= 32'b0;
+			reg2_data <= `ZeroWord;
+		else if (reg2_addr == `NOPRegAddr)
+			reg2_data <= `ZeroWord;
 		else if ((reg2_read == `ReadEnable) && (we == `WriteEnable) && (waddr == reg2_addr))
 			reg2_data <= wdata;
 		else if (reg2_read == `ReadEnable)
 			reg2_data <= regs[reg2_addr];
 		else
-			reg2_data <= 32'b0;
+			reg2_data <= `ZeroWord;
 	end
 	
     assign debug_data = regs[debug_addr];
