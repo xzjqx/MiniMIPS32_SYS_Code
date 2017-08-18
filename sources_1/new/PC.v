@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module PC(
-	input 	wire 			clk						,
-	input 	wire 			rst 					,
+	input 	wire 			cpu_clk_75M						,
+	input 	wire 			cpu_rst_n 					,
 	
 	input 	wire 			branch_flag_i 			,
 	input 	wire [31:0] 	branch_target_address_i ,
@@ -40,7 +40,7 @@ module PC(
     );
 
 	//First Stop, Then Branch
-	always @(posedge clk) begin
+	always @(posedge cpu_clk_75M) begin
 		if (ce == `ChipDisable)
 			pc <= `init_pc;			// 指令存储器禁用的时候，PC为INIT_PC
 		else begin
@@ -55,8 +55,8 @@ module PC(
 		end
 	end
 	
-	always @(posedge clk) begin
-		if (rst == `RstEnable) begin
+	always @(posedge cpu_clk_75M) begin
+		if (cpu_rst_n == `RstEnable) begin
 			ce <= `ChipDisable;		// 复位的时候指令存储器禁用  
 		end else begin
 			ce <= `ChipEnable; 		// 复位结束后，指令存储器使能

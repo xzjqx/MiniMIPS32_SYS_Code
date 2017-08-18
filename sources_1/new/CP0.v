@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module CP0(
-	input wire clk,
-	input wire rst,
+	input wire cpu_clk_75M,
+	input wire cpu_rst_n,
 	input wire we_i,
 	input wire re,/////////////////////////////////
 	input wire[4:0] waddr_i,
@@ -70,7 +70,7 @@ module CP0(
 	//assign has_int = (int_actual & regs[`Cp0_Status][15:8]) !=0  && regs[`Cp0_Status][0] && !regs[`Cp0_Status][1];
 	 
 	always @(*) begin
-		if (rst == `RstEnable) begin
+		if (cpu_rst_n == `RstEnable) begin
 			flush_req <= 1'b0;
 		end else begin
 			if (exc_code_i != `EC_None)
@@ -102,8 +102,8 @@ module CP0(
 	end
 	endtask
 
-   always @ (posedge clk  or negedge rst) begin
-		if(rst == `RstEnable) begin
+   always @ (posedge cpu_clk_75M  or negedge cpu_rst_n) begin
+		if(cpu_rst_n == `RstEnable) begin
 			
             badvaddr_o <= `ZeroWord;
             count_o <= `ZeroWord;
@@ -155,7 +155,7 @@ module CP0(
 	end
 
    always @ (*) begin
-    	if(rst == `RstEnable) begin
+    	if(cpu_rst_n == `RstEnable) begin
     		data_o <= `ZeroWord;
     	end
 		else if (re == `ReadEnable) begin

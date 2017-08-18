@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module REG(
-	input wire 			clk,
-	input wire 			rst,
+	input wire 			cpu_clk_75M,
+	input wire 			cpu_rst_n,
 	
 	// 写端口
 	input wire  [ 4:0] 	waddr,
@@ -32,14 +32,14 @@ module REG(
 	input wire 			we,
 	
 	// 读端口1
-	input wire  [ 4:0] 	raddr1,
-	output reg  [31:0] 	rdata1,
-	input wire 			re1,
+	input wire  [ 4:0] 	reg1_addr,
+	output reg  [31:0] 	reg1_data,
+	input wire 			reg1_read,
 	
 	// 读端口2 
-	input wire  [ 4:0] 	raddr2,
-	output reg  [31:0] 	rdata2,
-	input wire 			re2,
+	input wire  [ 4:0] 	reg2_addr,
+	output reg  [31:0] 	reg2_data,
+	input wire 			reg2_read,
 	
 	input wire  [ 4:0] 	debug_addr,
 	output wire [31:0] 	debug_data
@@ -48,8 +48,8 @@ module REG(
 	//定义32个32位寄存器
 	reg [31:0] regs[0:31];
 	
-	always @(posedge clk) begin
-		if (rst == `RstEnable) begin
+	always @(posedge cpu_clk_75M) begin
+		if (cpu_rst_n == `RstEnable) begin
 			regs[ 0] <= 32'h00000000;
 			regs[ 1] <= 32'h00000000;
 			regs[ 2] <= 32'h00000000;
@@ -90,33 +90,33 @@ module REG(
 	end
 	
 	//读端口1的读操作 
-	// raddr1是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
+	// reg1_addr是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
 	always @(*) begin
-		if (rst == `RstEnable)
-			rdata1 <= 32'b0;
-		else if (raddr1 == 5'b0)
-			rdata1 <= 32'b0;
-		else if ((re1 == `ReadEnable) && (we == `WriteEnable) && (waddr == raddr1))
-			rdata1 <= wdata;
-		else if (re1 == `ReadEnable)
-			rdata1 <= regs[raddr1];
+		if (cpu_rst_n == `RstEnable)
+			reg1_data <= 32'b0;
+		else if (reg1_addr == 5'b0)
+			reg1_data <= 32'b0;
+		else if ((reg1_read == `ReadEnable) && (we == `WriteEnable) && (waddr == reg1_addr))
+			reg1_data <= wdata;
+		else if (reg1_read == `ReadEnable)
+			reg1_data <= regs[reg1_addr];
 		else
-			rdata1 <= 32'b0;
+			reg1_data <= 32'b0;
 	end
 	
 	//读端口2的读操作 
-	// raddr2是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
+	// reg2_addr是读地址、waddr是写地址、we是写使能、wdata是要写入的数据 
 	always @(*) begin
-		if (rst == `RstEnable)
-			rdata2 <= 32'b0;
-		else if (raddr2 == 5'b0)
-			rdata2 <= 32'b0;
-		else if ((re2 == `ReadEnable) && (we == `WriteEnable) && (waddr == raddr2))
-			rdata2 <= wdata;
-		else if (re2 == `ReadEnable)
-			rdata2 <= regs[raddr2];
+		if (cpu_rst_n == `RstEnable)
+			reg2_data <= 32'b0;
+		else if (reg2_addr == 5'b0)
+			reg2_data <= 32'b0;
+		else if ((reg2_read == `ReadEnable) && (we == `WriteEnable) && (waddr == reg2_addr))
+			reg2_data <= wdata;
+		else if (reg2_read == `ReadEnable)
+			reg2_data <= regs[reg2_addr];
 		else
-			rdata2 <= 32'b0;
+			reg2_data <= 32'b0;
 	end
 	
     assign debug_data = regs[debug_addr];

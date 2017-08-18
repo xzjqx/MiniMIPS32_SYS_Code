@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module HILO(
-	input wire clk,
-	input wire rst,
+	input wire cpu_clk_75M,
+	input wire cpu_rst_n,
 
 	// 写端口 
 	input wire we,
@@ -36,8 +36,8 @@ module HILO(
 	output reg [31:0] lo_o
     );
 
-	always @(posedge clk or negedge rst) begin
-		if (rst == `RstEnable) begin
+	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
+		if (cpu_rst_n == `RstEnable) begin
 			hi_o <= 32'b0;
 			lo_o <= 32'b0;
 		end

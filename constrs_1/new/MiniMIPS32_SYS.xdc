@@ -1,12 +1,12 @@
 #set_property SEVERITY {Warning} [get_drc_checks RTSTAT-2]
 #时钟信号连接
-set_property PACKAGE_PIN AC19 [get_ports clk_init]
-set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets clk_init]
-create_clock -period 10.000 -name clk_init -waveform {0.000 5.000} [get_ports clk_init]
+set_property PACKAGE_PIN AC19 [get_ports sys_clk_100M]
+set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets sys_clk_100M]
+create_clock -period 10.000 -name sys_clk_100M -waveform {0.000 5.000} [get_ports sys_clk_100M]
 
 #reset
-set_property PACKAGE_PIN Y3 [get_ports rst_init]
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets rst_init]
+set_property PACKAGE_PIN Y3 [get_ports sys_rst_n]
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets sys_rst_n]
 
 
 #LED
@@ -76,8 +76,8 @@ set_property PACKAGE_PIN AA8 [get_ports {btn_key_row[3]}]
 #set_property PACKAGE_PIN Y5 [get_ports btn_step[0]]
 #set_property PACKAGE_PIN V6 [get_ports btn_step[1]]
 
-set_property IOSTANDARD LVCMOS33 [get_ports clk_init]
-set_property IOSTANDARD LVCMOS33 [get_ports rst_init]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_clk_100M]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_rst_n]
 set_property IOSTANDARD LVCMOS33 [get_ports {led[*]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {led_rg0[*]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {led_rg1[*]}]

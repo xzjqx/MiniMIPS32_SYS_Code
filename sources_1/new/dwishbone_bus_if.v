@@ -34,8 +34,8 @@
 
 module dwishbone_bus_if(
 
-	input wire					  clk,
-	input wire					  rst,
+	input wire					  cpu_clk_75M,
+	input wire					  cpu_rst_n,
 	
 	input wire[2:0]               s0_msel,
 	
@@ -70,12 +70,12 @@ module dwishbone_bus_if(
   reg flag;
   
   reg [3:0] s0_msel_d;
-  always @(posedge clk) begin
+  always @(posedge cpu_clk_75M) begin
     s0_msel_d <= s0_msel;
   end
 
-	always @ (posedge clk) begin
-		if(rst == `RstEnable) begin
+	always @ (posedge cpu_clk_75M) begin
+		if(cpu_rst_n == `RstEnable) begin
 			wishbone_state <= `WB_IDLE;
 			wishbone_addr_o <= `ZeroWord;
 			wishbone_data_o <= `ZeroWord;
@@ -162,7 +162,7 @@ module dwishbone_bus_if(
 			
 
 	always @ (*) begin
-		if(rst == `RstEnable) begin
+		if(cpu_rst_n == `RstEnable) begin
 			stallreq <= `NoStop;
 			cpu_data_o <= `ZeroWord;
 		end else begin

@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module EX_MEM(
-	input wire clk,
-	input wire rst,
+	input wire cpu_clk_75M,
+	input wire cpu_rst_n,
 
 	// 来自执行阶段的信息
 	input wire [4:0] ex_wd,
@@ -83,8 +83,8 @@ module EX_MEM(
        //（2）当stall[3]为NoStop时，执行阶段继续，执行后的指令进入访存阶段。  
        //（3）其余情况下，保持访存阶段的寄存器mem_wb、mem_wreg、mwm_wdata、  
        //     mem_hi、mem_lo、mem_whilo不变。 ?
-	always @(posedge clk or negedge rst) begin
-		if (rst == `RstEnable || flush) begin
+	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
+		if (cpu_rst_n == `RstEnable || flush) begin
 			mem_wd <= 5'b0;
 			mem_wreg <= 1'b0;
 			mem_wdata <= 32'b0;

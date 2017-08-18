@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module ID_EX(
-	input wire clk,
-	input wire rst,
+	input wire cpu_clk_75M,
+	input wire cpu_rst_n,
 
 	// 从译码阶段传递过来的信息
 	input wire [2:0] id_alusel,
@@ -75,8 +75,8 @@ module ID_EX(
        //（2）当stall[2]为NoStop时，译码阶段继续，译码后的指令进入执行阶段。  
        //（3）其余情况下，保持执行阶段的寄存器ex_aluop、ex_alusel、ex_reg1、  
        //    ex_reg2、ex_wd、ex_wreg不变  ?
-	always @(posedge clk or negedge rst) begin
-		if (rst == `RstEnable || flush == 1'b1) begin
+	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
+		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
 			ex_alusel <= 3'b0;
 			ex_aluop <= `SLL;
 			ex_reg1 <= 32'b0;
@@ -117,7 +117,6 @@ module ID_EX(
 			ex_is_in_delayslot <= id_is_in_delayslot;
 			ex_link_address <= id_link_address;
 			is_in_delayslot_o <= next_inst_in_delayslot_i;
-			//在译码阶段没有暂停的情况下，直接将ID模块的输入通过接口ex_inst输出
 			ex_inst <= id_inst;	
 			ex_pc <= id_pc;
 			exc_code_o <= exc_code_i;

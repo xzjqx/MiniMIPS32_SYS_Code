@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module IF_ID(
-	input wire 			clk,
-	input wire 			rst,
+	input wire 			cpu_clk_75M,
+	input wire 			cpu_rst_n,
 
 
 	//来自取指阶段的信号，其中宏定义InstBus表示指令宽度，为32  
@@ -49,8 +49,8 @@ module IF_ID(
     //     而译码阶段继续，所以使用空指令作为下一个周期进入译码阶段的指令。  
     //（2）当stall[1]为NoStop时，取指阶段继续，取得的指令进入译码阶段。  
     //（3）其余情况下，保持译码阶段的寄存器id_pc、id_inst不变。  
-	always @(posedge clk or negedge rst) begin
-		if (rst == `RstEnable || flush == 1'b1) begin
+	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
+		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
 			id_pc 			<= `ZeroWord; 	// 复位的时候pc为0
 			id_inst 		<= `ZeroWord; 	// 复位的时候指令也为0，实际就是空指令
 			exc_code_o 		<= `EC_None ;

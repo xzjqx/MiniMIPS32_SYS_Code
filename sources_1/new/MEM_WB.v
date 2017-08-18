@@ -23,8 +23,8 @@
 `include "defines.v"
 
 module MEM_WB(
-	input wire clk,
-	input wire rst,
+	input wire cpu_clk_75M,
+	input wire cpu_rst_n,
 
 	// 访存阶段的结果
 	input wire [4:0] mem_wd,
@@ -54,8 +54,8 @@ module MEM_WB(
        //（2）当stall[4]为NoStop时，访存阶段继续，访存后的指令进入回写阶段。  
        //（3）其余情况下，保持回写阶段的寄存器wb_wd、wb_wreg、wb_wdata、  
        //     wb_hi、wb_lo、wb_whilo不变。  
-	always @(posedge clk or negedge rst) begin
-		if (rst == `RstEnable || flush == 1'b1) begin
+	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
+		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
 			wb_wd <= 5'b0;
 			wb_wreg <= 1'b0;
 			wb_wdata <= 32'b0;

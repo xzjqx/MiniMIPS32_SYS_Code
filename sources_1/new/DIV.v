@@ -22,15 +22,15 @@
 
 module DIV(
 
-	input wire					    clk,
-	input wire						rst,
+	input wire					    cpu_clk_75M,
+	input wire						cpu_rst_n,
 	
 	input wire                      signed_div_i,
-	input wire[31:0]                opdata1_i,
-	input wire[31:0]		   		opdata2_i,
-	input wire                      start_i,	
-	output reg[63:0]                result_o,
-	output reg			            ready_o
+	input wire[31:0]                div_opdata1,
+	input wire[31:0]		   		div_opdata2,
+	input wire                      div_start,	
+	output reg[63:0]                div_result,
+	output reg			            div_ready
 );
 
 	wire[34:0] div_temp;
@@ -71,11 +71,11 @@ module DIV(
 	assign mul_cnt   = (div_temp3[34] == 1'b0 ) ? 2'b11 : 
 	                   (div_temp2[34] == 1'b0 ) ? 2'b10 : 2'b01;
 	
-	always @ (posedge clk) begin
-		if (rst == `RstEnable) begin
+	always @ (posedge cpu_clk_75M) begin
+		if (cpu_rst_n == `RstEnable) begin
 			state <= `DivFree;
-			ready_o <= `DivResultNotReady;
-			result_o <= {`ZeroWord,`ZeroWord};
+			div_ready <= `DivResultNotReady;
+			div_result <= {`ZeroWord,`ZeroWord};
 		end else begin
 		  case (state)
 	  //*******************   DivFree状态    ***********************  
@@ -85,33 +85,33 @@ module DIV(
       //     果是有符号除法，且被除数或者除数为负，那么对被除数或者除数取补码。  
       //     除数保存到divisor中，将被除数的最高位保存到dividend的第32位，  
       //     准备进行第一次迭代  
-      //（3）没有开始除法运算，保持ready_o为DivResultNotReady，保持  
-      //    result_o为0  
+      //（3）没有开始除法运算，保持div_ready为DivResultNotReady，保持  
+      //    div_result为0  
       //*********************************************************** 
 		  	`DivFree:			begin               //DivFree
-		  		if(start_i == `DivStart) begin
-		  			if(opdata2_i == `ZeroWord) begin	// 除数为0
+		  		if(div_start == `DivStart) begin
+		  			if(div_opdata2 == `ZeroWord) begin	// 除数为0
 		  				state <= `DivByZero;
 		  			end else begin					// 除数为0
 		  				state <= `DivOn;
 		  				cnt <= 6'b000000;
-		  				if(signed_div_i == 1'b1 && opdata1_i[31] == 1'b1 ) begin
-		  					temp_op1 = ~opdata1_i + 1;	// 被除数取补码
+		  				if(signed_div_i == 1'b1 && div_opdata1[31] == 1'b1 ) begin
+		  					temp_op1 = ~div_opdata1 + 1;	// 被除数取补码
 		  				end else begin
-		  					temp_op1 = opdata1_i;
+		  					temp_op1 = div_opdata1;
 		  				end
-		  				if(signed_div_i == 1'b1 && opdata2_i[31] == 1'b1 ) begin
-		  					temp_op2 = ~opdata2_i + 1;	// 除数取补码
+		  				if(signed_div_i == 1'b1 && div_opdata2[31] == 1'b1 ) begin
+		  					temp_op2 = ~div_opdata2 + 1;	// 除数取补码
 		  				end else begin
-		  					temp_op2 = opdata2_i;
+		  					temp_op2 = div_opdata2;
 		  				end
 		  				dividend <= {`ZeroWord,`ZeroWord};
               dividend[31:0] <= temp_op1;
               divisor <= temp_op2;
              end
           end else begin	// 没有开始除法运算
-						ready_o <= `DivResultNotReady;
-						result_o <= {`ZeroWord,`ZeroWord};
+						div_ready <= `DivResultNotReady;
+						div_result <= {`ZeroWord,`ZeroWord};
 				  end          	
 		  	end
 
@@ -148,10 +148,10 @@ module DIV(
                         end
                     cnt <= cnt + 2;
                 end else begin	//试商法结束
-                if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ opdata2_i[31]) == 1'b1)) begin
+                if((signed_div_i == 1'b1) && ((div_opdata1[31] ^ div_opdata2[31]) == 1'b1)) begin
                     dividend[31:0] <= (~dividend[31:0] + 1);	//求补码
                 end
-                if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ dividend[65]) == 1'b1)) begin              
+                if((signed_div_i == 1'b1) && ((div_opdata1[31] ^ dividend[65]) == 1'b1)) begin              
                     dividend[65:34] <= (~dividend[65:34] + 1);	//求补码
                 end
                 state <= `DivEnd;		//进入DivEnd状态 
@@ -160,18 +160,18 @@ module DIV(
 		  	end
 
 		//*******************   DivEnd状态    ***********************  
-       //除法运算结束，result_o的宽度是64位，其高32位存储余数，低32位存储商，  
-       //设置输出信号ready_o为DivResultReady，表示除法结束，然后等待EX模块  
+       //除法运算结束，div_result的宽度是64位，其高32位存储余数，低32位存储商，  
+       //设置输出信号div_ready为DivResultReady，表示除法结束，然后等待EX模块  
        //送来DivStop信号，当EX模块送来DivStop信号时，DIV模块回到DivFree  
        //状态  
        //********************************************************** 
 		  	`DivEnd:			begin               //DivEnd
-        	   result_o <= {dividend[65:34], dividend[31:0]};  
-               ready_o <= `DivResultReady;
-               if(start_i == `DivStop) begin
+        	   div_result <= {dividend[65:34], dividend[31:0]};  
+               div_ready <= `DivResultReady;
+               if(div_start == `DivStop) begin
           	         state <= `DivFree;
-					 ready_o <= `DivResultNotReady;
-					 result_o <= {`ZeroWord,`ZeroWord};       	
+					 div_ready <= `DivResultNotReady;
+					 div_result <= {`ZeroWord,`ZeroWord};       	
                end		  	
 		  	end
 		  endcase
