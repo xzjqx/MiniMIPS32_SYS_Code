@@ -79,8 +79,8 @@ module MiniMIPS32(
 	// 连接译码阶段ID模块输出与ID/EX模块的输入的变量 
 	wire [`AluOpBus   ] id_aluop_o;
 	wire [`AluSelBus  ] id_alusel_o;
-	wire [`RegBus 	  ] id_reg1_o;
-	wire [`RegBus 	  ] id_reg2_o;
+	wire [`RegBus 	  ] id_src1_o;
+	wire [`RegBus 	  ] id_src2_o;
 	wire 				id_wreg_o;
 	wire [`ExcCode 	  ] id_wd_o;
 	
@@ -100,8 +100,8 @@ module MiniMIPS32(
 	// 连接ID/EX模块输出与执行阶段EX模块的输入的变量
 	wire [`AluOpBus   ] ex_aluop_i;
 	wire [`AluSelBus  ] ex_alusel_i;
-	wire [`RegBus 	  ] ex_reg1_i;
-	wire [`RegBus 	  ] ex_reg2_i;
+	wire [`RegBus 	  ] ex_src1_i;
+	wire [`RegBus 	  ] ex_src2_i;
 	wire 				ex_wreg_i;
 	wire [`RegAddrBus ] ex_wd_i;
 	
@@ -327,7 +327,7 @@ module MiniMIPS32(
 			    .id_reg1_read_o(reg1_read), .id_reg2_read_o(reg2_read), 	  
 			    .id_reg1_addr_o(reg1_addr), .id_reg2_addr_o(reg2_addr), 
 			    .id_aluop_o(id_aluop_o), .id_alusel_o(id_alusel_o),
-			    .id_reg1_o(id_reg1_o), .id_reg2_o(id_reg2_o),
+			    .id_src1_o(id_src1_o), .id_src2_o(id_src2_o),
 			    .id_wd_o(id_wd_o), .id_wreg_o(id_wreg_o),
 			    .id_in_delay_o(id_in_delay_o), .id_link_addr_o(id_link_addr_o),    .id_next_delay(id_next_delay),
 			    .branch_addr(pc_branch_target_address_i), 
@@ -350,14 +350,14 @@ module MiniMIPS32(
 	// ID/EX模块例化
 	ID_EX id_ex0(.cpu_clk_75M(cpu_clk_75M), .cpu_rst_n(cpu_rst_n), 
 	            .id_alusel(id_alusel_o), .id_aluop(id_aluop_o),
-				.id_reg1(id_reg1_o), .id_reg2(id_reg2_o), .id_wd(id_wd_o), 
+				.id_src1(id_src1_o), .id_src2(id_src2_o), .id_wd(id_wd_o), 
 				.id_wreg(id_wreg_o),
 				.id_is_in_delayslot(id_in_delay_o), 
 				.id_link_address(id_link_addr_o),
 				.next_inst_in_delayslot_i(id_next_delay),
 				.id_inst(id_inst_o), .id_pc(id_pc_o),
 				.ex_alusel(ex_alusel_i), .ex_aluop(ex_aluop_i),
-				.ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i), 
+				.ex_src1(ex_src1_i), .ex_src2(ex_src2_i), 
 				.ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
 				.is_in_delayslot_o(id_in_delay_i), 
 				.ex_is_in_delayslot(ex_is_in_delayslot_i), 
@@ -375,7 +375,7 @@ module MiniMIPS32(
 	// EX模块例化
 	EX ex0(.cpu_rst_n(cpu_rst_n), .ex_alusel_i(ex_alusel_i), 
 				.ex_aluop_i(ex_aluop_i), .ex_pc_i(ex_pc_i), .ex_pc_o(ex_pc_o),
-				.ex_reg1_i(ex_reg1_i), .ex_reg2_i(ex_reg2_i),
+				.ex_src1_i(ex_src1_i), .ex_src2_i(ex_src2_i),
 				.ex_wd_i(ex_wd_i), .ex_wreg_i(ex_wreg_i),
 				.hi_i(ex_hi_i), .lo_i(ex_lo_i), 
 				.mem_whilo_i(mem_whilo_o), .mem_hi_i(mem_hi_o), .mem_lo_i(mem_lo_o),

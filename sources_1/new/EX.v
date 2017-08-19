@@ -30,8 +30,8 @@ module EX(
 	input  wire [`AluOpBus	    ] 	ex_aluop_i,
 	input  wire [`InstAddrBus 	]   ex_pc_i,
 	output wire [`InstAddrBus 	]  	ex_pc_o,
-	input  wire [`RegBus 		] 	ex_reg1_i,
-	input  wire [`RegBus 		] 	ex_reg2_i,
+	input  wire [`RegBus 		] 	ex_src1_i,
+	input  wire [`RegBus 		] 	ex_src2_i,
 	input  wire [`RegAddrBus 	] 	ex_wd_i,
 	input  wire 					ex_wreg_i,
 	
@@ -123,7 +123,7 @@ module EX(
 
 	//ex_aluop_o会传递到访存阶段，届时将利用其确定加载、存储类型
 	assign ex_aluop_o   = ex_aluop_i;
-	assign ex_reg2_o    = ex_reg2_i;
+	assign ex_reg2_o    = ex_src2_i;
 
 	assign ex_exc_badvaddr_o = (cpu_rst_n==`RstEnable) ? 0 : ex_exc_badvaddr_i;
 
@@ -133,7 +133,7 @@ module EX(
 
 	assign ex_cp0_reg_data_o = (cpu_rst_n == `RstEnable) ? 32'h00000000 : 
 						  (ex_aluop_i == `MFC0)  ? 32'h00000000 :
-						  (ex_aluop_i == `MTC0)  ? ex_reg1_i  : 32'h00000000;
+						  (ex_aluop_i == `MTC0)  ? ex_src1_i  : 32'h00000000;
 
     assign ex_cp0_reg_write_addr_o = (cpu_rst_n == `RstEnable) ? 5'b00000 : 
 						  (ex_aluop_i == `MFC0)  ? 5'b00000   :
@@ -154,24 +154,24 @@ module EX(
 	
 	// 8/8 logic instructions=====================================================
 	assign logicout = (cpu_rst_n == `RstEnable)  ? `ZeroWord : 
-						  (ex_aluop_i == `AND )  ? (ex_reg1_i & ex_reg2_i) :
-						  (ex_aluop_i == `ANDI)  ? (ex_reg1_i & ex_reg2_i) :
-						  (ex_aluop_i == `LUI )  ? ({ex_reg1_i[15:0], 16'b0}) :
-						  (ex_aluop_i == `NOR )  ? (~(ex_reg1_i | ex_reg2_i)) :
-						  (ex_aluop_i == `OR  )  ? (ex_reg1_i | ex_reg2_i) :
-						  (ex_aluop_i == `ORI )  ? (ex_reg1_i | ex_reg2_i) :
-						  (ex_aluop_i == `XOR )  ? (ex_reg1_i ^ ex_reg2_i) :
-						  (ex_aluop_i == `XORI)  ? (ex_reg1_i ^ ex_reg2_i) : `ZeroWord;
+						  (ex_aluop_i == `AND )  ? (ex_src1_i & ex_src2_i) :
+						  (ex_aluop_i == `ANDI)  ? (ex_src1_i & ex_src2_i) :
+						  (ex_aluop_i == `LUI )  ? ({ex_src1_i[15:0], 16'b0}) :
+						  (ex_aluop_i == `NOR )  ? (~(ex_src1_i | ex_src2_i)) :
+						  (ex_aluop_i == `OR  )  ? (ex_src1_i | ex_src2_i) :
+						  (ex_aluop_i == `ORI )  ? (ex_src1_i | ex_src2_i) :
+						  (ex_aluop_i == `XOR )  ? (ex_src1_i ^ ex_src2_i) :
+						  (ex_aluop_i == `XORI)  ? (ex_src1_i ^ ex_src2_i) : `ZeroWord;
 	
 
 	// 6/6 shift word instructions================================================
 	assign shiftout = (cpu_rst_n == `RstEnable) ? `ZeroWord : 
-					  (ex_aluop_i == `SLL )  ? (ex_reg1_i <<  ex_reg2_i) :
-					  (ex_aluop_i == `SLLV)  ? (ex_reg1_i <<  ex_reg2_i) :
-					  (ex_aluop_i == `SRA )  ? (({32{ex_reg1_i[31]}} << (6'd32-{1'b0, ex_reg2_i[4:0]})) | ex_reg1_i >> ex_reg2_i[4:0])   :
-					  (ex_aluop_i == `SRAV)  ? (({32{ex_reg1_i[31]}} << (6'd32-{1'b0, ex_reg2_i[4:0]})) | ex_reg1_i >> ex_reg2_i[4:0])   :
-					  (ex_aluop_i == `SRL )  ? (ex_reg1_i >> ex_reg2_i)  :
-					  (ex_aluop_i == `SRLV)  ? (ex_reg1_i >> ex_reg2_i)  : `ZeroWord;
+					  (ex_aluop_i == `SLL )  ? (ex_src1_i <<  ex_src2_i) :
+					  (ex_aluop_i == `SLLV)  ? (ex_src1_i <<  ex_src2_i) :
+					  (ex_aluop_i == `SRA )  ? (({32{ex_src1_i[31]}} << (6'd32-{1'b0, ex_src2_i[4:0]})) | ex_src1_i >> ex_src2_i[4:0])   :
+					  (ex_aluop_i == `SRAV)  ? (({32{ex_src1_i[31]}} << (6'd32-{1'b0, ex_src2_i[4:0]})) | ex_src1_i >> ex_src2_i[4:0])   :
+					  (ex_aluop_i == `SRL )  ? (ex_src1_i >> ex_src2_i)  :
+					  (ex_aluop_i == `SRLV)  ? (ex_src1_i >> ex_src2_i)  : `ZeroWord;
 	
 	// 4/6 move instructions======================================================
 	//得到最新的HI、LO寄存器的值，此处要解决数据相关问题
@@ -200,49 +200,49 @@ module EX(
 		end else begin
 			case (ex_aluop_i)
 				`ADD: begin
-					tmp <= {ex_reg1_i[31],ex_reg1_i} + {ex_reg2_i[31],ex_reg2_i};
+					tmp <= {ex_src1_i[31],ex_src1_i} + {ex_src2_i[31],ex_src2_i};
 					if(tmp[32] != tmp[31]) begin
 					end
 					else arithout <= tmp[31:0];
 				end
 				`ADDI: begin
-					tmp <= {ex_reg1_i[31],ex_reg1_i} + {ex_reg2_i[31],ex_reg2_i};
+					tmp <= {ex_src1_i[31],ex_src1_i} + {ex_src2_i[31],ex_src2_i};
 					if(tmp[32] != tmp[31]) begin
 					end
 					else arithout <= tmp[31:0];
 				end
-				`ADDIU: begin              // immdiate should be load to ex_reg2_i
-					arithout <= ex_reg1_i + ex_reg2_i;
+				`ADDIU: begin              // immdiate should be load to ex_src2_i
+					arithout <= ex_src1_i + ex_src2_i;
 				end
 				`ADDU: begin
-					arithout <= ex_reg1_i + ex_reg2_i;
+					arithout <= ex_src1_i + ex_src2_i;
 				end
 				`SLT: begin
-					arithout <= ($signed(ex_reg1_i) < $signed(ex_reg2_i)) ? 64'b1 : 64'b0;
+					arithout <= ($signed(ex_src1_i) < $signed(ex_src2_i)) ? 64'b1 : 64'b0;
 				end
-				`SLTI: begin               // immdiate should be load to ex_reg2_i
-					arithout <= ($signed(ex_reg1_i) < $signed(ex_reg2_i)) ? 64'b1 : 64'b0;
+				`SLTI: begin               // immdiate should be load to ex_src2_i
+					arithout <= ($signed(ex_src1_i) < $signed(ex_src2_i)) ? 64'b1 : 64'b0;
 				end
 				`SLTU: begin
-					arithout <= (ex_reg1_i < ex_reg2_i) ? 64'b1 : 64'b0;
+					arithout <= (ex_src1_i < ex_src2_i) ? 64'b1 : 64'b0;
 				end
-				`SLTIU: begin              // immdiate should be load to ex_reg2_i
-					arithout <= (ex_reg1_i < ex_reg2_i) ? 64'b1 : 64'b0;
+				`SLTIU: begin              // immdiate should be load to ex_src2_i
+					arithout <= (ex_src1_i < ex_src2_i) ? 64'b1 : 64'b0;
 				end
 				`SUB: begin
-					tmp <= {ex_reg1_i[31],ex_reg1_i} - {ex_reg2_i[31],ex_reg2_i};
+					tmp <= {ex_src1_i[31],ex_src1_i} - {ex_src2_i[31],ex_src2_i};
 					if(tmp[32] != tmp[31]) begin
 					end
 					else arithout <= tmp[31:0];
 				end
 				`SUBU: begin
-					arithout <= ex_reg1_i - ex_reg2_i;
+					arithout <= ex_src1_i - ex_src2_i;
 				end
 				`MULT: begin
-					arithout <= $signed(ex_reg1_i) * $signed(ex_reg2_i);
+					arithout <= $signed(ex_src1_i) * $signed(ex_src2_i);
 				end
 				`MULTU: begin
-					arithout <= {1'b0,ex_reg1_i} * {1'b0,ex_reg2_i};
+					arithout <= {1'b0,ex_src1_i} * {1'b0,ex_src2_i};
 				end
 				default: begin
 					arithout <= 64'b0;
@@ -252,26 +252,26 @@ module EX(
 	end
 	
 	
-	assign tmp_1 	= {ex_reg1_i[31],ex_reg1_i} + {ex_reg2_i[31],ex_reg2_i};
-	assign tmp_2 	= {ex_reg1_i[31],ex_reg1_i} - {ex_reg2_i[31],ex_reg2_i};
+	assign tmp_1 	= {ex_src1_i[31],ex_src1_i} + {ex_src2_i[31],ex_src2_i};
+	assign tmp_2 	= {ex_src1_i[31],ex_src1_i} - {ex_src2_i[31],ex_src2_i};
 	/*
 	assign arithout = (cpu_rst_n   == `RstEnable) ? 64'b0 : 
 					  ((ex_aluop_i == `ADD  )  && (tmp_1[32] == tmp_1[31]))  ? tmp_1[31:0] :
 					  ((ex_aluop_i == `ADDI )  && (tmp_1[32] == tmp_1[31]))  ? tmp_1[31:0] :
-					  (ex_aluop_i  == `ADDIU)  ? (ex_reg1_i + ex_reg2_i) :
-					  (ex_aluop_i  == `ADDU )  ? (ex_reg1_i + ex_reg2_i) :
-					  ((ex_aluop_i == `SLT  )  && ($signed(ex_reg1_i) < $signed(ex_reg2_i))) ? 64'b1 :
-				      ((ex_aluop_i == `SLT  )  && (!($signed(ex_reg1_i) < $signed(ex_reg2_i)))) ? 64'b0 :				  
-					  ((ex_aluop_i == `SLTI )  && ($signed(ex_reg1_i) < $signed(ex_reg2_i))) ? 64'b1 :
-					  ((ex_aluop_i == `SLTI )  && (!($signed(ex_reg1_i) < $signed(ex_reg2_i)))) ? 64'b0 :
-					  ((ex_aluop_i == `SLTU )  && (ex_reg1_i < ex_reg2_i)) ? 64'b1 :
-					  ((ex_aluop_i == `SLTU )  && (!(ex_reg1_i < ex_reg2_i))) ? 64'b0 :
-					  ((ex_aluop_i == `SLTIU)  && (ex_reg1_i < ex_reg2_i)) ? 64'b1 :
-					  ((ex_aluop_i == `SLTIU)  && (!(ex_reg1_i < ex_reg2_i))) ? 64'b0 :
+					  (ex_aluop_i  == `ADDIU)  ? (ex_src1_i + ex_src2_i) :
+					  (ex_aluop_i  == `ADDU )  ? (ex_src1_i + ex_src2_i) :
+					  ((ex_aluop_i == `SLT  )  && ($signed(ex_src1_i) < $signed(ex_src2_i))) ? 64'b1 :
+				      ((ex_aluop_i == `SLT  )  && (!($signed(ex_src1_i) < $signed(ex_src2_i)))) ? 64'b0 :				  
+					  ((ex_aluop_i == `SLTI )  && ($signed(ex_src1_i) < $signed(ex_src2_i))) ? 64'b1 :
+					  ((ex_aluop_i == `SLTI )  && (!($signed(ex_src1_i) < $signed(ex_src2_i)))) ? 64'b0 :
+					  ((ex_aluop_i == `SLTU )  && (ex_src1_i < ex_src2_i)) ? 64'b1 :
+					  ((ex_aluop_i == `SLTU )  && (!(ex_src1_i < ex_src2_i))) ? 64'b0 :
+					  ((ex_aluop_i == `SLTIU)  && (ex_src1_i < ex_src2_i)) ? 64'b1 :
+					  ((ex_aluop_i == `SLTIU)  && (!(ex_src1_i < ex_src2_i))) ? 64'b0 :
 					  ((ex_aluop_i == `SUB  )  && (tmp_2[32] == tmp_2[31]))  ? tmp_2[31:0] :
-					  (ex_aluop_i  == `SUBU )  ? (ex_reg1_i - ex_reg2_i) :
-					  (ex_aluop_i  == `MULT )  ? ($signed(ex_reg1_i) * $signed(ex_reg2_i)) :
-					  (ex_aluop_i  == `MULTU)  ? ({1'b0,ex_reg1_i} * {1'b0,ex_reg2_i}) : 64'b0;
+					  (ex_aluop_i  == `SUBU )  ? (ex_src1_i - ex_src2_i) :
+					  (ex_aluop_i  == `MULT )  ? ($signed(ex_src1_i) * $signed(ex_src2_i)) :
+					  (ex_aluop_i  == `MULTU)  ? ({1'b0,ex_src1_i} * {1'b0,ex_src2_i}) : 64'b0;
 	*/			  
 	assign exc_code_tmp = (cpu_rst_n == `RstEnable) ? `EC_None : 
 					  ((ex_aluop_i == `ADD ) && (tmp_1[32] != tmp_1[31]))  ? `EC_Ov :
@@ -298,19 +298,19 @@ module EX(
 					  (ex_aluop_i  == `DIVU) ? `NoStop : `NoStop;
 
 	assign div_opdata1_o = (cpu_rst_n == `RstEnable) ? `ZeroWord : 
-					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? ex_reg1_i :
-					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultReady))  ? ex_reg1_i :
+					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? ex_src1_i :
+					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultReady))  ? ex_src1_i :
 					  (ex_aluop_i  == `DIV ) ? `ZeroWord :
-					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? ex_reg1_i :
-					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? ex_reg1_i :
+					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? ex_src1_i :
+					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? ex_src1_i :
 					  (ex_aluop_i  == `DIVU) ? `ZeroWord : `ZeroWord;
 
 	assign div_opdata2_o = (cpu_rst_n == `RstEnable) ? `ZeroWord : 
-					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? ex_reg2_i :
-					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultReady))  ? ex_reg2_i :
+					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? ex_src2_i :
+					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultReady))  ? ex_src2_i :
 					  (ex_aluop_i  == `DIV ) ? `ZeroWord :
-					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? ex_reg2_i :
-					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? ex_reg2_i :
+					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultNotReady))  ? ex_src2_i :
+					  ((ex_aluop_i == `DIVU) && (div_ready_i == `DivResultReady))  ? ex_src2_i :
 					  (ex_aluop_i  == `DIVU) ? `ZeroWord : `ZeroWord;					  			  
 	assign div_start_o = (cpu_rst_n == `RstEnable) ? `DivStop : 
 					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? `DivStart :
@@ -350,14 +350,14 @@ module EX(
 					  (ex_aluop_i == `MULT )  ? arithout[31:0] :
 					  (ex_aluop_i == `MULTU)  ? arithout[31:0] :
 					  (ex_aluop_i == `MTHI )  ? lo_t :
-					  (ex_aluop_i == `MTLO )  ? ex_reg1_i :
+					  (ex_aluop_i == `MTLO )  ? ex_src1_i :
 					  (ex_aluop_i == `DIV  )  ? div_result_i[31:0] :
 					  (ex_aluop_i == `DIVU )  ? div_result_i[31:0] : `ZeroWord;	
 
 	assign ex_hi_o =  (cpu_rst_n == `RstEnable) ? `ZeroWord : 
 					  (ex_aluop_i == `MULT )  ? arithout[63:32] :
 					  (ex_aluop_i == `MULTU)  ? arithout[63:32] :
-					  (ex_aluop_i == `MTHI )  ? ex_reg1_i :
+					  (ex_aluop_i == `MTHI )  ? ex_src1_i :
 					  (ex_aluop_i == `MTLO )  ? hi_t :
 					  (ex_aluop_i == `DIV  )  ? div_result_i[63:32] :
 					  (ex_aluop_i == `DIVU )  ? div_result_i[63:32] : `ZeroWord;
@@ -372,6 +372,6 @@ module EX(
 
 	// output mem addr
 	assign mem_addr_o = (cpu_rst_n == `RstEnable) ? `ZeroWord : 
-					  (ex_alusel_i == `Mem)   ? (ex_reg1_i + signed_low16_inst) : `ZeroWord;
+					  (ex_alusel_i == `Mem)   ? (ex_src1_i + signed_low16_inst) : `ZeroWord;
 
 endmodule

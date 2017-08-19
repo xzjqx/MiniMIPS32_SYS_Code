@@ -36,7 +36,7 @@ module MiniMIPS32_SYS(
 	input  wire [3 :0] btn_key_row
   );
     
-	wire [`RegBus     ] m0_data_i;
+  wire [`RegBus     ] m0_data_i;
   wire [`RegBus     ] m0_data_o;
   wire [`InstAddrBus] m0_addr_i;
   wire [`InstAddrBus] m0_addr_i_temp;

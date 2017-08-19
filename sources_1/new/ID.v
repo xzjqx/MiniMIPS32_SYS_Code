@@ -55,8 +55,8 @@ module ID(
       output wire [`AluOpBus   ]    id_aluop_o,     //defined in header.v, 47 types of instructions in total 
 
       //送到执行阶段的源操作数1、源操作数2
-      output wire [`RegBus     ]    id_reg1_o,      //value of register 1
-      output wire [`RegBus     ]    id_reg2_o,      //value of register 2
+      output wire [`RegBus     ]    id_src1_o,      //value of register 1
+      output wire [`RegBus     ]    id_src2_o,      //value of register 2
       output wire [`RegAddrBus ]    id_wd_o,        //target register if write
       output wire                   id_wreg_o,      //whether write to register or not
       
@@ -93,21 +93,21 @@ module ID(
       assign id_inst_o = id_inst_i;
       assign id_pc_o   = id_pc_i;
 
-      //id_reg1_o   forwarding
+      //id_src1_o   forwarding
       //1、如果Regfile模块读端口1要读取的寄存器就是执行阶段要写的目的寄存器，  
-      //   那么直接把执行阶段的结果ex_wdata 作为id_reg1_o的值;  
+      //   那么直接把执行阶段的结果ex_wdata 作为id_src1_o的值;  
       //2、如果Regfile模块读端口1要读取的寄存器就是访存阶段要写的目的寄存器，  
-      //   那么直接把访存阶段的结果mem_wdata作为id_reg1_o的值;  
-      assign id_reg1_o = (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o &&     id_reg1_read_o == `ReadEnable) ? ex_wdata :  
+      //   那么直接把访存阶段的结果mem_wdata作为id_src1_o的值;  
+      assign id_src1_o = (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o &&     id_reg1_read_o == `ReadEnable) ? ex_wdata :  
                       (mem_wreg       == `WriteEnable && mem_wd == id_reg1_addr_o && id_reg1_read_o  == `ReadEnable ) ? mem_wdata       :
                       (id_reg1_read_o == `ReadEnable ) ? id_reg1_data_i     :
                       (id_reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
 
       //1、如果Regfile模块读端口2要读取的寄存器就是执行阶段要写的目的寄存器，  
-      //   那么直接把执行阶段的结果ex_wdata 作为id_reg2_o的值;  
+      //   那么直接把执行阶段的结果ex_wdata 作为id_src2_o的值;  
       //2、如果Regfile模块读端口2要读取的寄存器就是访存阶段要写的目的寄存器，  
-      //   那么直接把访存阶段的结果mem_wdata作为id_reg2_o的值; 
-      assign id_reg2_o = (ex_wreg == `WriteEnable && ex_wd == id_reg2_addr_o && id_reg2_read_o == `ReadEnable) ? ex_wdata :
+      //   那么直接把访存阶段的结果mem_wdata作为id_src2_o的值; 
+      assign id_src2_o = (ex_wreg == `WriteEnable && ex_wd == id_reg2_addr_o && id_reg2_read_o == `ReadEnable) ? ex_wdata :
                       (mem_wreg       == `WriteEnable && mem_wd == id_reg2_addr_o && id_reg2_read_o  == `ReadEnable ) ? mem_wdata       :
                       (id_reg2_read_o == `ReadEnable ) ? id_reg2_data_i     :
                       (id_reg2_read_o == `ReadDisable) ? imm : `ZeroWord ;
@@ -484,27 +484,27 @@ module ID(
       assign dec_branch_flag = ((!cpu_rst_n)) ? `NotBranch  :
                         (inst_exc)        ? `NotBranch  :
                         (inst_JR|inst_JALR|inst_J|inst_JAL
-                        |(inst_BEQ&&(id_reg1_o==id_reg2_o))
-                        |(inst_BGTZ&&((id_reg1_o[31]==1'b0) && (id_reg1_o!=`ZeroWord)))
-                        |(inst_BLEZ&&((id_reg1_o[31]==1'b1) || (id_reg1_o==`ZeroWord)))
-                        |(inst_BNE&&(id_reg1_o!=id_reg2_o))
-                        |(inst_BLTZ&&(id_reg1_o[31]==1'b1))
-                        |(inst_BGEZ&&(id_reg1_o[31]==1'b0))
-                        |(inst_BGEZAL&&(id_reg1_o[31] == 1'b0))
-                        |(inst_BLTZAL&&(id_reg1_o[31] == 1'b1))) ? `Branch : `NotBranch;
+                        |(inst_BEQ&&(id_src1_o==id_src2_o))
+                        |(inst_BGTZ&&((id_src1_o[31]==1'b0) && (id_src1_o!=`ZeroWord)))
+                        |(inst_BLEZ&&((id_src1_o[31]==1'b1) || (id_src1_o==`ZeroWord)))
+                        |(inst_BNE&&(id_src1_o!=id_src2_o))
+                        |(inst_BLTZ&&(id_src1_o[31]==1'b1))
+                        |(inst_BGEZ&&(id_src1_o[31]==1'b0))
+                        |(inst_BGEZAL&&(id_src1_o[31] == 1'b0))
+                        |(inst_BLTZAL&&(id_src1_o[31] == 1'b1))) ? `Branch : `NotBranch;
       
       assign dec_branch_addr = ((!cpu_rst_n)) ? 0  :
                         (inst_exc)        ? 0  :
-                        ((inst_JR|| inst_JALR) ? id_reg1_o :
+                        ((inst_JR|| inst_JALR) ? id_src1_o :
                         (inst_J || inst_JAL ) ? jump_addr_26 :
-                        ((inst_BEQ&&(id_reg1_o==id_reg2_o))
-                        |(inst_BGTZ&&((id_reg1_o[31]==1'b0) && (id_reg1_o!=`ZeroWord)))
-                        |(inst_BLEZ&&((id_reg1_o[31]==1'b1) || (id_reg1_o==`ZeroWord)))
-                        |(inst_BNE&&(id_reg1_o!=id_reg2_o))
-                        |(inst_BLTZ&&(id_reg1_o[31]==1'b1))
-                        |(inst_BGEZ&&(id_reg1_o[31]==1'b0))
-                        |(inst_BGEZAL&&(id_reg1_o[31] == 1'b0))
-                        |(inst_BLTZAL&&(id_reg1_o[31] == 1'b1))) ? jump_addr_16 : 0);
+                        ((inst_BEQ&&(id_src1_o==id_src2_o))
+                        |(inst_BGTZ&&((id_src1_o[31]==1'b0) && (id_src1_o!=`ZeroWord)))
+                        |(inst_BLEZ&&((id_src1_o[31]==1'b1) || (id_src1_o==`ZeroWord)))
+                        |(inst_BNE&&(id_src1_o!=id_src2_o))
+                        |(inst_BLTZ&&(id_src1_o[31]==1'b1))
+                        |(inst_BGEZ&&(id_src1_o[31]==1'b0))
+                        |(inst_BGEZAL&&(id_src1_o[31] == 1'b0))
+                        |(inst_BLTZAL&&(id_src1_o[31] == 1'b1))) ? jump_addr_16 : 0);
 
       assign dec_link_addr_o =((!cpu_rst_n)) ? 0  :
                         (inst_exc)       ? 0  :

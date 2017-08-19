@@ -29,8 +29,8 @@ module ID_EX(
 	// 从译码阶段传递过来的信息
 	input  wire [`AluSelBus  ]  id_alusel,
 	input  wire [`AluOpBus	 ]  id_aluop,
-	input  wire [`RegBus 	 ]  id_reg1,
-	input  wire [`RegBus 	 ]  id_reg2,
+	input  wire [`RegBus 	 ]  id_src1,
+	input  wire [`RegBus 	 ]  id_src2,
 	input  wire [`RegAddrBus ]  id_wd,
 	input  wire 				id_wreg,
 	
@@ -44,8 +44,8 @@ module ID_EX(
 	// 传递到执行阶段的信息
 	output reg  [`AluSelBus  ] 	ex_alusel,
 	output reg  [`AluOpBus 	 ] 	ex_aluop,
-	output reg  [`RegBus 	 ] 	ex_reg1,
-	output reg  [`RegBus 	 ] 	ex_reg2,
+	output reg  [`RegBus 	 ] 	ex_src1,
+	output reg  [`RegBus 	 ] 	ex_src2,
 	output reg  [`RegAddrBus ] 	ex_wd,
 	output reg 					ex_wreg,
 	
@@ -73,14 +73,14 @@ module ID_EX(
     //（1）当stall[2]为Stop，stall[3]为NoStop时，表示译码阶段暂停，  
     //     而执行阶段继续，所以使用空指令作为下一个周期进入执行阶段的指令。  
     //（2）当stall[2]为NoStop时，译码阶段继续，译码后的指令进入执行阶段。  
-    //（3）其余情况下，保持执行阶段的寄存器ex_aluop、ex_alusel、ex_reg1、  
-    //    ex_reg2、ex_wd、ex_wreg不变  ?
+    //（3）其余情况下，保持执行阶段的寄存器ex_aluop、ex_alusel、ex_src1、  
+    //    ex_src2、ex_wd、ex_wreg不变  ?
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
 		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
 			ex_alusel 		   <= `NopAlusel;
 			ex_aluop 		   <= `SLL;
-			ex_reg1 		   <= `ZeroWord;
-			ex_reg2 		   <= `ZeroWord;
+			ex_src1 		   <= `ZeroWord;
+			ex_src2 		   <= `ZeroWord;
 			ex_wd 			   <= `NOPRegAddr;
 			ex_wreg 		   <= `WriteDisable;
 			ex_is_in_delayslot <= `NotInDelaySlot;
@@ -95,8 +95,8 @@ module ID_EX(
 		else if (stall[2] == `Stop && stall[3] == `NoStop) begin
 			ex_alusel 		   <= `NopAlusel;
 			ex_aluop 		   <= `SLL;
-			ex_reg1 		   <= `ZeroWord;
-			ex_reg2 		   <= `ZeroWord;
+			ex_src1 		   <= `ZeroWord;
+			ex_src2 		   <= `ZeroWord;
 			ex_wd 			   <= `NOPRegAddr;
 			ex_wreg 		   <= `WriteDisable;
 			ex_is_in_delayslot <= `NotInDelaySlot;
@@ -110,8 +110,8 @@ module ID_EX(
 		else if (stall[2] == `NoStop) begin
 			ex_alusel 		   <= id_alusel;
 			ex_aluop 		   <= id_aluop;
-			ex_reg1 		   <= id_reg1;
-			ex_reg2 		   <= id_reg2;
+			ex_src1 		   <= id_src1;
+			ex_src2 		   <= id_src2;
 			ex_wd 			   <= id_wd;
 			ex_wreg 		   <= id_wreg;
 			ex_is_in_delayslot <= id_is_in_delayslot;
