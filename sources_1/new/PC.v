@@ -29,7 +29,7 @@ module PC(
 	input 	wire 					branch_flag_i 			,
 	input 	wire [`InstAddrBus] 	branch_target_address_i ,
 	
-	input 	wire [`Stall 	  ] 	stall				    ,	// æ¥è‡ªæ§åˆ¶æ¨¡å—CTRL
+	input 	wire [`Stall 	  ] 	stall				    ,	// À´×Ô¿ØÖÆÄ£¿éCTRL
 	
 	output 	reg  [`InstAddrBus] 	pc 						,
 	
@@ -42,24 +42,24 @@ module PC(
 	//First Stop, Then Branch
 	always @(posedge cpu_clk_75M) begin
 		if (ce == `ChipDisable)
-			pc <= `Init_pc;			// æŒ‡ä»¤å­˜å‚¨å™¨ç¦ç”¨çš„æ—¶å€™ï¼ŒPCä¸ºINIT_PC
+			pc <= `Init_pc;			// Ö¸Áî´æ´¢Æ÷½ûÓÃµÄÊ±ºò£¬PCÎªINIT_PC
 		else begin
 			if (cp0_branch_flag  == `Branch)
 				pc <= cp0_branch_addr;
-			else if (stall[0]    == `NoStop) begin	// å½“stall[0]ä¸ºNoStopæ—¶ï¼ŒpcåŠ 4ï¼Œå¦åˆ™ï¼Œä¿æŒpcä¸å˜
+			else if (stall[0]    == `NoStop) begin	// µ±stall[0]ÎªNoStopÊ±£¬pc¼Ó4£¬·ñÔò£¬±£³Öpc²»±ä
 				if(branch_flag_i == `Branch)
 					pc <= branch_target_address_i;
 				else
-					pc <= pc + 4'h4; // æŒ‡ä»¤å­˜å‚¨å™¨ä½¿èƒ½çš„æ—¶å€™ï¼ŒPCçš„å€¼æ¯æ—¶é’Ÿå‘¨æœŸåŠ 4 
+					pc <= pc + 4'h4; // Ö¸Áî´æ´¢Æ÷Ê¹ÄÜµÄÊ±ºò£¬PCµÄÖµÃ¿Ê±ÖÓÖÜÆÚ¼Ó4 
 			end		
 		end
 	end
 	
 	always @(posedge cpu_clk_75M) begin
 		if (cpu_rst_n == `RstEnable) begin
-			ce <= `ChipDisable;		// å¤ä½çš„æ—¶å€™æŒ‡ä»¤å­˜å‚¨å™¨ç¦ç”¨  
+			ce <= `ChipDisable;		// ¸´Î»µÄÊ±ºòÖ¸Áî´æ´¢Æ÷½ûÓÃ  
 		end else begin
-			ce <= `ChipEnable; 		// å¤ä½ç»“æŸåï¼ŒæŒ‡ä»¤å­˜å‚¨å™¨ä½¿èƒ½
+			ce <= `ChipEnable; 		// ¸´Î»½áÊøºó£¬Ö¸Áî´æ´¢Æ÷Ê¹ÄÜ
 		end
 	end
 

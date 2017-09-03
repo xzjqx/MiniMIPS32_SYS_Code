@@ -26,12 +26,12 @@ module HILO(
 	input  wire 			cpu_clk_75M,
 	input  wire 			cpu_rst_n,
 
-	// å†™ç«¯å£ 
+	// Ğ´¶Ë¿Ú 
 	input  wire 			we,
 	input  wire [`RegBus] 	hi_i,
 	input  wire [`RegBus] 	lo_i,
 	
-	// è¯»ç«¯å£ 
+	// ¶Á¶Ë¿Ú 
 	output reg  [`RegBus] 	hi_o,
 	output reg  [`RegBus] 	lo_o
     );

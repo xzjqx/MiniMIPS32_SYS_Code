@@ -26,7 +26,7 @@ module MEM_WB(
 	input  wire 				cpu_clk_75M,
 	input  wire 				cpu_rst_n,
 
-	// è®¿å­˜é˜¶æ®µçš„ç»“æœ
+	// ·Ã´æ½×¶ÎµÄ½á¹û
 	input  wire [`RegAddrBus] 	mem_wd,
 	input  wire 				mem_wreg,
 	input  wire [`RegBus    ] 	mem_wdata,
@@ -35,7 +35,7 @@ module MEM_WB(
 	input  wire [`RegBus    ] 	mem_hi,
 	input  wire [`RegBus 	] 	mem_lo,
 
-	// é€åˆ°å›å†™é˜¶æ®µçš„ä¿¡æ¯ 
+	// ËÍµ½»ØĞ´½×¶ÎµÄĞÅÏ¢ 
 	output reg  [`RegAddrBus] 	wb_wd,
 	output reg 					wb_wreg,
 	output reg  [`RegBus 	] 	wb_wdata,
@@ -49,11 +49,11 @@ module MEM_WB(
 	input  wire 				flush
     );
 
-    //ï¼ˆ1ï¼‰å½“stall[4]ä¸ºStopï¼Œstall[5]ä¸ºNoStopæ—¶ï¼Œè¡¨ç¤ºè®¿å­˜é˜¶æ®µæš‚åœï¼Œ  
-    //     è€Œå›å†™é˜¶æ®µç»§ç»­ï¼Œæ‰€ä»¥ä½¿ç”¨ç©ºæŒ‡ä»¤ä½œä¸ºä¸‹ä¸€ä¸ªå‘¨æœŸè¿›å…¥å›å†™é˜¶æ®µçš„æŒ‡ä»¤ã€‚  
-    //ï¼ˆ2ï¼‰å½“stall[4]ä¸ºNoStopæ—¶ï¼Œè®¿å­˜é˜¶æ®µç»§ç»­ï¼Œè®¿å­˜åçš„æŒ‡ä»¤è¿›å…¥å›å†™é˜¶æ®µã€‚  
-    //ï¼ˆ3ï¼‰å…¶ä½™æƒ…å†µä¸‹ï¼Œä¿æŒå›å†™é˜¶æ®µçš„å¯„å­˜å™¨wb_wdã€wb_wregã€wb_wdataã€  
-    //     wb_hiã€wb_loã€wb_whiloä¸å˜ã€‚  
+    //£¨1£©µ±stall[4]ÎªStop£¬stall[5]ÎªNoStopÊ±£¬±íÊ¾·Ã´æ½×¶ÎÔİÍ££¬  
+    //     ¶ø»ØĞ´½×¶Î¼ÌĞø£¬ËùÒÔÊ¹ÓÃ¿ÕÖ¸Áî×÷ÎªÏÂÒ»¸öÖÜÆÚ½øÈë»ØĞ´½×¶ÎµÄÖ¸Áî¡£  
+    //£¨2£©µ±stall[4]ÎªNoStopÊ±£¬·Ã´æ½×¶Î¼ÌĞø£¬·Ã´æºóµÄÖ¸Áî½øÈë»ØĞ´½×¶Î¡£  
+    //£¨3£©ÆäÓàÇé¿öÏÂ£¬±£³Ö»ØĞ´½×¶ÎµÄ¼Ä´æÆ÷wb_wd¡¢wb_wreg¡¢wb_wdata¡¢  
+    //     wb_hi¡¢wb_lo¡¢wb_whilo²»±ä¡£  
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
 		if (cpu_rst_n == `RstEnable || flush == `Flush) begin
 			wb_wd 	 <= `NOPRegAddr;

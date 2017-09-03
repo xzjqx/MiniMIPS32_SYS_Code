@@ -25,11 +25,11 @@
 module CTRL(
 	input  wire 			cpu_clk_75M,
 	input  wire 			cpu_rst_n,
-	input  wire 			stop_from_id,	// æ¥è‡ªè¯‘ç é˜¶æ®µçš„æš‚åœè¯·æ±‚
-	input  wire 			stop_from_ex,	// æ¥è‡ªæ‰§è¡Œé˜¶æ®µçš„æš‚åœè¯·æ±‚
-	input  wire 			stop_from_mem, 	// æ¥è‡ªè¯‘ç é˜¶æ®µçš„æš‚åœè¯·æ±‚   !!
-	input  wire 			stop_from_pc,	// æ¥è‡ªè¯‘ç é˜¶æ®µçš„æš‚åœè¯·æ±‚!!
-	input  wire 			stop_from_if,	// æ¥è‡ªè¯‘ç é˜¶æ®µçš„æš‚åœè¯·æ±‚!!
+	input  wire 			stop_from_id,	// À´×ÔÒëÂë½×¶ÎµÄÔİÍ£ÇëÇó
+	input  wire 			stop_from_ex,	// À´×ÔÖ´ĞĞ½×¶ÎµÄÔİÍ£ÇëÇó
+	input  wire 			stop_from_mem, 	// À´×ÔÒëÂë½×¶ÎµÄÔİÍ£ÇëÇó   !!
+	input  wire 			stop_from_pc,	// À´×ÔÒëÂë½×¶ÎµÄÔİÍ£ÇëÇó!!
+	input  wire 			stop_from_if,	// À´×ÔÒëÂë½×¶ÎµÄÔİÍ£ÇëÇó!!
 	input  wire 			ctrl_flush_i, 
 	output reg 	[`Stall] 	stall,
 	output reg 				flush_o

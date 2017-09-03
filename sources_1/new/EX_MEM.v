@@ -26,7 +26,7 @@ module EX_MEM(
 	input  wire 				cpu_clk_75M,
 	input  wire 				cpu_rst_n,
 
-	// æ¥è‡ªæ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯
+	// À´×ÔÖ´ĞĞ½×¶ÎµÄĞÅÏ¢
 	input  wire [`RegAddrBus ] 	ex_wd,
 	input  wire 				ex_wreg,
 	input  wire [`RegBus 	 ] 	ex_wdata,
@@ -47,7 +47,7 @@ module EX_MEM(
 	output reg  [`RegAddrBus ]  mem_cp0_reg_write_addr,
 	output reg  [`RegBus 	 ]  mem_cp0_reg_data,
 	
-	// é€åˆ°è®¿å­˜é˜¶æ®µçš„ä¿¡æ¯ 
+	// ËÍµ½·Ã´æ½×¶ÎµÄĞÅÏ¢ 
 	output reg  [`RegAddrBus ]  mem_wd,
 	output reg 					mem_wreg,
 	output reg  [`RegBus 	 ]  mem_wdata,
@@ -78,11 +78,11 @@ module EX_MEM(
 	output reg  [`InstAddrBus]  mem_pc
     );
 
-    //ï¼ˆ1ï¼‰å½“stall[3]ä¸ºStopï¼Œstall[4]ä¸ºNoStopæ—¶ï¼Œè¡¨ç¤ºæ‰§è¡Œé˜¶æ®µæš‚åœï¼Œ  
-    //     è€Œè®¿å­˜é˜¶æ®µç»§ç»­ï¼Œæ‰€ä»¥ä½¿ç”¨ç©ºæŒ‡ä»¤ä½œä¸ºä¸‹ä¸€ä¸ªå‘¨æœŸè¿›å…¥è®¿å­˜é˜¶æ®µçš„æŒ‡ä»¤ã€‚  
-    //ï¼ˆ2ï¼‰å½“stall[3]ä¸ºNoStopæ—¶ï¼Œæ‰§è¡Œé˜¶æ®µç»§ç»­ï¼Œæ‰§è¡Œåçš„æŒ‡ä»¤è¿›å…¥è®¿å­˜é˜¶æ®µã€‚  
-    //ï¼ˆ3ï¼‰å…¶ä½™æƒ…å†µä¸‹ï¼Œä¿æŒè®¿å­˜é˜¶æ®µçš„å¯„å­˜å™¨mem_wbã€mem_wregã€mwm_wdataã€  
-    //     mem_hiã€mem_loã€mem_whiloä¸å˜ã€‚ ?
+    //£¨1£©µ±stall[3]ÎªStop£¬stall[4]ÎªNoStopÊ±£¬±íÊ¾Ö´ĞĞ½×¶ÎÔİÍ££¬  
+    //     ¶ø·Ã´æ½×¶Î¼ÌĞø£¬ËùÒÔÊ¹ÓÃ¿ÕÖ¸Áî×÷ÎªÏÂÒ»¸öÖÜÆÚ½øÈë·Ã´æ½×¶ÎµÄÖ¸Áî¡£  
+    //£¨2£©µ±stall[3]ÎªNoStopÊ±£¬Ö´ĞĞ½×¶Î¼ÌĞø£¬Ö´ĞĞºóµÄÖ¸Áî½øÈë·Ã´æ½×¶Î¡£  
+    //£¨3£©ÆäÓàÇé¿öÏÂ£¬±£³Ö·Ã´æ½×¶ÎµÄ¼Ä´æÆ÷mem_wb¡¢mem_wreg¡¢mwm_wdata¡¢  
+    //     mem_hi¡¢mem_lo¡¢mem_whilo²»±ä¡£ ?
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
 		if (cpu_rst_n == `RstEnable || flush) begin
 			mem_wd 				   <= `NOPRegAddr;

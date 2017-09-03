@@ -25,7 +25,7 @@
 module MEM(
     input  wire                         cpu_rst_n,
 
-    // æ¥è‡ªæ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯
+    // À´×ÔÖ´ĞĞ½×¶ÎµÄĞÅÏ¢
     input  wire [`RegAddrBus ]          mem_wd_i,
     input  wire                         mem_wreg_i,
     input  wire [`RegBus     ]          mem_wdata_i,
@@ -34,12 +34,12 @@ module MEM(
     input  wire [`RegBus     ]          mem_hi_i,
     input  wire [`RegBus     ]          mem_lo_i,
     
-    //æ¥è‡ªæ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯ 
+    //À´×ÔÖ´ĞĞ½×¶ÎµÄĞÅÏ¢ 
     input  wire [`AluOpBus   ]          mem_aluop_i,
     input  wire [`InstAddrBus]          mem_addr_i,
     input  wire [`RegBus     ]          mem_reg2_i,
     
-    //æ¥è‡ªå¤–éƒ¨æ•°æ®å­˜å‚¨å™¨RAMçš„ä¿¡æ¯
+    //À´×ÔÍâ²¿Êı¾İ´æ´¢Æ÷RAMµÄĞÅÏ¢
     input  wire [`RegBus     ]          mem_data_i,
     input  wire                         mem_cp0_reg_we_i,
     input  wire [`RegAddrBus ]          mem_cp0_reg_write_addr_i,
@@ -49,7 +49,7 @@ module MEM(
     output wire [`RegAddrBus ]          ex_mem_cp0_write_addr,
     output wire [`RegBus     ]          ex_mem_cp0_data,
     
-    // è®¿å­˜é˜¶æ®µçš„ç»“æœ
+    // ·Ã´æ½×¶ÎµÄ½á¹û
     output wire [`RegAddrBus ]          mem_wd_o,
     output wire                         mem_wreg_o,
     output wire [`RegBus     ]          mem_wdata_o,

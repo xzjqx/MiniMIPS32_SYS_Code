@@ -26,7 +26,7 @@ module ID_EX(
 	input  wire 				cpu_clk_75M,
 	input  wire 				cpu_rst_n,
 
-	// ä»è¯‘ç é˜¶æ®µä¼ é€’è¿‡æ¥çš„ä¿¡æ¯
+	// ´ÓÒëÂë½×¶Î´«µİ¹ıÀ´µÄĞÅÏ¢
 	input  wire [`AluSelBus  ]  id_alusel,
 	input  wire [`AluOpBus	 ]  id_aluop,
 	input  wire [`RegBus 	 ]  id_src1,
@@ -38,10 +38,10 @@ module ID_EX(
 	input  wire [`InstAddrBus] 	id_link_address,
 	input  wire 				next_inst_in_delayslot_i,
 	
-	input  wire [`InstBus 	 ] 	id_inst,	// æ¥è‡ªIDæ¨¡å—çš„ä¿¡å·
+	input  wire [`InstBus 	 ] 	id_inst,	// À´×ÔIDÄ£¿éµÄĞÅºÅ
 	input  wire [`InstAddrBus] 	id_pc,
 	
-	// ä¼ é€’åˆ°æ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯
+	// ´«µİµ½Ö´ĞĞ½×¶ÎµÄĞÅÏ¢
 	output reg  [`AluSelBus  ] 	ex_alusel,
 	output reg  [`AluOpBus 	 ] 	ex_aluop,
 	output reg  [`RegBus 	 ] 	ex_src1,
@@ -53,10 +53,10 @@ module ID_EX(
 	output reg  [`InstAddrBus] 	ex_link_address,
 	output reg 					is_in_delayslot_o,
 	
-	output reg  [`InstBus 	 ] 	ex_inst,	// ä¼ é€’åˆ°EXæ¨¡å—
+	output reg  [`InstBus 	 ] 	ex_inst,	// ´«µİµ½EXÄ£¿é
 	output reg  [`InstAddrBus] 	ex_pc,
 	
-	//æ¥è‡ªæ§åˆ¶æ¨¡å—çš„ä¿¡æ¯
+	//À´×Ô¿ØÖÆÄ£¿éµÄĞÅÏ¢
 	input  wire [`Stall 	 ] 	stall,
 	
 	input  wire 				flush,
@@ -70,11 +70,11 @@ module ID_EX(
 	output reg  [`InstAddrBus] 	exc_badvaddr_o
     );
 
-    //ï¼ˆ1ï¼‰å½“stall[2]ä¸ºStopï¼Œstall[3]ä¸ºNoStopæ—¶ï¼Œè¡¨ç¤ºè¯‘ç é˜¶æ®µæš‚åœï¼Œ  
-    //     è€Œæ‰§è¡Œé˜¶æ®µç»§ç»­ï¼Œæ‰€ä»¥ä½¿ç”¨ç©ºæŒ‡ä»¤ä½œä¸ºä¸‹ä¸€ä¸ªå‘¨æœŸè¿›å…¥æ‰§è¡Œé˜¶æ®µçš„æŒ‡ä»¤ã€‚  
-    //ï¼ˆ2ï¼‰å½“stall[2]ä¸ºNoStopæ—¶ï¼Œè¯‘ç é˜¶æ®µç»§ç»­ï¼Œè¯‘ç åçš„æŒ‡ä»¤è¿›å…¥æ‰§è¡Œé˜¶æ®µã€‚  
-    //ï¼ˆ3ï¼‰å…¶ä½™æƒ…å†µä¸‹ï¼Œä¿æŒæ‰§è¡Œé˜¶æ®µçš„å¯„å­˜å™¨ex_aluopã€ex_aluselã€ex_src1ã€  
-    //    ex_src2ã€ex_wdã€ex_wregä¸å˜  ?
+    //£¨1£©µ±stall[2]ÎªStop£¬stall[3]ÎªNoStopÊ±£¬±íÊ¾ÒëÂë½×¶ÎÔİÍ££¬  
+    //     ¶øÖ´ĞĞ½×¶Î¼ÌĞø£¬ËùÒÔÊ¹ÓÃ¿ÕÖ¸Áî×÷ÎªÏÂÒ»¸öÖÜÆÚ½øÈëÖ´ĞĞ½×¶ÎµÄÖ¸Áî¡£  
+    //£¨2£©µ±stall[2]ÎªNoStopÊ±£¬ÒëÂë½×¶Î¼ÌĞø£¬ÒëÂëºóµÄÖ¸Áî½øÈëÖ´ĞĞ½×¶Î¡£  
+    //£¨3£©ÆäÓàÇé¿öÏÂ£¬±£³ÖÖ´ĞĞ½×¶ÎµÄ¼Ä´æÆ÷ex_aluop¡¢ex_alusel¡¢ex_src1¡¢  
+    //    ex_src2¡¢ex_wd¡¢ex_wreg²»±ä  ?
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
 		if (cpu_rst_n == `RstEnable || flush == 1'b1) begin
 			ex_alusel 		   <= `NopAlusel;

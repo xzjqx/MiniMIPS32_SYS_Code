@@ -26,17 +26,17 @@ module REG(
 	input  wire 				cpu_clk_75M,
 	input  wire 				cpu_rst_n,
 	
-	// å†™ç«¯å£
+	// Ğ´¶Ë¿Ú
 	input  wire  [`RegAddrBus] 	waddr,
 	input  wire  [`RegBus 	 ] 	wdata,
 	input  wire 				we,
 	
-	// è¯»ç«¯å£1
+	// ¶Á¶Ë¿Ú1
 	input  wire  [`RegAddrBus] 	reg1_addr,
 	output reg   [`RegBus 	 ] 	reg1_data,
 	input  wire 				reg1_read,
 	
-	// è¯»ç«¯å£2 
+	// ¶Á¶Ë¿Ú2 
 	input  wire  [`RegAddrBus] 	reg2_addr,
 	output reg   [`RegBus 	 ] 	reg2_data,
 	input  wire 				reg2_read,
@@ -45,7 +45,7 @@ module REG(
 	output wire  [`RegBus 	 ] 	debug_data
     );
 	
-	//å®šä¹‰32ä¸ª32ä½å¯„å­˜å™¨
+	//¶¨Òå32¸ö32Î»¼Ä´æÆ÷
 	reg [`RegBus] 	regs[0:`RegNum-1];
 	
 	always @(posedge cpu_clk_75M) begin
@@ -89,8 +89,8 @@ module REG(
 		end
 	end
 	
-	//è¯»ç«¯å£1çš„è¯»æ“ä½œ 
-	// reg1_addræ˜¯è¯»åœ°å€ã€waddræ˜¯å†™åœ°å€ã€weæ˜¯å†™ä½¿èƒ½ã€wdataæ˜¯è¦å†™å…¥çš„æ•°æ® 
+	//¶Á¶Ë¿Ú1µÄ¶Á²Ù×÷ 
+	// reg1_addrÊÇ¶ÁµØÖ·¡¢waddrÊÇĞ´µØÖ·¡¢weÊÇĞ´Ê¹ÄÜ¡¢wdataÊÇÒªĞ´ÈëµÄÊı¾İ 
 	always @(*) begin
 		if (cpu_rst_n == `RstEnable)
 			reg1_data <= `ZeroWord;
@@ -104,8 +104,8 @@ module REG(
 			reg1_data <= `ZeroWord;
 	end
 	
-	//è¯»ç«¯å£2çš„è¯»æ“ä½œ 
-	// reg2_addræ˜¯è¯»åœ°å€ã€waddræ˜¯å†™åœ°å€ã€weæ˜¯å†™ä½¿èƒ½ã€wdataæ˜¯è¦å†™å…¥çš„æ•°æ® 
+	//¶Á¶Ë¿Ú2µÄ¶Á²Ù×÷ 
+	// reg2_addrÊÇ¶ÁµØÖ·¡¢waddrÊÇĞ´µØÖ·¡¢weÊÇĞ´Ê¹ÄÜ¡¢wdataÊÇÒªĞ´ÈëµÄÊı¾İ 
 	always @(*) begin
 		if (cpu_rst_n == `RstEnable)
 			reg2_data <= `ZeroWord;

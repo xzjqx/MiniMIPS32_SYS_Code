@@ -25,7 +25,7 @@
 module EX(
 	input  wire 					cpu_rst_n,
 
-	// è¯‘ç é˜¶æ®µé€åˆ°æ‰§è¡Œé˜¶æ®µçš„ä¿¡æ¯
+	// ÒëÂë½×¶ÎËÍµ½Ö´ĞĞ½×¶ÎµÄĞÅÏ¢
 	input  wire [`AluSelBus		] 	ex_alusel_i,
 	input  wire [`AluOpBus	    ] 	ex_aluop_i,
 	input  wire [`InstAddrBus 	]   ex_pc_i,
@@ -35,28 +35,28 @@ module EX(
 	input  wire [`RegAddrBus 	] 	ex_wd_i,
 	input  wire 					ex_wreg_i,
 	
-	// HILOæ¨¡å—ç»™å‡ºçš„HIã€LOå¯„å­˜å™¨çš„å€¼ 
+	// HILOÄ£¿é¸ø³öµÄHI¡¢LO¼Ä´æÆ÷µÄÖµ 
 	input  wire [`RegBus 		] 	hi_i,
 	inout  wire [`RegBus 		] 	lo_i,
 
-	// è®¿å­˜é˜¶æ®µçš„æŒ‡ä»¤æ˜¯å¦è¦å†™HIã€LOï¼Œç”¨äºæ£€æµ‹HIã€LOå¯„å­˜å™¨å¸¦æ¥çš„æ•°æ®ç›¸å…³é—®é¢˜
+	// ·Ã´æ½×¶ÎµÄÖ¸ÁîÊÇ·ñÒªĞ´HI¡¢LO£¬ÓÃÓÚ¼ì²âHI¡¢LO¼Ä´æÆ÷´øÀ´µÄÊı¾İÏà¹ØÎÊÌâ
 	input  wire 					mem_whilo_i,
 	input  wire [`RegBus 		] 	mem_hi_i,
 	input  wire [`RegBus 		] 	mem_lo_i,
 
-	// å›å†™é˜¶æ®µçš„æŒ‡ä»¤æ˜¯å¦è¦å†™HIã€LOï¼Œç”¨äºæ£€æµ‹HIã€LOå¯„å­˜å™¨å¸¦æ¥çš„æ•°æ®ç›¸å…³é—®é¢˜ 
+	// »ØĞ´½×¶ÎµÄÖ¸ÁîÊÇ·ñÒªĞ´HI¡¢LO£¬ÓÃÓÚ¼ì²âHI¡¢LO¼Ä´æÆ÷´øÀ´µÄÊı¾İÏà¹ØÎÊÌâ 
 	input  wire 					wb_whilo_i,
 	input  wire [`RegBus 		] 	wb_hi_i,
 	input  wire [`RegBus 		] 	wb_lo_i,
 	
-	// å½“å‰æ‰§è¡Œé˜¶æ®µçš„æŒ‡ä»¤æ˜¯å¦ä½äºå»¶è¿Ÿæ§½
+	// µ±Ç°Ö´ĞĞ½×¶ÎµÄÖ¸ÁîÊÇ·ñÎ»ÓÚÑÓ³Ù²Û
 	input  wire 					in_delay_i,
 	output wire						in_delay_o,
 
-	// å¤„äºæ‰§è¡Œé˜¶æ®µçš„è½¬ç§»æŒ‡ä»¤è¦ä¿å­˜çš„è¿”å›åœ°å€
+	// ´¦ÓÚÖ´ĞĞ½×¶ÎµÄ×ªÒÆÖ¸ÁîÒª±£´æµÄ·µ»ØµØÖ·
 	input  wire [`InstAddrBus 	] 	link_addr_i,
 	
-	//æ–°å¢è¾“å…¥æ¥å£ex_inst_iï¼Œå…¶å€¼å°±æ˜¯å½“å‰å¤„äºæ‰§è¡Œé˜¶æ®µçš„æŒ‡ä»¤
+	//ĞÂÔöÊäÈë½Ó¿Úex_inst_i£¬ÆäÖµ¾ÍÊÇµ±Ç°´¦ÓÚÖ´ĞĞ½×¶ÎµÄÖ¸Áî
 	input  wire [`InstAddrBus 	] 	ex_inst_i,
 
 	input  wire [`RegBus 		]   cp0_reg_read_data_i,
@@ -66,17 +66,17 @@ module EX(
 	output wire [`RegAddrBus 	]   ex_cp0_reg_write_addr_o,
 	output wire [`RegBus 		] 	ex_cp0_reg_data_o,
 
-	// æ‰§è¡Œçš„ç»“æœ
+	// Ö´ĞĞµÄ½á¹û
 	output wire [`RegAddrBus 	] 	ex_wd_o,
 	output wire 					ex_wreg_o,
 	output wire [`RegBus 		] 	ex_wdata_o,
 	
-	// å¤„äºæ‰§è¡Œé˜¶æ®µçš„æŒ‡ä»¤å¯¹HIã€LOå¯„å­˜å™¨çš„å†™æ“ä½œè¯·æ±‚
+	// ´¦ÓÚÖ´ĞĞ½×¶ÎµÄÖ¸Áî¶ÔHI¡¢LO¼Ä´æÆ÷µÄĞ´²Ù×÷ÇëÇó
 	output wire 					ex_whilo_o,
 	output wire [`RegBus 		] 	ex_hi_o,
 	output wire [`RegBus 		] 	ex_lo_o,
 	
-	//ä¸ºåŠ è½½ã€å­˜å‚¨æŒ‡ä»¤å‡†å¤‡çš„è¾“å‡ºæ¥å£
+	//Îª¼ÓÔØ¡¢´æ´¢Ö¸Áî×¼±¸µÄÊä³ö½Ó¿Ú
 	output wire [`AluOpBus 		] 	ex_aluop_o,
 	output wire [`InstAddrBus 	] 	mem_addr_o,
 	output wire [`RegBus 		] 	ex_reg2_o,
@@ -92,11 +92,11 @@ module EX(
 	output wire 					cp0_reg_read_o,
 	
 	
-	// æ¥è‡ªé™¤æ³•æ¨¡å—çš„è¾“å…¥
+	// À´×Ô³ı·¨Ä£¿éµÄÊäÈë
 	input  wire[`DoubleRegBus 	]   div_result_i,
     input  wire                     div_ready_i,
 
-    // åˆ°é™¤æ³•æ¨¡å—çš„è¾“å‡º
+    // µ½³ı·¨Ä£¿éµÄÊä³ö
     output wire [`RegBus 		]   div_opdata1_o,
     output wire [`RegBus 		]   div_opdata2_o,
     output wire                     div_start_o,
@@ -110,18 +110,18 @@ module EX(
 	wire [`InstAddrBus] signed_low16_inst;
 	assign signed_low16_inst = { {16{ex_inst_i[15]}}, ex_inst_i[15:0] };
 
-	wire [`RegBus] 			logicout;		// ä¿å­˜é€»è¾‘è¿ç®—çš„ç»“æœ
-	wire [`RegBus] 			shiftout;		// ä¿å­˜ç§»ä½è¿ç®—ç»“æœ
-	wire [`RegBus] 			moveout;		// ç§»åŠ¨æ“ä½œçš„ç»“æœ
-	wire [`RegBus] 			hi_t;			// ä¿å­˜HIå¯„å­˜å™¨çš„æœ€æ–°å€¼
-	wire [`RegBus] 			lo_t;			// ä¿å­˜LOå¯„å­˜å™¨çš„æœ€æ–°å€¼
+	wire [`RegBus] 			logicout;		// ±£´æÂß¼­ÔËËãµÄ½á¹û
+	wire [`RegBus] 			shiftout;		// ±£´æÒÆÎ»ÔËËã½á¹û
+	wire [`RegBus] 			moveout;		// ÒÆ¶¯²Ù×÷µÄ½á¹û
+	wire [`RegBus] 			hi_t;			// ±£´æHI¼Ä´æÆ÷µÄ×îĞÂÖµ
+	wire [`RegBus] 			lo_t;			// ±£´æLO¼Ä´æÆ÷µÄ×îĞÂÖµ
 	reg  [`DoubleRegBus] 	arithout;
 	wire [`RegBus] 			cp0out;
 	
-	wire stallreq_for_div;	 // æ˜¯å¦ç”±äºé™¤æ³•è¿ç®—å¯¼è‡´æµæ°´çº¿æš‚åœ 
+	wire stallreq_for_div;	 // ÊÇ·ñÓÉÓÚ³ı·¨ÔËËãµ¼ÖÂÁ÷Ë®ÏßÔİÍ£ 
 	assign stop_from_ex = stallreq_for_div;
 
-	//ex_aluop_oä¼šä¼ é€’åˆ°è®¿å­˜é˜¶æ®µï¼Œå±Šæ—¶å°†åˆ©ç”¨å…¶ç¡®å®šåŠ è½½ã€å­˜å‚¨ç±»å‹
+	//ex_aluop_o»á´«µİµ½·Ã´æ½×¶Î£¬½ìÊ±½«ÀûÓÃÆäÈ·¶¨¼ÓÔØ¡¢´æ´¢ÀàĞÍ
 	assign ex_aluop_o   = ex_aluop_i;
 	assign ex_reg2_o    = ex_src2_i;
 
@@ -174,7 +174,7 @@ module EX(
 					  (ex_aluop_i == `SRLV)  ? (ex_src1_i >> ex_src2_i)  : `ZeroWord;
 	
 	// 4/6 move instructions======================================================
-	//å¾—åˆ°æœ€æ–°çš„HIã€LOå¯„å­˜å™¨çš„å€¼ï¼Œæ­¤å¤„è¦è§£å†³æ•°æ®ç›¸å…³é—®é¢˜
+	//µÃµ½×îĞÂµÄHI¡¢LO¼Ä´æÆ÷µÄÖµ£¬´Ë´¦Òª½â¾öÊı¾İÏà¹ØÎÊÌâ
 	assign hi_t 	= (cpu_rst_n == `RstEnable) ? `ZeroWord : 
 					  (mem_whilo_i == 1'b1) ? mem_hi_i :
               		  (wb_whilo_i == 1'b1 ) ? wb_hi_i  : hi_i;
@@ -287,7 +287,7 @@ module EX(
 			  
 					  
 	//div 
-	//è¾“å‡ºDIVæ¨¡å—æ§åˆ¶ä¿¡æ¯ï¼Œè·å–DIVæ¨¡å—ç»™å‡ºçš„ç»“æœ
+	//Êä³öDIVÄ£¿é¿ØÖÆĞÅÏ¢£¬»ñÈ¡DIVÄ£¿é¸ø³öµÄ½á¹û
 
 	assign stallreq_for_div = (cpu_rst_n == `RstEnable) ? `NoStop : 
 					  ((ex_aluop_i == `DIV ) && (div_ready_i == `DivResultNotReady))  ? `Stop :
@@ -329,7 +329,7 @@ module EX(
 					  (ex_aluop_i  == `DIVU) ? 1'b0: 1'b0; 					  
 	
 	// output general
-	// å¦‚æœæ˜¯mfloæŒ‡ä»¤ï¼Œé‚£ä¹ˆå°†LOçš„å€¼ä½œä¸ºç§»åŠ¨æ“ä½œçš„ç»“æœ
+	// Èç¹ûÊÇmfloÖ¸Áî£¬ÄÇÃ´½«LOµÄÖµ×÷ÎªÒÆ¶¯²Ù×÷µÄ½á¹û
 
 	assign ex_wd_o  	 = (cpu_rst_n   == `RstEnable ) ? 5'b0 	 : ex_wd_i;
 	assign ex_wreg_o	 = (cpu_rst_n   == `RstEnable ) ? 1'b0 	 : ex_wreg_i;

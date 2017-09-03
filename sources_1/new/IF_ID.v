@@ -27,13 +27,13 @@ module IF_ID(
 	input  wire 						cpu_rst_n,
 
 
-	//æ¥è‡ªå–æŒ‡é˜¶æ®µçš„ä¿¡å·ï¼Œå…¶ä¸­å®å®šä¹‰InstBusè¡¨ç¤ºæŒ‡ä»¤å®½åº¦ï¼Œä¸º32  
+	//À´×ÔÈ¡Ö¸½×¶ÎµÄĞÅºÅ£¬ÆäÖĞºê¶¨ÒåInstBus±íÊ¾Ö¸Áî¿í¶È£¬Îª32  
 	input  wire [`InstAddrBus       ] 	if_pc,
 	input  wire [`InstBus      	    ] 	if_inst,
 	
 	input  wire [`Stall 		    ] 	stall,
 	
-	//å¯¹åº”è¯‘ç é˜¶æ®µçš„ä¿¡å·  
+	//¶ÔÓ¦ÒëÂë½×¶ÎµÄĞÅºÅ  
 	output reg  [`InstAddrBus  	    ] 	id_pc,
 	output reg  [`InstBus           ] 	id_inst,
 	
@@ -45,14 +45,14 @@ module IF_ID(
 	output reg  [`InstAddrBus 		] 	exc_badvaddr_o
     );
 
-    //ï¼ˆ1ï¼‰å½“stall[1]ä¸ºStopï¼Œstall[2]ä¸ºNoStopæ—¶ï¼Œè¡¨ç¤ºå–æŒ‡é˜¶æ®µæš‚åœï¼Œ  
-    //     è€Œè¯‘ç é˜¶æ®µç»§ç»­ï¼Œæ‰€ä»¥ä½¿ç”¨ç©ºæŒ‡ä»¤ä½œä¸ºä¸‹ä¸€ä¸ªå‘¨æœŸè¿›å…¥è¯‘ç é˜¶æ®µçš„æŒ‡ä»¤ã€‚  
-    //ï¼ˆ2ï¼‰å½“stall[1]ä¸ºNoStopæ—¶ï¼Œå–æŒ‡é˜¶æ®µç»§ç»­ï¼Œå–å¾—çš„æŒ‡ä»¤è¿›å…¥è¯‘ç é˜¶æ®µã€‚  
-    //ï¼ˆ3ï¼‰å…¶ä½™æƒ…å†µä¸‹ï¼Œä¿æŒè¯‘ç é˜¶æ®µçš„å¯„å­˜å™¨id_pcã€id_instä¸å˜ã€‚  
+    //£¨1£©µ±stall[1]ÎªStop£¬stall[2]ÎªNoStopÊ±£¬±íÊ¾È¡Ö¸½×¶ÎÔİÍ££¬  
+    //     ¶øÒëÂë½×¶Î¼ÌĞø£¬ËùÒÔÊ¹ÓÃ¿ÕÖ¸Áî×÷ÎªÏÂÒ»¸öÖÜÆÚ½øÈëÒëÂë½×¶ÎµÄÖ¸Áî¡£  
+    //£¨2£©µ±stall[1]ÎªNoStopÊ±£¬È¡Ö¸½×¶Î¼ÌĞø£¬È¡µÃµÄÖ¸Áî½øÈëÒëÂë½×¶Î¡£  
+    //£¨3£©ÆäÓàÇé¿öÏÂ£¬±£³ÖÒëÂë½×¶ÎµÄ¼Ä´æÆ÷id_pc¡¢id_inst²»±ä¡£  
 	always @(posedge cpu_clk_75M or negedge cpu_rst_n) begin
 		if (cpu_rst_n == `RstEnable || flush == `Flush) begin
-			id_pc 			<= `ZeroWord; 	// å¤ä½çš„æ—¶å€™pcä¸º0
-			id_inst 		<= `ZeroWord; 	// å¤ä½çš„æ—¶å€™æŒ‡ä»¤ä¹Ÿä¸º0ï¼Œå®é™…å°±æ˜¯ç©ºæŒ‡ä»¤
+			id_pc 			<= `ZeroWord; 	// ¸´Î»µÄÊ±ºòpcÎª0
+			id_inst 		<= `ZeroWord; 	// ¸´Î»µÄÊ±ºòÖ¸ÁîÒ²Îª0£¬Êµ¼Ê¾ÍÊÇ¿ÕÖ¸Áî
 			exc_code_o 		<= `EC_None ;
 			exc_badvaddr_o 	<= `ZeroWord;
 		end
@@ -63,7 +63,7 @@ module IF_ID(
 			exc_badvaddr_o 	<= `ZeroWord;
 		end
 		else if (stall[1] == `NoStop) begin
-			id_pc		 	<= if_pc         ;	// å…¶ä½™æ—¶åˆ»å‘ä¸‹ä¼ é€’å–æŒ‡é˜¶æ®µçš„å€¼
+			id_pc		 	<= if_pc         ;	// ÆäÓàÊ±¿ÌÏòÏÂ´«µİÈ¡Ö¸½×¶ÎµÄÖµ
 			id_inst 		<= if_inst       ;
 			exc_code_o 		<= exc_code_i    ;
 			exc_badvaddr_o 	<= exc_badvaddr_i;
