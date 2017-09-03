@@ -27,22 +27,22 @@ module ID(
       input  wire [`InstAddrBus]    id_pc_i,
       input  wire [`InstBus    ]    id_inst_i,
 
-      //è¯»ç«¯å£2çš„è¯»æ“ä½œ 
+      //¶Á¶Ë¿Ú2µÄ¶Á²Ù×÷ 
       input  wire [`RegBus     ]    id_reg1_data_i,
       input  wire [`RegBus     ]    id_reg2_data_i,
 
-      //å¤„äºæ‰§è¡Œé˜¶æ®µçš„æŒ‡ä»¤çš„è¿ç®—ç»“æœ
+      //´¦ÓÚÖ´ĞĞ½×¶ÎµÄÖ¸ÁîµÄÔËËã½á¹û
       input  wire                   ex_wreg,
       input  wire [`RegAddrBus ]    ex_wd,
       input  wire [`RegBus     ]    ex_wdata,
 
-      //å¤„äºè®¿å­˜é˜¶æ®µçš„æŒ‡ä»¤çš„è¿ç®—ç»“æœ
+      //´¦ÓÚ·Ã´æ½×¶ÎµÄÖ¸ÁîµÄÔËËã½á¹û
       input  wire                   mem_wreg,
       input  wire[`RegAddrBus  ]    mem_wd,
       input  wire[`RegBus      ]    mem_wdata,
 
-      // å¦‚æœä¸Šä¸€æ¡æŒ‡ä»¤æ˜¯è½¬ç§»æŒ‡ä»¤ï¼Œé‚£ä¹ˆä¸‹ä¸€æ¡æŒ‡ä»¤è¿›å…¥è¯‘ç é˜¶æ®µçš„æ—¶å€™ï¼Œè¾“å…¥å˜é‡  
-      // is_in_delayslot_iä¸ºtrueï¼Œè¡¨ç¤ºæ˜¯å»¶è¿Ÿæ§½æŒ‡ä»¤ï¼Œåä¹‹ï¼Œä¸ºfalse 
+      // Èç¹ûÉÏÒ»ÌõÖ¸ÁîÊÇ×ªÒÆÖ¸Áî£¬ÄÇÃ´ÏÂÒ»ÌõÖ¸Áî½øÈëÒëÂë½×¶ÎµÄÊ±ºò£¬ÊäÈë±äÁ¿  
+      // is_in_delayslot_iÎªtrue£¬±íÊ¾ÊÇÑÓ³Ù²ÛÖ¸Áî£¬·´Ö®£¬Îªfalse 
       input  wire                   id_in_delay_i,
       input  wire[`AluOpBus    ]    ex_aluop,
       
@@ -50,17 +50,17 @@ module ID(
       output wire                   stop_from_id, 
       output wire[`InstBus     ]    id_inst_o,      //current instruction
       
-      // è¾“å‡ºåˆ°Regfileçš„ä¿¡æ¯
+      // Êä³öµ½RegfileµÄĞÅÏ¢
       output wire [`AluSelBus  ]    id_alusel_o,    //defined in header.v, 8 types in total
       output wire [`AluOpBus   ]    id_aluop_o,     //defined in header.v, 47 types of instructions in total 
 
-      //é€åˆ°æ‰§è¡Œé˜¶æ®µçš„æºæ“ä½œæ•°1ã€æºæ“ä½œæ•°2
+      //ËÍµ½Ö´ĞĞ½×¶ÎµÄÔ´²Ù×÷Êı1¡¢Ô´²Ù×÷Êı2
       output wire [`RegBus     ]    id_src1_o,      //value of register 1
       output wire [`RegBus     ]    id_src2_o,      //value of register 2
       output wire [`RegAddrBus ]    id_wd_o,        //target register if write
       output wire                   id_wreg_o,      //whether write to register or not
       
-      // è¾“å‡ºåˆ°Regfileçš„ä¿¡æ¯
+      // Êä³öµ½RegfileµÄĞÅÏ¢
       output wire                   id_reg2_read_o, //nothing to do with ALU
       output wire [`InstAddrBus]    id_reg2_addr_o, //nothing to do with ALU
       output wire                   id_reg1_read_o, //nothing to do with ALU
@@ -78,35 +78,35 @@ module ID(
       output wire [`InstAddrBus]    id_exc_badvaddr_o
       );
       
-      // è¾“å‡ºåˆ°Regfileçš„ä¿¡æ¯
-      wire[5:0] op  =  id_inst_i[31:26];   // æŒ‡ä»¤ç 
+      // Êä³öµ½RegfileµÄĞÅÏ¢
+      wire[5:0] op  =  id_inst_i[31:26];   // Ö¸ÁîÂë
       wire[4:0] sa  =  id_inst_i[10: 6];
-      wire[5:0] func=  id_inst_i[ 5: 0];   // åŠŸèƒ½ç 
+      wire[5:0] func=  id_inst_i[ 5: 0];   // ¹¦ÄÜÂë
       wire[4:0] rs  =  id_inst_i[25:21];
       wire[4:0] rt  =  id_inst_i[20:16];
       wire[4:0] rd  =  id_inst_i[15:11];
 
-      // è¾“å‡ºåˆ°Regfileçš„ä¿¡æ¯
+      // Êä³öµ½RegfileµÄĞÅÏ¢
       wire[`RegBus]    imm;
 
-      // inst_oçš„å€¼å°±æ˜¯è¯‘ç é˜¶æ®µçš„æŒ‡ä»¤
+      // inst_oµÄÖµ¾ÍÊÇÒëÂë½×¶ÎµÄÖ¸Áî
       assign id_inst_o = id_inst_i;
       assign id_pc_o   = id_pc_i;
 
       //id_src1_o   forwarding
-      //1ã€å¦‚æœRegfileæ¨¡å—è¯»ç«¯å£1è¦è¯»å–çš„å¯„å­˜å™¨å°±æ˜¯æ‰§è¡Œé˜¶æ®µè¦å†™çš„ç›®çš„å¯„å­˜å™¨ï¼Œ  
-      //   é‚£ä¹ˆç›´æ¥æŠŠæ‰§è¡Œé˜¶æ®µçš„ç»“æœex_wdata ä½œä¸ºid_src1_oçš„å€¼;  
-      //2ã€å¦‚æœRegfileæ¨¡å—è¯»ç«¯å£1è¦è¯»å–çš„å¯„å­˜å™¨å°±æ˜¯è®¿å­˜é˜¶æ®µè¦å†™çš„ç›®çš„å¯„å­˜å™¨ï¼Œ  
-      //   é‚£ä¹ˆç›´æ¥æŠŠè®¿å­˜é˜¶æ®µçš„ç»“æœmem_wdataä½œä¸ºid_src1_oçš„å€¼;  
+      //1¡¢Èç¹ûRegfileÄ£¿é¶Á¶Ë¿Ú1Òª¶ÁÈ¡µÄ¼Ä´æÆ÷¾ÍÊÇÖ´ĞĞ½×¶ÎÒªĞ´µÄÄ¿µÄ¼Ä´æÆ÷£¬  
+      //   ÄÇÃ´Ö±½Ó°ÑÖ´ĞĞ½×¶ÎµÄ½á¹ûex_wdata ×÷Îªid_src1_oµÄÖµ;  
+      //2¡¢Èç¹ûRegfileÄ£¿é¶Á¶Ë¿Ú1Òª¶ÁÈ¡µÄ¼Ä´æÆ÷¾ÍÊÇ·Ã´æ½×¶ÎÒªĞ´µÄÄ¿µÄ¼Ä´æÆ÷£¬  
+      //   ÄÇÃ´Ö±½Ó°Ñ·Ã´æ½×¶ÎµÄ½á¹ûmem_wdata×÷Îªid_src1_oµÄÖµ;  
       assign id_src1_o = (ex_wreg == `WriteEnable && ex_wd == id_reg1_addr_o &&     id_reg1_read_o == `ReadEnable) ? ex_wdata :  
                       (mem_wreg       == `WriteEnable && mem_wd == id_reg1_addr_o && id_reg1_read_o  == `ReadEnable ) ? mem_wdata       :
                       (id_reg1_read_o == `ReadEnable ) ? id_reg1_data_i     :
                       (id_reg1_read_o == `ReadDisable) ? imm : `ZeroWord ;
 
-      //1ã€å¦‚æœRegfileæ¨¡å—è¯»ç«¯å£2è¦è¯»å–çš„å¯„å­˜å™¨å°±æ˜¯æ‰§è¡Œé˜¶æ®µè¦å†™çš„ç›®çš„å¯„å­˜å™¨ï¼Œ  
-      //   é‚£ä¹ˆç›´æ¥æŠŠæ‰§è¡Œé˜¶æ®µçš„ç»“æœex_wdata ä½œä¸ºid_src2_oçš„å€¼;  
-      //2ã€å¦‚æœRegfileæ¨¡å—è¯»ç«¯å£2è¦è¯»å–çš„å¯„å­˜å™¨å°±æ˜¯è®¿å­˜é˜¶æ®µè¦å†™çš„ç›®çš„å¯„å­˜å™¨ï¼Œ  
-      //   é‚£ä¹ˆç›´æ¥æŠŠè®¿å­˜é˜¶æ®µçš„ç»“æœmem_wdataä½œä¸ºid_src2_oçš„å€¼; 
+      //1¡¢Èç¹ûRegfileÄ£¿é¶Á¶Ë¿Ú2Òª¶ÁÈ¡µÄ¼Ä´æÆ÷¾ÍÊÇÖ´ĞĞ½×¶ÎÒªĞ´µÄÄ¿µÄ¼Ä´æÆ÷£¬  
+      //   ÄÇÃ´Ö±½Ó°ÑÖ´ĞĞ½×¶ÎµÄ½á¹ûex_wdata ×÷Îªid_src2_oµÄÖµ;  
+      //2¡¢Èç¹ûRegfileÄ£¿é¶Á¶Ë¿Ú2Òª¶ÁÈ¡µÄ¼Ä´æÆ÷¾ÍÊÇ·Ã´æ½×¶ÎÒªĞ´µÄÄ¿µÄ¼Ä´æÆ÷£¬  
+      //   ÄÇÃ´Ö±½Ó°Ñ·Ã´æ½×¶ÎµÄ½á¹ûmem_wdata×÷Îªid_src2_oµÄÖµ; 
       assign id_src2_o = (ex_wreg == `WriteEnable && ex_wd == id_reg2_addr_o && id_reg2_read_o == `ReadEnable) ? ex_wdata :
                       (mem_wreg       == `WriteEnable && mem_wd == id_reg2_addr_o && id_reg2_read_o  == `ReadEnable ) ? mem_wdata       :
                       (id_reg2_read_o == `ReadEnable ) ? id_reg2_data_i     :
@@ -117,15 +117,15 @@ module ID(
       assign id_in_delay_o = id_in_delay_i;
 
       wire [31:0] pc_4;
-      assign pc_4 = id_pc_i+4;     //ä¿å­˜å½“å‰è¯‘ç é˜¶æ®µæŒ‡ä»¤åé¢ç´§æ¥ç€çš„æŒ‡ä»¤çš„åœ°å€
+      assign pc_4 = id_pc_i+4;     //±£´æµ±Ç°ÒëÂë½×¶ÎÖ¸ÁîºóÃæ½ô½Ó×ÅµÄÖ¸ÁîµÄµØÖ·
 
       wire [31:0] pc_8;
-      assign pc_8 = id_pc_i+8;     //ä¿å­˜å½“å‰è¯‘ç é˜¶æ®µæŒ‡ä»¤åé¢ç¬¬2æ¡æŒ‡ä»¤çš„åœ°å€
+      assign pc_8 = id_pc_i+8;     //±£´æµ±Ç°ÒëÂë½×¶ÎÖ¸ÁîºóÃæµÚ2ÌõÖ¸ÁîµÄµØÖ·
 
       wire [31:0] jump_addr_26;
       assign jump_addr_26 = {pc_4[31:28], id_inst_i[25:0], 2'b00};
 
-      // jump_addr_16å¯¹åº”åˆ†æ”¯æŒ‡ä»¤ä¸­çš„offsetå·¦ç§»ä¸¤ä½ï¼Œå†ç¬¦å·æ‰©å±•è‡³32ä½çš„å€¼ 
+      // jump_addr_16¶ÔÓ¦·ÖÖ§Ö¸ÁîÖĞµÄoffset×óÒÆÁ½Î»£¬ÔÙ·ûºÅÀ©Õ¹ÖÁ32Î»µÄÖµ 
       wire [31:0] jump_addr_16;
       assign jump_addr_16 = (id_pc_i+4)+{{14{id_inst_i[15]}}, id_inst_i[15:0], 2'b00};
       //sign extented
@@ -299,6 +299,8 @@ module ID(
       wire inst_SYSCALL   = op_d[6'h00]&func_d[6'h0c];
       
       /****** Privileged ******/
+      wire inst_TLBWI      = op_d[6'h10]&rs_d[5'h10]&rt_d[5'h00]&rd_d[5'h00]&sa_d[5'h00]&func_d[6'h02];
+
       wire inst_ERET      = op_d[6'h10]&rs_d[5'h10]&rt_d[5'h00]&rd_d[5'h00]&sa_d[5'h00]&func_d[6'h18];
 
       wire inst_MFC0      = op_d[6'h10]&rs_d[5'h00]&sa_d[5'h00]&(func[5:3]==3'b0);
@@ -317,7 +319,7 @@ module ID(
                         |inst_XORI|inst_MFHI|inst_LB|inst_MULTU|inst_SW
                         |inst_MFLO|inst_MTHI|inst_MTLO|inst_SLL
                         |inst_SLLV|inst_SRA|inst_SRAV|inst_SRL|inst_SRLV
-                        |inst_SYSCALL|inst_ERET|inst_MFC0|inst_MTC0
+                        |inst_SYSCALL|inst_ERET|inst_TLBWI|inst_MFC0|inst_MTC0
                         |inst_DIV|inst_DIVU|inst_ADD|inst_ADDI|inst_SUB
                         |inst_BLTZAL|inst_BGEZAL|inst_BREAK|inst_LH|inst_SH);
 
@@ -330,7 +332,7 @@ module ID(
                         |inst_MFLO|inst_MTHI|inst_MTLO
                         |inst_SLL|(!cpu_rst_n)|inst_exc|inst_invalid
                         |inst_SLLV|inst_SRA|inst_SRAV|inst_SRL|inst_SRLV
-                        |inst_SYSCALL|inst_ERET|inst_MFC0|inst_MTC0
+                        |inst_SYSCALL|inst_ERET|inst_TLBWI|inst_MFC0|inst_MTC0
                         |inst_DIV|inst_DIVU|inst_ADD|inst_ADDI|inst_SUB|inst_MULTU
                         |inst_BLTZAL|inst_BGEZAL|inst_BREAK|inst_LH|inst_SH;
 
@@ -344,7 +346,7 @@ module ID(
       assign dec_op[3] = inst_BEQ|inst_BGEZ|inst_BGTZ|inst_BLEZ|inst_BLTZ
                         |inst_BNE|inst_J|inst_JR|inst_AND|inst_ANDI|inst_LUI
                         |inst_NOR|inst_OR|inst_ORI|inst_XOR|inst_XORI
-                        |inst_SRL|inst_SRLV|inst_SYSCALL|inst_ERET
+                        |inst_SRL|inst_SRLV|inst_SYSCALL|inst_ERET|inst_TLBWI
                         |inst_MFC0|inst_MTC0|inst_DIV
                         |inst_LH|inst_SH;
 
@@ -352,7 +354,7 @@ module ID(
                         |inst_BNE|inst_J|inst_JR|inst_LB|inst_SB
                         |inst_LBU|inst_LHU|inst_OR|inst_ORI|inst_XOR
                         |inst_SLL|(!cpu_rst_n)|inst_exc|inst_invalid
-                        |inst_SLLV|inst_SRA|inst_SRAV|inst_XORI
+                        |inst_SLLV|inst_SRA|inst_SRAV|inst_XORI|inst_TLBWI
                         |inst_MFC0|inst_MTC0|inst_DIV|inst_MULTU
                         |inst_BLTZAL|inst_BGEZAL|inst_BREAK;
 
@@ -360,7 +362,7 @@ module ID(
                         |inst_BLEZ|inst_J|inst_JR|inst_LW|inst_SW
                         |inst_LBU|inst_LHU|inst_LUI|inst_NOR|inst_XOR
                         |inst_XORI|inst_MTHI|inst_MTLO|inst_SRA|inst_SRAV
-                        |inst_SYSCALL|inst_ERET|inst_DIV
+                        |inst_SYSCALL|inst_ERET|inst_DIV|inst_TLBWI
                         |inst_ADDI|inst_SUB|inst_BGEZAL|inst_BREAK;
 
       assign dec_op[0] = inst_ADDU|inst_SLTI|inst_SLTU|inst_MULT|inst_BGEZ
@@ -373,20 +375,20 @@ module ID(
       assign dec_sel[2] = inst_SLL|(!cpu_rst_n)|inst_exc|inst_invalid
                         |inst_SLLV|inst_SRA|inst_SRAV|inst_SRL
                         |inst_SRLV|inst_MFHI|inst_MFLO|inst_MTHI|inst_MTLO
-                        |inst_BREAK|inst_SYSCALL|inst_ERET|inst_MFC0
+                        |inst_BREAK|inst_SYSCALL|inst_ERET|inst_MFC0|inst_TLBWI
                         |inst_MTC0;
 
       assign dec_sel[1] = inst_LB|inst_LBU|inst_LH|inst_LHU|inst_LW
                         |inst_SB|inst_SH|inst_SW|inst_AND|inst_ANDI
                         |inst_LUI|inst_NOR|inst_OR|inst_ORI|inst_XOR
                         |inst_XORI|inst_BREAK|inst_SYSCALL
-                        |inst_ERET|inst_MFC0|inst_MTC0;
+                        |inst_ERET|inst_MFC0|inst_MTC0|inst_TLBWI;
 
       assign dec_sel[0] = inst_BEQ|inst_BGEZ|inst_BGEZAL|inst_BGTZ
                         |inst_BLTZ|inst_BLTZAL|inst_BNE|inst_J|inst_JAL
                         |inst_JALR|inst_JR|inst_AND|inst_ANDI|inst_LUI
                         |inst_NOR|inst_OR|inst_ORI|inst_XOR|inst_XORI
-                        |inst_MFHI|inst_MFLO|inst_MTHI|inst_MTLO|inst_ERET
+                        |inst_MFHI|inst_MFLO|inst_MTHI|inst_MTLO|inst_ERET|inst_TLBWI
                         |inst_BLEZ|inst_MFC0|inst_MTC0;
 
       assign dec_wreg_o = ((!cpu_rst_n)) ? `WriteDisable  :
